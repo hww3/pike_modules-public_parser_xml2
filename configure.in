@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.2 2005-03-23 00:08:04 hww3 Exp $
+# $Id: configure.in,v 1.3 2005-03-23 23:25:37 hww3 Exp $
 AC_INIT(xml_main.cmod)
 
 AC_MODULE_INIT()
@@ -11,7 +11,7 @@ LDFLAGS="${LDFLAGS} ${XML2_LIBS}"
 
 AC_CHECK_HEADERS(libxml/parser.h)
 AC_CHECK_HEADERS(libxml/xpath.h)
-AC_CHECK_HEADERS(libxml/SAX.h)
+AC_CHECK_HEADERS(libxml/SAX2.h)
 
 AC_CHECK_LIB(xml2, xmlParseMemory) 
 

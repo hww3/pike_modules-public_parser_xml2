@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.12 2005-03-23 20:56:20 hww3 Exp $
+ * $Id: XML2.cmod,v 1.13 2005-03-23 23:25:37 hww3 Exp $
  */
 
 /*
@@ -84,6 +84,7 @@
 
 #ifdef HAVE_LIBXML_PARSER_H
 #include <libxml/parser.h>
+#include <libxml/parserInternals.h>
 #endif
 
 #ifdef HAVE_LIBXML_TREE_H
@@ -131,7 +132,18 @@
 #define CB_SERROR 30
 
   void set_psax_callback(INT32 args, int cb);
+
+/*
+  void my_startElementNs(void * ctx, const xmlChar * localname, 
+    const xmlChar * prefix, const xmlChar * uri, 
+    int nb_namespaces, const xmlChar ** namespaces, 					 
+    int nb_attributes, int nb_defaulted,
+    const xmlChar ** atts);
+
+*/
+
   void my_startElement(void * ctx, const xmlChar * fullname, const xmlChar ** atts);
+  void my_comment(void * ctx, const xmlChar * name);
   void my_endElement(void * ctx, const xmlChar * name);
   int my_hasInternalSubset(void * data);
   int my_hasExternalSubset(void * data);
@@ -162,13 +174,16 @@ static struct _xmlSAXHandler   mySAX = {
   .characters = NULL,
   .ignorableWhitespace = NULL,
   .processingInstruction = NULL,
-  .comment = NULL,
+  .comment = my_comment,
   .warning = NULL,
   .error = NULL,
   .fatalError = NULL,
   .getParameterEntity = NULL,
   .cdataBlock = NULL,
   .externalSubset = NULL,
+/*
+  .startElementNs = my_startElementNs,
+*/
   .startElementNs = NULL,
   .endElementNs = NULL,
   .serror = NULL,
@@ -179,6 +194,7 @@ static struct _xmlSAXHandler   mySAX = {
   {
     xmlSAXHandlerPtr sax;
     struct array * handlers;
+    xmlParserCtxtPtr context;
   } SAX_OBJECT_DATA;
 
   typedef struct
@@ -200,6 +216,8 @@ static struct _xmlSAXHandler   mySAX = {
       (* OBJ2_NODE(o)->object_data->refs)++; 
 
 /*! @class SAX
+ *!
+ *!  a SAX v1 parser featuring both pull and push (chunked) parsing.
  *!
  */
 PIKECLASS SAX
@@ -286,6 +304,33 @@ PIKECLASS SAX
 
   }
 
+  void my_comment(void * ctx, const xmlChar * value)
+  {
+    if(ITEM(THIS->object_data->handlers)[CB_COMMENT].type!=PIKE_T_INT)
+    {
+       struct svalue * func;
+       struct array * a;
+       struct object * o;
+       int z = 0;
+
+       o = ITEM(THIS->object_data->handlers)[CB_COMMENT].u.object;
+       a = get_callback_data(o);       
+       func = get_callback_func(o);       
+       push_svalue(func);
+
+       push_text((char *)value);
+
+       for(z = 0; z < a->size; z++)
+       {
+         push_svalue(&ITEM(a)[z]);
+       }
+       apply_svalue(&Pike_sp[0- (a->size+2)], a->size + 1);
+/*       printf("finished callback.\n");
+*/
+    }    
+
+  }
+
   void my_startElement(void * data, const xmlChar * name, const xmlChar ** atts)
   {
     int z = 0;
@@ -308,7 +353,7 @@ PIKECLASS SAX
          for(z=0; atts[z] != NULL; z++)
 
          {
-printf("element %d: %s\n", z, atts[z]);
+/* printf("element %d: %s\n", z, atts[z]); */
             push_text(atts[z]);
 //          z++;
          }
@@ -320,6 +365,52 @@ printf("element %d: %s\n", z, atts[z]);
          push_svalue(&ITEM(a)[z]);
        }
        apply_svalue(&Pike_sp[0- (a->size+3)], a->size + 2);
+/*       printf("finished callback.\n"); */
+    }    
+  }
+
+/* This function is for the SAX2 interface, which we can't seem 
+    to figure out yet.
+ */
+  void my_startElementNs(void * ctx, const xmlChar * localname, 
+    const xmlChar * prefix, const xmlChar * uri, 
+    int nb_namespaces, const xmlChar ** namespaces, 					 
+    int nb_attributes, int nb_defaulted,
+    const xmlChar ** atts)
+  {
+    int z = 0;
+printf("startelementns\n");
+    if(ITEM(THIS->object_data->handlers)[CB_STARTELEMENTNS].type!=PIKE_T_INT)
+    {
+       struct svalue * func;
+       struct array * a;
+       struct object * o;
+
+       o = ITEM(THIS->object_data->handlers)[CB_STARTELEMENTNS].u.object;
+       a = get_callback_data(o);       
+       func = get_callback_func(o);       
+       push_svalue(func);
+
+       push_text((char *)localname);
+       push_text((char *)prefix);
+       push_text((char *)uri);
+
+       if(atts!= NULL)
+       {
+         for(z=0; atts[z] != NULL; z++)
+
+         {
+            push_text(atts[z]);
+//          z++;
+         }
+       }
+         f_aggregate_mapping(z);
+
+       for(z = 0; z < a->size; z++)
+       {
+         push_svalue(&ITEM(a)[z]);
+       }
+       apply_svalue(&Pike_sp[0- (a->size+4)], a->size + 3);
        printf("finished callback.\n");
     }    
   }
@@ -344,6 +435,23 @@ printf("element %d: %s\n", z, atts[z]);
     return PSAX_plain_int_callback(CB_STARTDOCUMENT, data);
   }
 
+/*!  @decl void set_callback(int callback_id, function f, mixed ... extra_args)
+ *!
+ *!    sets a SAX handler callback function.
+ *! 
+ *!  @param callback_id
+ *!    the id of the type of handler you wish to set. this should be 
+ *!    one of the @[Public.Parser.XML2.Constants].SAX_CB_* members.
+ *!
+ *!  @param f
+ *!    the function to call when the selected parsing event occurs.
+ *!    prototypes for each event function are found in 
+ *!    @[Public.Parser.XML2.SAXHandlers].
+ *! 
+ *!  @param extra_args
+ *!    extra data to supply to the callback function. these will be passed
+ *!    as extra parameters after any provided by the parser.
+ */
   PIKEFUN void set_callback(int callback_id, function f, mixed ... extra_args)
   {
     struct svalue * ae;
@@ -372,6 +480,17 @@ printf("element %d: %s\n", z, atts[z]);
   }
 
 
+/*!  @decl int clear_callback(int callback_id)
+ *!
+ *!  clears a SAX handler callback.
+ *!
+ *!  @param callback_id
+ *!    the id of the type of handler you wish to set. this should be 
+ *!    one of the @[Public.Parser.XML2.Constants].SAX_CB_* members.
+ *!
+ *!  @returns
+ *!    1 if the handler existed, 0 otherwise.
+ */
   PIKEFUN void clear_callback(int callback_id)
   {
     struct svalue * ae;
@@ -396,12 +515,82 @@ printf("element %d: %s\n", z, atts[z]);
   {
   }
 
-  PIKEFUN int parse(string d)
+/*!  @decl int feed(string d)
+ *!
+ *!  feed some XML data to the parser. @[feed] may be called multiple
+ *!   times to pass an entire XML document to the parser. The document
+ *!   will be processed as data is fed to the parser.
+ *!
+ *!  @param d
+ *!    some XML data to be parsed. need not be a complete XML document.
+ *!
+ *!  @returns
+ *!   the number of bytes processed.
+ */
+  PIKEFUN int feed(string d)
   {
     int retval;
 
-    retval = xmlSAXUserParseMemory(THIS->object_data->sax, 
-      &retval, d->str, d->len);
+    retval = xmlParseChunk(THIS->object_data->context, d->str, d->len, 0);
+    push_int(retval);
+  }
+
+/*!  @decl int end()
+ *! 
+ *!  end parsing of a document and prepare for the next document.
+ *!
+ *!  resets the document parsing context and prepares for the next 
+ *!  document. @[end] should be called after the last chunk of data 
+ *!  in an XML document has been passed to @[feed]. 
+ */ 
+  PIKEFUN int end()
+  {
+    int retval;
+    xmlParserCtxtPtr context;
+    char * b = "foo";
+
+    retval = xmlParseChunk(THIS->object_data->context, b, 0, 1);
+    push_int(retval);
+
+    if(THIS->object_data->context)
+      xmlFreeParserCtxt(THIS->object_data->context);
+    context = xmlCreatePushParserCtxt(THIS->object_data->sax, NULL, NULL,
+      0, NULL);
+    THIS->object_data->context = context;
+  }
+
+/*!  @decl int parse(string d)
+ *!
+ *!  feed a complete XML document to the parser. data from the document
+ *!   will be processed and any registered SAX handler callbacks will
+ *!   be called as SAX events occur. this method contains an implicit
+ *!   call to @[end], so that the context is prepared to receive a new 
+ *!   document after this function returns.
+ *!
+ *!   you may call this method with an (ending) fragment of an XML 
+ *!   document, as long as any previous data needed to produce a valid 
+ *!   XML document has already been fed to the parser using @[feed]. 
+ *!
+ *!  @param d
+ *!    some XML data to be parsed. need not be a complete XML document.
+ *!
+ *!  @returns
+ *!   the number of bytes processed.
+ */
+  PIKEFUN int parse(string d)
+  {
+    int retval;
+    xmlParserCtxtPtr context;
+
+    retval = xmlParseChunk(THIS->object_data->context, d->str, d->len, 0);
+    retval = xmlParseChunk(THIS->object_data->context, d->str, 0, 1);
+
+    if(THIS->object_data->context)
+      xmlFreeParserCtxt(THIS->object_data->context);
+    context = xmlCreatePushParserCtxt(THIS->object_data->sax, NULL, NULL,
+      0, NULL);
+    THIS->object_data->context = context;
+
     push_int(retval);
   }
 
@@ -409,6 +598,7 @@ printf("element %d: %s\n", z, atts[z]);
   {
    SAX_OBJECT_DATA * sax;
    struct array * handlers;
+   xmlParserCtxtPtr context;
 
    sax = malloc(sizeof(SAX_OBJECT_DATA));
    sax->sax = &mySAX;
@@ -428,6 +618,10 @@ printf("element %d: %s\n", z, atts[z]);
      Pike_error("sax_init: out of memory.\n");
   
     xmlDefaultSAXHandlerInit();
+    context = xmlCreatePushParserCtxt(THIS->object_data->sax, NULL, NULL,
+      0, NULL);
+
+    THIS->object_data->context = context;
   }
  
   EXIT
@@ -435,6 +629,9 @@ printf("element %d: %s\n", z, atts[z]);
 /*
 printf("SAX exit\n");
 */
+    if(THIS->object_data->context)
+      xmlFreeParserCtxt(THIS->object_data->context);
+
     if(THIS->object_data->handlers != NULL)
     {
       int x = 0;
@@ -1889,8 +2086,12 @@ add_integer_constant("SAX_CB_GETPARAMETERENTITY", CB_GETPARAMETERENTITY,
 0);
 add_integer_constant("SAX_CB_CDATABLOCK", CB_CDATABLOCK, 0);
 add_integer_constant("SAX_CB_EXTERNALSUBSET", CB_EXTERNALSUBSET, 0);
+
+/*  we don't know how SAX2 works yet...  */
+/*
 add_integer_constant("SAX_CB_STARTELEMENTNS", CB_STARTELEMENTNS, 0);
 add_integer_constant("SAX_CB_ENDELEMENTNS", CB_ENDELEMENTNS, 0);
+*/
 add_integer_constant("SAX_CB_SERROR", CB_SERROR, 0);
     /* some constants */  
   add_integer_constant("INTERNAL_GENERAL_ENTITY", XML_INTERNAL_GENERAL_ENTITY, 0);
