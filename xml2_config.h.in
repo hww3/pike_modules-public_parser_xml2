@@ -9,6 +9,12 @@
 /* Define to 1 if you have the <libxml/parser.h> header file. */
 #undef HAVE_LIBXML_PARSER_H
 
+/* Define to 1 if you have the <libxml/SAX.h> header file. */
+#undef HAVE_LIBXML_SAX_H
+
+/* Define to 1 if you have the <libxml/xpath.h> header file. */
+#undef HAVE_LIBXML_XPATH_H
+
 /* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H
 

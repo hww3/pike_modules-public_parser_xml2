@@ -1,4 +1,4 @@
-/* 
+/*
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.9 2005-03-21 22:21:43 hww3 Exp $
+ * $Id: XML2.cmod,v 1.10 2005-03-23 00:08:04 hww3 Exp $
  */
 
 /*
@@ -90,13 +90,97 @@
 #include <libxml/tree.h>
 #endif
 
+#ifdef HAVE_LIBXML_SAX_H
+#include <libxml/SAX.h>
+#endif
+
+#ifdef HAVE_LIBXML_XPATH_H
 #include <libxml/xpath.h>
 #include <libxml/xpathInternals.h>
+#endif
+
+#define CB_INTERNALSUBSET 1
+#define CB_ISSTANDALONE 2
+#define CB_HASINTERNALSUBSET 3
+#define CB_HASEXTERNALSUBSET 4
+#define CB_RESOLVEENTITY 5
+#define CB_GETENTITY 6
+#define CB_ENTITYDECL 7
+#define CB_NOTATIONDECL 8
+#define CB_ATTRIBUTEDECL 9
+#define CB_ELEMENTDECL 10
+#define CB_UNPARSEDENTITYDECL 11
+#define CB_SETDOCUMENTLOCATOR 12
+#define CB_STARTDOCUMENT 13
+#define CB_ENDDOCUMENT 14
+#define CB_STARTELEMENT 15
+#define CB_ENDELEMENT 16
+#define CB_REFERENCE 17
+#define CB_CHARACTERS 18
+#define CB_IGNORABLEWHITESPACE 19
+#define CB_PROCESSINGINSTRUCTION 20
+#define CB_COMMENT 21
+#define CB_WARNING 22
+#define CB_ERROR 23
+#define CB_FATALERROR 24
+#define CB_GETPARAMETERENTITY 25
+#define CB_CDATABLOCK 26
+#define CB_EXTERNALSUBSET 27
+#define CB_STARTELEMENTNS 28
+#define CB_ENDELEMENTNS 29
+#define CB_SERROR 30
+
+  void set_psax_callback(INT32 args, int cb);
+  void my_startDocument(void * data);
+  void my_endDocument(void * data);
+  void  make_PSAX_handler();
+  struct array * get_callback_data(struct object * o);
+  struct svalue * get_callback_func(struct object * o);
+
+static struct _xmlSAXHandler   mySAX = {
+  .internalSubset = NULL,
+  .isStandalone = NULL,
+  .hasInternalSubset = NULL,
+  .hasExternalSubset = NULL,
+  .resolveEntity = NULL, /* we don't use it by default */
+  .getEntity = NULL,
+  .entityDecl = NULL,
+  .notationDecl = NULL,
+  .attributeDecl = NULL,
+  .elementDecl = NULL,
+  .unparsedEntityDecl = NULL,
+  .setDocumentLocator = NULL, /* we don't use it here */
+  .startDocument = my_startDocument,
+  .endDocument = my_endDocument,
+  .startElement = NULL,
+  .endElement = NULL,
+  .reference = NULL,
+  .characters = NULL,
+  .ignorableWhitespace = NULL,
+  .processingInstruction = NULL,
+  .comment = NULL,
+  .warning = NULL,
+  .error = NULL,
+  .fatalError = NULL,
+  .getParameterEntity = NULL,
+  .cdataBlock = NULL,
+  .externalSubset = NULL,
+  .startElementNs = NULL,
+  .endElementNs = NULL,
+  .serror = NULL,
+};
+
+
+  typedef struct
+  {
+    xmlSAXHandlerPtr sax;
+    struct array * handlers;
+  } SAX_OBJECT_DATA;
 
   typedef struct
   {
     xmlNodePtr node;
-    INT32 * refs; 
+    INT32 * refs;
   } NODE_OBJECT_DATA;
 
 #define MY_NODE (THIS->object_data->node)
@@ -110,6 +194,196 @@
 #define NEW_NODE() clone_object(Node_program, 0)
 #define NEW_NODE_REFS(o)  OBJ2_NODE(o)->object_data->refs = THIS->object_data->refs; \
       (* OBJ2_NODE(o)->object_data->refs)++; 
+
+/*! @class SAX
+ *!
+ */
+PIKECLASS SAX
+{
+  CVAR SAX_OBJECT_DATA * object_data;
+
+  void my_endDocument(void * data)
+  {
+    int z = 0;
+
+    if(ITEM(THIS->object_data->handlers)[CB_ENDDOCUMENT].type!=PIKE_T_INT)
+    {
+       struct svalue * func;
+       struct array * a;
+       struct object * o;
+
+       o = ITEM(THIS->object_data->handlers)[CB_ENDDOCUMENT].u.object;
+       a = get_callback_data(o);       
+       func = get_callback_func(o);       
+       push_svalue(func);
+
+       for(z = 0; z < a->size; z++)
+       {
+         push_svalue(&ITEM(a)[z]);
+       }
+       apply_svalue(&Pike_sp[0- (a->size+1)], a->size);
+
+    }    
+  }
+
+  void my_startDocument(void * data)
+  {
+    int z = 0;
+
+    if(ITEM(THIS->object_data->handlers)[CB_STARTDOCUMENT].type!=PIKE_T_INT)
+    {
+       struct svalue * func;
+       struct array * a;
+       struct object * o;
+
+       o = ITEM(THIS->object_data->handlers)[CB_STARTDOCUMENT].u.object;
+       a = get_callback_data(o);       
+       func = get_callback_func(o);       
+       push_svalue(func);
+
+       for(z = 0; z < a->size; z++)
+       {
+         push_svalue(&ITEM(a)[z]);
+       }
+       apply_svalue(&Pike_sp[0- (a->size+1)], a->size);
+
+    }    
+  }
+
+  PIKEFUN void set_end_document_callback(function f, mixed ... extra_args)
+  {
+    set_psax_callback(args, (int)CB_ENDDOCUMENT);
+  }
+
+  PIKEFUN void set_start_document_callback(function f, mixed ... extra_args)
+  {
+    set_psax_callback(args, (int)CB_STARTDOCUMENT);
+  }
+
+  void set_psax_callback(INT32 args, int cb)
+  {
+    struct svalue * ae;
+
+    f_aggregate(args-1);
+
+    make_PSAX_handler();
+ 
+    if(ITEM(THIS->object_data->handlers)[cb].type!=PIKE_T_INT)
+    {
+      printf("had something in handlers already. freeing.\n");
+      ae = &(ITEM(THIS->object_data->handlers)[cb]);
+      free_svalue(ae);
+      push_int(0);
+      ITEM(THIS->object_data->handlers)[cb] = Pike_sp[0-1];
+      ae = &(ITEM(THIS->object_data->handlers)[cb]);
+      pop_stack();
+    }
+
+    // add_ref(f->u.efun);
+    (ITEM(THIS->object_data->handlers)[cb]) = Pike_sp[0-1];
+
+    pop_stack();
+  }
+
+  PIKEFUN void create()
+  {
+  }
+
+  PIKEFUN int parse(string d)
+  {
+    int retval;
+
+    retval = xmlSAXUserParseMemory(THIS->object_data->sax, 
+      &retval, d->str, d->len);
+    push_int(retval);
+  }
+
+  INIT
+  {
+   SAX_OBJECT_DATA * sax;
+   struct array * handlers;
+
+   sax = malloc(sizeof(SAX_OBJECT_DATA));
+   sax->sax = &mySAX;
+   push_int(30);
+   f_allocate(1);
+
+   handlers = Pike_sp[0-1].u.array;
+   add_ref(handlers);
+
+   sax->handlers = handlers;
+
+   pop_stack();
+
+   THIS->object_data = sax;
+
+   if(sax == NULL) 
+     Pike_error("sax_init: out of memory.\n");
+  
+    xmlDefaultSAXHandlerInit();
+  }
+ 
+  EXIT
+  {
+printf("SAX exit\n");
+    if(THIS->object_data->handlers != NULL)
+    {
+      int x = 0;
+      for(x = 0; x < THIS->object_data->handlers->size; x++)
+      {
+        free_svalue(&ITEM(THIS->object_data->handlers)[x]);
+      }
+      free_array(THIS->object_data->handlers);
+    }
+    if(THIS->object_data)
+      free(THIS->object_data);
+  }
+
+  PIKECLASS PSAXHandler
+  {
+    PIKEVAR array user_data;
+    PIKEVAR function cb;
+
+    PIKEFUN void create(function cb, array user_data)
+    {
+      THIS->user_data = user_data;
+      add_ref(user_data);    
+      assign_svalue(&(THIS->cb), cb);
+//      add_ref(THIS->cb.u.efun);
+    }
+EXIT
+{
+  printf("PSAXHandler exit\n");
+}
+  }
+
+
+}
+
+void make_PSAX_handler()
+{
+  struct object * o;
+  
+  o = clone_object(SAX_PSAXHandler_program, 2);
+  push_object(o);
+  add_ref(o);
+  return;
+
+}
+
+struct array * get_callback_data(struct object * o)
+{
+    return OBJ2_SAX_PSAXHANDLER(o)->user_data;
+} 
+    
+struct svalue * get_callback_func(struct object * o)
+{
+    return &(OBJ2_SAX_PSAXHANDLER(o)->cb);
+}     
+
+/*! @endclass 
+ *!
+ */
 
 /*! @class Node
  */
