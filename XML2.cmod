@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.42 2005-04-06 20:56:32 hww3 Exp $
+ * $Id: XML2.cmod,v 1.43 2005-04-06 23:17:50 hww3 Exp $
  */
 
 /*
@@ -2408,6 +2408,7 @@ PIKEFUN int is_text()
  *!  @returns
  *!   the integer node type. Node type constantes are 
  *!   defined in @[Constants].
+ */
 PIKEFUN int get_node_type()
 {
   check_node_created();
@@ -2764,7 +2765,7 @@ PIKEFUN object parse_xml(string xml)
   NODE_OBJECT_DATA * od;
 
   doc = xmlReadMemory(xml->str, xml->len, "noname.xml", NULL, 
-                        THIS->object_data->options);
+                        0);
   if(doc == NULL)
   {
     Pike_error("Unable to parse XML.\n");
