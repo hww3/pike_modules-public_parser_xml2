@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.41 2005-04-06 20:08:13 hww3 Exp $
+ * $Id: XML2.cmod,v 1.42 2005-04-06 20:56:32 hww3 Exp $
  */
 
 /*
@@ -133,6 +133,8 @@
 
 
 
+  xmlParserInputPtr my_getParameterEntity(void * ctx, const xmlChar * name); 
+
   xmlParserInputPtr my_resolveEntity(void * ctx, const xmlChar * publicId, 
     const xmlChar * systemId);
 
@@ -177,7 +179,13 @@
     xmlSAXHandlerPtr sax;
     struct array * handlers;
     xmlParserCtxtPtr context;
+    xmlParserOption options;
   } SAX_OBJECT_DATA;
+
+  typedef struct
+  {
+    xmlParserOption options;
+  } PARSER_OBJECT_DATA;
 
   typedef struct
   {
@@ -320,6 +328,65 @@ PIKECLASS SAX
        }
        apply_svalue(&Pike_sp[0- (a->size+2)], a->size + 1);
     }        
+  }
+
+  xmlParserInputPtr my_getParameterEntity(void * ctx, const xmlChar * name)
+  {
+    if(ITEM(THIS->object_data->handlers)[CB_GETPARAMETERENTITY].type!=PIKE_T_INT)
+    {
+       struct svalue * func;
+       struct array * a;
+       struct object * o;
+       int z = 0;
+       xmlParserInputPtr rs = NULL;
+
+       o = ITEM(THIS->object_data->handlers)[CB_GETPARAMETERENTITY].u.object;
+       a = get_callback_data(o);       
+       func = get_callback_func(o);       
+       push_svalue(func);
+
+       push_text((char *)name);
+
+       for(z = 0; z < a->size; z++)
+       {
+         push_svalue(&ITEM(a)[z]);
+       }
+       apply_svalue(&Pike_sp[0- (a->size+2)], a->size + 1);
+
+       // check that we've returned a string.
+       if(Pike_sp[0-1].type == PIKE_T_STRING)
+       {
+         char * r;
+         if((Pike_sp[0-1].u.string->str)[-1] != '\0')
+           r = malloc( Pike_sp[0-1].u.string->len + 1);
+         else
+           r = malloc( Pike_sp[0-1].u.string->len);
+
+         r=memcpy(r, Pike_sp[0-1].u.string->str, Pike_sp[0-1].u.string->len);
+
+         if((Pike_sp[0-1].u.string->str)[-1] != '\0')
+           r[-1]='\0';
+
+         rs = xmlNewStringInputStream(ctx, (xmlChar *)r);
+
+         pop_stack();
+
+         return rs;
+       }
+       else if(Pike_sp[0-1].type == PIKE_T_INT && Pike_sp[0-1].u.integer == 0)
+       {
+         rs = xmlNewStringInputStream(ctx, (xmlChar *)'0');
+
+         pop_stack();
+
+         return rs;
+       }
+       else
+       {
+         pop_stack();
+         Pike_error("Return value expected to be of type string.\n");
+       }
+    }    
   }
 
   xmlParserInputPtr my_resolveEntity(void * ctx, const xmlChar * publicId,
@@ -545,8 +612,14 @@ PIKECLASS SAX
        push_svalue(func);
 
        push_text((char *)name);
-       push_text((char *)ExternalID);
-       push_text((char *)SystemID);
+       if(ExternalID == NULL)
+         push_text("");
+       else
+         push_text((char *)ExternalID);
+       if(SystemID == NULL)
+         push_text("");
+       else
+         push_text((char *)SystemID);
 
        for(z = 0; z < a->size; z++)
        {
@@ -926,6 +999,9 @@ printf("start element\n");
  *! int hasinternalsubset(mixed ... extra_args);
  *!
  *! int hasexternalsubset(mixed ... extra_args);
+ *!
+ *! string resolveentity(string publicId, string systemId, mixed ... extra_args);
+ *!
  */
   PIKEFUN void set_callback(int callback_id, function f, mixed ... extra_args)
   {
@@ -1011,7 +1087,7 @@ printf("start element\n");
       break;
 
       case CB_GETPARAMETERENTITY:
-      mySAX->getParameterEntity = NULL; 
+      mySAX->getParameterEntity = my_getParameterEntity; 
       break;
 
       case CB_CDATABLOCK:
@@ -2460,6 +2536,8 @@ EXIT
 
 */
 
+CVAR PARSER_OBJECT_DATA * object_data;
+
 /*! @decl array(Node) select_xpath_nodes(string xpath, object node)
  *!
  *! selects nodes based on an XPath query and returns the result.
@@ -2541,6 +2619,15 @@ PIKEFUN array select_xpath_nodes(string xpath, object node)
   xmlXPathFreeObject(xpathObj);
 
   return;
+}
+
+/*! @decl void set_parser_options(int options)
+ *!
+ *! sets parser options. 
+ */
+PIKEFUN void set_parser_options(int options)
+{
+  
 }
 
 /*! @decl int substituteEntitiesDefault(int def)
@@ -2676,7 +2763,8 @@ PIKEFUN object parse_xml(string xml)
   struct Node_struct * ns;
   NODE_OBJECT_DATA * od;
 
-  doc = xmlReadMemory(xml->str, xml->len, "noname.xml", NULL, 0);
+  doc = xmlReadMemory(xml->str, xml->len, "noname.xml", NULL, 
+                        THIS->object_data->options);
   if(doc == NULL)
   {
     Pike_error("Unable to parse XML.\n");
@@ -2761,13 +2849,27 @@ EXTRA
 
 INIT
 {
+/*
+  PARSER_OBJECT_DATA * dta;
 
+  dta = 
+	(PARSER_OBJECT_DATA*)malloc(sizeof(PARSER_OBJECT_DATA));
+    if (!dta)
+        Pike_error("init_parser: Out of memory!\n");
+
+    dta->options=0;
+    THIS->object_data = dta;
+*/
   LIBXML_TEST_VERSION
 
 }
 
 EXIT 
 {
+/*
+  if(THIS->object_data != NULL)
+    free(THIS->object_data);
+*/
   xmlCleanupParser();
 }
 
