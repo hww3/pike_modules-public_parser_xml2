@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.10 2005-03-23 00:08:04 hww3 Exp $
+ * $Id: XML2.cmod,v 1.11 2005-03-23 16:53:55 hww3 Exp $
  */
 
 /*
@@ -131,6 +131,8 @@
 #define CB_SERROR 30
 
   void set_psax_callback(INT32 args, int cb);
+  int my_hasInternalSubset(void * data);
+  int my_hasExternalSubset(void * data);
   void my_startDocument(void * data);
   void my_endDocument(void * data);
   void  make_PSAX_handler();
@@ -140,8 +142,8 @@
 static struct _xmlSAXHandler   mySAX = {
   .internalSubset = NULL,
   .isStandalone = NULL,
-  .hasInternalSubset = NULL,
-  .hasExternalSubset = NULL,
+  .hasInternalSubset = my_hasInternalSubset,
+  .hasExternalSubset = my_hasExternalSubset,
   .resolveEntity = NULL, /* we don't use it by default */
   .getEntity = NULL,
   .entityDecl = NULL,
@@ -202,17 +204,19 @@ PIKECLASS SAX
 {
   CVAR SAX_OBJECT_DATA * object_data;
 
-  void my_endDocument(void * data)
+
+  void PSAX_plain_callback(int callback_id, void * data)
   {
     int z = 0;
 
-    if(ITEM(THIS->object_data->handlers)[CB_ENDDOCUMENT].type!=PIKE_T_INT)
+    if(ITEM(THIS->object_data->handlers)[callback_id].type!=PIKE_T_INT)
     {
        struct svalue * func;
        struct array * a;
        struct object * o;
+       int retval;
 
-       o = ITEM(THIS->object_data->handlers)[CB_ENDDOCUMENT].u.object;
+       o = ITEM(THIS->object_data->handlers)[callback_id].u.object;
        a = get_callback_data(o);       
        func = get_callback_func(o);       
        push_svalue(func);
@@ -222,65 +226,97 @@ PIKECLASS SAX
          push_svalue(&ITEM(a)[z]);
        }
        apply_svalue(&Pike_sp[0- (a->size+1)], a->size);
-
     }    
+  }
+
+  int PSAX_plain_int_callback(int callback_id, void * data)
+  {
+    int retval;
+    int z = 0;
+
+    if(ITEM(THIS->object_data->handlers)[callback_id].type!=PIKE_T_INT)
+    {
+       struct svalue * func;
+       struct array * a;
+       struct object * o;
+
+       o = ITEM(THIS->object_data->handlers)[callback_id].u.object;
+       a = get_callback_data(o);       
+       func = get_callback_func(o);       
+       push_svalue(func);
+
+       for(z = 0; z < a->size; z++)
+       {
+         push_svalue(&ITEM(a)[z]);
+       }
+       apply_svalue(&Pike_sp[0- (a->size+1)], a->size);
+       retval = Pike_sp[0-1].u.integer;       
+       pop_stack();
+       return retval;
+    }    
+    return 0;
   }
 
   void my_startDocument(void * data)
   {
-    int z = 0;
-
-    if(ITEM(THIS->object_data->handlers)[CB_STARTDOCUMENT].type!=PIKE_T_INT)
-    {
-       struct svalue * func;
-       struct array * a;
-       struct object * o;
-
-       o = ITEM(THIS->object_data->handlers)[CB_STARTDOCUMENT].u.object;
-       a = get_callback_data(o);       
-       func = get_callback_func(o);       
-       push_svalue(func);
-
-       for(z = 0; z < a->size; z++)
-       {
-         push_svalue(&ITEM(a)[z]);
-       }
-       apply_svalue(&Pike_sp[0- (a->size+1)], a->size);
-
-    }    
+    PSAX_plain_callback(CB_STARTDOCUMENT, data);
   }
 
-  PIKEFUN void set_end_document_callback(function f, mixed ... extra_args)
+  void my_endDocument(void * data)
   {
-    set_psax_callback(args, (int)CB_ENDDOCUMENT);
+    PSAX_plain_callback(CB_ENDDOCUMENT, data);
   }
 
-  PIKEFUN void set_start_document_callback(function f, mixed ... extra_args)
+  int my_hasInternalSubset(void * data)
   {
-    set_psax_callback(args, (int)CB_STARTDOCUMENT);
+    return PSAX_plain_int_callback(CB_STARTDOCUMENT, data);
   }
 
-  void set_psax_callback(INT32 args, int cb)
+  int my_hasExternalSubset(void * data)
+  {
+    return PSAX_plain_int_callback(CB_STARTDOCUMENT, data);
+  }
+
+  PIKEFUN void set_callback(int callback_id, function f, mixed ... extra_args)
   {
     struct svalue * ae;
 
-    f_aggregate(args-1);
+    f_aggregate(args-2);
 
     make_PSAX_handler();
  
-    if(ITEM(THIS->object_data->handlers)[cb].type!=PIKE_T_INT)
+    if(ITEM(THIS->object_data->handlers)[callback_id].type!=PIKE_T_INT)
     {
       printf("had something in handlers already. freeing.\n");
-      ae = &(ITEM(THIS->object_data->handlers)[cb]);
+      ae = &(ITEM(THIS->object_data->handlers)[callback_id]);
       free_svalue(ae);
       push_int(0);
-      ITEM(THIS->object_data->handlers)[cb] = Pike_sp[0-1];
-      ae = &(ITEM(THIS->object_data->handlers)[cb]);
+      ITEM(THIS->object_data->handlers)[callback_id] = Pike_sp[0-1];
+      ae = &(ITEM(THIS->object_data->handlers)[callback_id]);
       pop_stack();
     }
 
     // add_ref(f->u.efun);
-    (ITEM(THIS->object_data->handlers)[cb]) = Pike_sp[0-1];
+    (ITEM(THIS->object_data->handlers)[callback_id]) = Pike_sp[0-1];
+
+    pop_n_elems(2);
+  }
+
+
+  PIKEFUN void clear_callback(int callback_id)
+  {
+    struct svalue * ae;
+
+    if(ITEM(THIS->object_data->handlers)[callback_id].type!=PIKE_T_INT)
+    {
+      printf("had something in handlers already. freeing.\n");
+      ae = &(ITEM(THIS->object_data->handlers)[callback_id]);
+      free_svalue(ae);
+      push_int(0);
+      ITEM(THIS->object_data->handlers)[callback_id] = Pike_sp[0-1];
+      ae = &(ITEM(THIS->object_data->handlers)[callback_id]);
+      pop_stack();
+    }
 
     pop_stack();
   }
@@ -1747,7 +1783,42 @@ EXTRA
   type=XML_ELEMENT_DECL;
   add_integer_constant("ELEMENT_DECL", type, 0);
 
-
+/* SAX callback constants */
+add_integer_constant("SAX_CB_INTERNALSUBSET", CB_INTERNALSUBSET, 0);
+add_integer_constant("SAX_CB_ISSTANDALONE", CB_ISSTANDALONE, 0);
+add_integer_constant("SAX_CB_HASINTERNALSUBSET", CB_HASINTERNALSUBSET, 0);
+add_integer_constant("SAX_CB_HASEXTERNALSUBSET", CB_HASEXTERNALSUBSET, 0);
+add_integer_constant("SAX_CB_RESOLVEENTITY", CB_RESOLVEENTITY, 0);
+add_integer_constant("SAX_CB_GETENTITY", CB_GETENTITY, 0);
+add_integer_constant("SAX_CB_ENTITYDECL", CB_ENTITYDECL, 0);
+add_integer_constant("SAX_CB_NOTATIONDECL", CB_NOTATIONDECL, 0);
+add_integer_constant("SAX_CB_ATTRIBUTEDECL", CB_ATTRIBUTEDECL, 0);
+add_integer_constant("SAX_CB_ELEMENTDECL", CB_ELEMENTDECL, 0);
+add_integer_constant("SAX_CB_UNPARSEDENTITYDECL", CB_UNPARSEDENTITYDECL, 
+0);
+add_integer_constant("SAX_CB_SETDOCUMENTLOCATOR", CB_SETDOCUMENTLOCATOR, 
+0);
+add_integer_constant("SAX_CB_STARTDOCUMENT", CB_STARTDOCUMENT, 0);
+add_integer_constant("SAX_CB_ENDDOCUMENT", CB_ENDDOCUMENT, 0);
+add_integer_constant("SAX_CB_STARTELEMENT", CB_STARTELEMENT, 0);
+add_integer_constant("SAX_CB_ENDELEMENT", CB_ENDELEMENT, 0);
+add_integer_constant("SAX_CB_REFERENCE", CB_REFERENCE, 0);
+add_integer_constant("SAX_CB_CHARACTERS", CB_CHARACTERS, 0);
+add_integer_constant("SAX_CB_IGNORABLEWHITESPACE", CB_IGNORABLEWHITESPACE, 
+0);
+add_integer_constant("SAX_CB_PROCESSINGINSTRUCTION", 
+CB_PROCESSINGINSTRUCTION, 0);
+add_integer_constant("SAX_CB_COMMENT", CB_COMMENT, 0);
+add_integer_constant("SAX_CB_WARNING", CB_WARNING, 0);
+add_integer_constant("SAX_CB_ERROR", CB_ERROR, 0);
+add_integer_constant("SAX_CB_FATALERROR", CB_FATALERROR, 0);
+add_integer_constant("SAX_CB_GETPARAMETERENTITY", CB_GETPARAMETERENTITY, 
+0);
+add_integer_constant("SAX_CB_CDATABLOCK", CB_CDATABLOCK, 0);
+add_integer_constant("SAX_CB_EXTERNALSUBSET", CB_EXTERNALSUBSET, 0);
+add_integer_constant("SAX_CB_STARTELEMENTNS", CB_STARTELEMENTNS, 0);
+add_integer_constant("SAX_CB_ENDELEMENTNS", CB_ENDELEMENTNS, 0);
+add_integer_constant("SAX_CB_SERROR", CB_SERROR, 0);
     /* some constants */  
   add_integer_constant("INTERNAL_GENERAL_ENTITY", XML_INTERNAL_GENERAL_ENTITY, 0);
   add_integer_constant("EXTERNAL_GENERAL_PARSED_ENTITY", XML_EXTERNAL_GENERAL_PARSED_ENTITY, 0);
