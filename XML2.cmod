@@ -1,4 +1,3 @@
-
 /*
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -14,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.40 2005-04-04 21:23:45 hww3 Exp $
+ * $Id: XML2.cmod,v 1.41 2005-04-06 20:08:13 hww3 Exp $
  */
 
 /*
@@ -132,6 +131,10 @@
 #define CB_ENDELEMENTNS 28
 #define CB_SERROR 29
 
+
+
+  xmlParserInputPtr my_resolveEntity(void * ctx, const xmlChar * publicId, 
+    const xmlChar * systemId);
 
   void my_startElementNs(void * ctx, const xmlChar * localname, 
     const xmlChar * prefix, const xmlChar * uri, 
@@ -291,7 +294,6 @@ PIKECLASS SAX
        struct object * o;
        int z = 0;
 
-printf("serror\n");
        o = ITEM(THIS->object_data->handlers)[CB_SERROR].u.object;
        a = get_callback_data(o);       
        func = get_callback_func(o);       
@@ -318,6 +320,68 @@ printf("serror\n");
        }
        apply_svalue(&Pike_sp[0- (a->size+2)], a->size + 1);
     }        
+  }
+
+  xmlParserInputPtr my_resolveEntity(void * ctx, const xmlChar * publicId,
+    const xmlChar * systemId)
+  {
+    if(ITEM(THIS->object_data->handlers)[CB_RESOLVEENTITY].type!=PIKE_T_INT)
+    {
+       struct svalue * func;
+       struct array * a;
+       struct object * o;
+       int z = 0;
+       xmlParserInputPtr rs = NULL;
+
+       o = ITEM(THIS->object_data->handlers)[CB_RESOLVEENTITY].u.object;
+       a = get_callback_data(o);       
+       func = get_callback_func(o);       
+       push_svalue(func);
+
+       push_text((char *)publicId);
+       push_text((char *)systemId);
+
+       for(z = 0; z < a->size; z++)
+       {
+         push_svalue(&ITEM(a)[z]);
+       }
+       apply_svalue(&Pike_sp[0- (a->size+3)], a->size + 2);
+
+       // check that we've returned a string.
+       if(Pike_sp[0-1].type == PIKE_T_STRING)
+       {
+         char * r;
+         if((Pike_sp[0-1].u.string->str)[-1] != '\0')
+           r = malloc( Pike_sp[0-1].u.string->len + 1);
+         else
+           r = malloc( Pike_sp[0-1].u.string->len);
+
+         r=memcpy(r, Pike_sp[0-1].u.string->str, Pike_sp[0-1].u.string->len);
+
+         if((Pike_sp[0-1].u.string->str)[-1] != '\0')
+           r[-1]='\0';
+
+         rs = xmlNewStringInputStream(ctx, (xmlChar *)r);
+
+         pop_stack();
+
+         return rs;
+       }
+       else if(Pike_sp[0-1].type == PIKE_T_INT && Pike_sp[0-1].u.integer == 0)
+       {
+         rs = xmlNewStringInputStream(ctx, (xmlChar *)'0');
+
+         pop_stack();
+
+         return rs;
+       }
+       else
+       {
+         pop_stack();
+         Pike_error("Return value expected to be of type string.\n");
+       }
+
+    }    
   }
 
   void my_entityDecl(void * ctx, const xmlChar * name, int type, const xmlChar * publicId, const xmlChar * systemId, xmlChar * content)
@@ -887,7 +951,7 @@ printf("start element\n");
       break;
   
       case CB_RESOLVEENTITY:
-      mySAX->resolveEntity = NULL; 
+      mySAX->resolveEntity = my_resolveEntity; 
       break;
 
       case CB_ENTITYDECL:
@@ -1298,9 +1362,6 @@ printf("start element\n");
       mySAX->serror = NULL;
 
     xmlDefaultSAXHandlerInit();
- //   xmlSAXVersion(mySAX, 2);
-//    context = xmlCreatePushParserCtxt(mySAX, NULL, NULL, 0, NULL);
-//    THIS->object_data->context = context;
   }
  
   EXIT
