@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.31 2005-04-02 01:37:58 hww3 Exp $
+ * $Id: XML2.cmod,v 1.32 2005-04-02 02:55:21 hww3 Exp $
  */
 
 /*
@@ -783,6 +783,50 @@ PIKECLASS SAX
  *!  @param extra_args
  *!    extra data to supply to the callback function. these will be passed
  *!    as extra parameters after any provided by the parser.
+ *!
+*!
+ *! void serror_cb(mapping(string:mixed) error, mixed ... extra_args);
+ *! mapping elements: domain, code, message, level, line, column
+ *!
+ *! void entitydecl_cb(string name, int type, string publicId, string systemId, string content, mixed ... extra_args);
+ *!
+ *! void elementdecl_cb(string name, int type, mixed ... extra_args);
+ *!
+ *! void unparsedentitydecl_cb(string name, string publicId, string systemId, string notationName, mixed ... extra_args);
+ *!
+ *! void attributedecl_cb(string elem, string fullname, int type, int def, string defaultValue, mixed ... extra_args);
+ *!
+ *! void notationdecl_cb(string name, string publicId, string systemId, mixed ... extra_args);
+ *!
+ *! void internalsubset_cb(string name, string ExternalId, string SystemId, mixed ... extra_args);
+ *!
+ *! void externalsubset_cb(string name, string ExternalId, string SystemId, mixed ... extra_args);
+ *!
+ *! void processinginstruction_cb(string target, string data, mixed ... extra_args);
+ *!
+ *! void endelement_cb(string name, mixed ... extra_args);
+ *!
+ *! void cdatablock_cb(string chars, mixed ... extra_args);
+ *!
+ *! void ignorablewhitespace(string chars, mixed ... extra_args);
+ *!
+ *! void characters_cb(string chars, mixed ... extra_args);
+ *!
+ *! void reference_cb(string name, mixed ... extra_args);
+ *!
+ *! void comment_cb(string value, mixed ... extra_args);
+ *!
+ *! void startelement_cb(string name, mapping(string:string) attributes, mixed ... extra_args);
+ *!
+ *! int isstandalone_cb(mixed ... extra_args);
+ *!
+ *! void startdocument_cb(mixed ... extra_args);
+ *!
+ *! void enddocument_cb(mixed ... extra_args);
+ *!
+ *! int hasinternalsubset(mixed ... extra_args);
+ *!
+ *! int hasexternalsubset(mixed ... extra_args);
  */
   PIKEFUN void set_callback(int callback_id, function f, mixed ... extra_args)
   {
