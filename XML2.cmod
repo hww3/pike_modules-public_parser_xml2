@@ -14,7 +14,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.38 2005-04-04 21:05:41 hww3 Exp $
+ * $Id: XML2.cmod,v 1.39 2005-04-04 21:06:46 hww3 Exp $
  */
 
 /*
@@ -140,7 +140,7 @@
     const xmlChar ** atts);
 
   void my_endElementNs(void * ctx, const xmlChar * localname,
-    const xmlChar * prefix, const xmlChar * URI);
+    const xmlChar * prefix, const xmlChar * uri);
 
   void my_serror(void * ctx, xmlErrorPtr error);
   void my_entityDecl(void * ctx, const xmlChar * name, int type, const xmlChar * publicId, const xmlChar * systemId, xmlChar * content);
@@ -667,7 +667,7 @@ printf("start element\n");
   }
 
   void my_endElementNs(void * ctx, const xmlChar * localname,
-    const xmlChar * prefix, const xmlChar * URI)
+    const xmlChar * prefix, const xmlChar * uri)
   {
     int z = 0;
 
