@@ -14,7 +14,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.39 2005-04-04 21:06:46 hww3 Exp $
+ * $Id: XML2.cmod,v 1.40 2005-04-04 21:23:45 hww3 Exp $
  */
 
 /*
@@ -688,11 +688,11 @@ printf("start element\n");
          push_text((char *)prefix);
        else
          push_int(0);
+
        if(uri != NULL)
          push_text((char *)uri);
        else
           push_int(0);
-
 
        for(z = 0; z < a->size; z++)
        {
