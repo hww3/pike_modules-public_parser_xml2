@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.22 2005-03-29 19:22:00 hww3 Exp $
+ * $Id: XML2.cmod,v 1.23 2005-03-29 21:08:11 hww3 Exp $
  */
 
 /*
@@ -150,6 +150,7 @@
   void my_processingInstruction(void * ctx, const xmlChar * target, const xmlChar * data);
   void my_internalSubset(void * ctx, const xmlChar * name, const xmlChar * ExternalID, const xmlChar * SystemID);
   void my_externalSubset(void * ctx, const xmlChar * name, const xmlChar * ExternalID, const xmlChar * SystemID);
+  void my_notationDecl(void * ctx, const xmlChar * name, const xmlChar * publicId, const xmlChar * systemId);
   void my_reference(void * ctx, const xmlChar * name);
   void my_endElement(void * ctx, const xmlChar * name);
   int my_hasInternalSubset(void * data);
@@ -169,7 +170,7 @@ static struct _xmlSAXHandler   mySAX = {
   .resolveEntity = NULL, /* we don't use it by default */
   .getEntity = NULL,
   .entityDecl = NULL,
-  .notationDecl = NULL,
+  .notationDecl = my_notationDecl,
   .attributeDecl = NULL,
   .elementDecl = NULL,
   .unparsedEntityDecl = NULL,
@@ -307,6 +308,32 @@ PIKECLASS SAX
        return retval;
     }    
     return 0;
+  }
+
+  void my_notationDecl(void * ctx, const xmlChar * name, const xmlChar * publicId, const xmlChar * systemId)
+  {
+    if(ITEM(THIS->object_data->handlers)[CB_NOTATIONDECL].type!=PIKE_T_INT)
+    {
+       struct svalue * func;
+       struct array * a;
+       struct object * o;
+       int z = 0;
+
+       o = ITEM(THIS->object_data->handlers)[CB_NOTATIONDECL].u.object;
+       a = get_callback_data(o);       
+       func = get_callback_func(o);       
+       push_svalue(func);
+
+       push_text((char *)name);
+       push_text((char *)publicId);
+       push_text((char *)systemId);
+
+       for(z = 0; z < a->size; z++)
+       {
+         push_svalue(&ITEM(a)[z]);
+       }
+       apply_svalue(&Pike_sp[0- (a->size+4)], a->size + 3);
+    }    
   }
 
   void my_internalSubset(void * ctx, const xmlChar * name, const xmlChar * ExternalID, const xmlChar * SystemID)
