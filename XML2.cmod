@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.15 2005-03-28 03:05:49 hww3 Exp $
+ * $Id: XML2.cmod,v 1.16 2005-03-28 03:11:35 hww3 Exp $
  */
 
 /*
@@ -146,19 +146,21 @@
   void my_comment(void * ctx, const xmlChar * name);
   void my_characters(void * ctx, const xmlChar * ch, int len);
   void my_processingInstruction(void * ctx, const xmlChar * target, const xmlChar * data);
+  void my_internalSubset(void * ctx, const xmlChar * name, const xmlChar * ExternalID, const xmlChar * SystemID);
   void my_reference(void * ctx, const xmlChar * name);
   void my_endElement(void * ctx, const xmlChar * name);
   int my_hasInternalSubset(void * data);
   int my_hasExternalSubset(void * data);
   void my_startDocument(void * data);
   void my_endDocument(void * data);
+  void my_isStandalone(void * data);
   void  make_PSAX_handler();
   struct array * get_callback_data(struct object * o);
   struct svalue * get_callback_func(struct object * o);
 
 static struct _xmlSAXHandler   mySAX = {
-  .internalSubset = NULL,
-  .isStandalone = NULL,
+  .internalSubset = my_internalSubset,
+  .isStandalone = my_isStandalone,
   .hasInternalSubset = my_hasInternalSubset,
   .hasExternalSubset = my_hasExternalSubset,
   .resolveEntity = NULL, /* we don't use it by default */
@@ -278,6 +280,32 @@ PIKECLASS SAX
        return retval;
     }    
     return 0;
+  }
+
+  void my_internalSubset(void * ctx, const xmlChar * name, const xmlChar * ExternalID, const xmlChar * SystemID)
+  {
+    if(ITEM(THIS->object_data->handlers)[CB_INTERNALSUBSET].type!=PIKE_T_INT)
+    {
+       struct svalue * func;
+       struct array * a;
+       struct object * o;
+       int z = 0;
+
+       o = ITEM(THIS->object_data->handlers)[CB_INTERNALSUBSET].u.object;
+       a = get_callback_data(o);       
+       func = get_callback_func(o);       
+       push_svalue(func);
+
+       push_text((char *)name);
+       push_text((char *)ExternalID);
+       push_text((char *)SystemID);
+
+       for(z = 0; z < a->size; z++)
+       {
+         push_svalue(&ITEM(a)[z]);
+       }
+       apply_svalue(&Pike_sp[0- (a->size+4)], a->size + 3);
+    }    
   }
 
   void my_processingInstruction(void * ctx, const xmlChar * target, const xmlChar * data)
@@ -495,6 +523,11 @@ printf("startelementns\n");
        apply_svalue(&Pike_sp[0- (a->size+4)], a->size + 3);
        printf("finished callback.\n");
     }    
+  }
+
+  void my_isStandalone(void * data)
+  {
+    PSAX_plain_callback(CB_ISSTANDALONE, data);
   }
 
   void my_startDocument(void * data)
