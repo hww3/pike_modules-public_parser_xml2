@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.13 2005-03-23 23:25:37 hww3 Exp $
+ * $Id: XML2.cmod,v 1.14 2005-03-24 02:01:40 hww3 Exp $
  */
 
 /*
@@ -144,6 +144,8 @@
 
   void my_startElement(void * ctx, const xmlChar * fullname, const xmlChar ** atts);
   void my_comment(void * ctx, const xmlChar * name);
+  void my_characters(void * ctx, const xmlChar * ch, int len);
+  void my_reference(void * ctx, const xmlChar * name);
   void my_endElement(void * ctx, const xmlChar * name);
   int my_hasInternalSubset(void * data);
   int my_hasExternalSubset(void * data);
@@ -170,8 +172,8 @@ static struct _xmlSAXHandler   mySAX = {
   .endDocument = my_endDocument,
   .startElement = my_startElement,
   .endElement = my_endElement,
-  .reference = NULL,
-  .characters = NULL,
+  .reference = my_reference,
+  .characters = my_characters,
   .ignorableWhitespace = NULL,
   .processingInstruction = NULL,
   .comment = my_comment,
@@ -287,6 +289,60 @@ PIKECLASS SAX
        int z = 0;
 
        o = ITEM(THIS->object_data->handlers)[CB_ENDELEMENT].u.object;
+       a = get_callback_data(o);       
+       func = get_callback_func(o);       
+       push_svalue(func);
+
+       push_text((char *)name);
+
+       for(z = 0; z < a->size; z++)
+       {
+         push_svalue(&ITEM(a)[z]);
+       }
+       apply_svalue(&Pike_sp[0- (a->size+2)], a->size + 1);
+/*       printf("finished callback.\n");
+*/
+    }    
+
+  }
+
+  void my_characters(void * ctx, const xmlChar * ch, int len)
+  {
+    if(ITEM(THIS->object_data->handlers)[CB_CHARACTERS].type!=PIKE_T_INT)
+    {
+       struct svalue * func;
+       struct array * a;
+       struct object * o;
+       int z = 0;
+
+       o = ITEM(THIS->object_data->handlers)[CB_CHARACTERS].u.object;
+       a = get_callback_data(o);       
+       func = get_callback_func(o);       
+       push_svalue(func);
+
+       push_text((char *)ch);
+
+       for(z = 0; z < a->size; z++)
+       {
+         push_svalue(&ITEM(a)[z]);
+       }
+       apply_svalue(&Pike_sp[0- (a->size+2)], a->size + 1);
+/*       printf("finished callback.\n");
+*/
+    }    
+
+  }
+
+  void my_reference(void * ctx, const xmlChar * name)
+  {
+    if(ITEM(THIS->object_data->handlers)[CB_REFERENCE].type!=PIKE_T_INT)
+    {
+       struct svalue * func;
+       struct array * a;
+       struct object * o;
+       int z = 0;
+
+       o = ITEM(THIS->object_data->handlers)[CB_REFERENCE].u.object;
        a = get_callback_data(o);       
        func = get_callback_func(o);       
        push_svalue(func);
