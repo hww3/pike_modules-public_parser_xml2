@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.35 2005-04-03 04:22:56 hww3 Exp $
+ * $Id: XML2.cmod,v 1.36 2005-04-03 16:32:11 hww3 Exp $
  */
 
 /*
@@ -922,7 +922,7 @@ PIKECLASS SAX
     // add_ref(f->u.efun);
     (ITEM(THIS->object_data->handlers)[callback_id]) = Pike_sp[0-1];
 
-//    pop_stack();
+    pop_stack();
 
   }
 
@@ -1121,7 +1121,11 @@ PIKECLASS SAX
     retval = xmlParseChunk(THIS->object_data->context, b, 0, 1);
     push_int(retval);
 
-    THIS->object_data->context = NULL;
+    if(THIS->object_data->context != NULL) 
+    {
+      xmlFreeParserCtxt(THIS->object_data->context);
+      THIS->object_data->context = NULL;
+    }
   }
 
 /*!  @decl int parse(string d)
@@ -1234,6 +1238,12 @@ PIKECLASS SAX
     {
       xmlFreeParserCtxt(THIS->object_data->context);  
     }
+ 
+    if(THIS->object_data->sax != NULL)
+    {
+       free(THIS->object_data->sax); 
+    }
+
     if(THIS->object_data->handlers != NULL)
     {
       int x = 0;
@@ -1257,14 +1267,14 @@ PIKECLASS SAX
       THIS->user_data = user_data;
       add_ref(user_data);    
       assign_svalue(&(THIS->cb), cb);
-  //    add_ref(THIS->cb.u.efun);
-  //    add_ref(THIS->user_data);
+      add_ref(THIS->cb.u.efun);
+      add_ref(THIS->user_data);
     }
 EXIT
 {
 //  printf("PSAXHandler exit\n");
-//  free_array(THIS->user_data);
-//  free_svalue(& THIS->cb);
+  free_array(THIS->user_data);
+  free_svalue(& THIS->cb);
 }
   }
 
