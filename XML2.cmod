@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.27 2005-03-29 22:10:40 hww3 Exp $
+ * $Id: XML2.cmod,v 1.28 2005-03-30 21:54:43 hww3 Exp $
  */
 
 /*
@@ -142,6 +142,7 @@
 
 */
 
+  void my_entityDecl(void * ctx, const xmlChar * name, int type, const xmlChar * publicId, const xmlChar * systemId, xmlChar * content);
   void my_unparsedEntityDecl(void * ctx, const xmlChar * name, const xmlChar * publicId, const xmlChar * systemId, const xmlChar * notationName);
   void my_attributeDecl(void * ctx, const xmlChar * elem, const xmlChar* fullname, int type, int def, const xmlChar * defaultValue, xmlEnumerationPtr tree);
   void my_elementDecl(void * ctx, const xmlChar * name, int type, xmlElementContentPtr content);
@@ -172,10 +173,10 @@ static struct _xmlSAXHandler   mySAX = {
   .hasExternalSubset = my_hasExternalSubset,
   .resolveEntity = NULL, /* we don't use it by default */
   .getEntity = NULL,
-  .entityDecl = my_elementDecl,
+  .entityDecl = my_entityDecl,
   .notationDecl = my_notationDecl,
   .attributeDecl = my_attributeDecl,
-  .elementDecl = NULL,
+  .elementDecl = my_elementDecl,
   .unparsedEntityDecl = my_unparsedEntityDecl,
   .setDocumentLocator = NULL, /* we don't use it here */
   .startDocument = my_startDocument,
@@ -311,6 +312,34 @@ PIKECLASS SAX
        return retval;
     }    
     return 0;
+  }
+
+  void my_entityDecl(void * ctx, const xmlChar * name, int type, const xmlChar * publicId, const xmlChar * systemId, xmlChar * content)
+  {
+    if(ITEM(THIS->object_data->handlers)[CB_ENTITYDECL].type!=PIKE_T_INT)
+    {
+       struct svalue * func;
+       struct array * a;
+       struct object * o;
+       int z = 0;
+
+       o = ITEM(THIS->object_data->handlers)[CB_ENTITYDECL].u.object;
+       a = get_callback_data(o);       
+       func = get_callback_func(o);       
+       push_svalue(func);
+
+       push_text((char *)name);
+       push_int(type);
+       push_text((char *)publicId);
+       push_text((char *)systemId);
+       push_text((char *)content);
+
+       for(z = 0; z < a->size; z++)
+       {
+         push_svalue(&ITEM(a)[z]);
+       }
+       apply_svalue(&Pike_sp[0- (a->size+6)], a->size + 5);
+    }    
   }
 
   void my_elementDecl(void * ctx, const xmlChar * name, int type, xmlElementContentPtr content)
