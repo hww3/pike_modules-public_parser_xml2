@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.4 2005-03-21 19:11:40 hww3 Exp $
+ * $Id: XML2.cmod,v 1.5 2005-03-21 22:06:43 hww3 Exp $
  */
 
 /*
@@ -157,6 +157,24 @@ PIKEFUN int get_line_no()
   check_node_created();
 
   push_int(MY_NODE->line);
+}
+
+/*! @decl Node set_ns(string ns_prefix)
+ *!
+ */
+PIKEFUN object set_ns(string ns_prefix)
+{
+  xmlNsPtr ans;
+  
+  ans = xmlSearchNs(MY_NODE->doc, MY_NODE, (xmlChar *)ns_prefix->str);
+  if(ans == NULL)
+  {
+    Pike_error("Namespace %s does not yet exist.\n", ns_prefix->str);
+  }
+
+  xmlSetNs(MY_NODE, ans);
+
+  push_object(this_object());
 }
 
 /*! @decl Node set_content(string content)
@@ -326,6 +344,9 @@ PIKEFUN mapping get_attributes()
 
       push_text((char *)(attr->name));
       push_text((char *)(val));
+
+      xmlFree(val);
+
 //      printf("Found a property: %s\n", (char *)(attr->name));
       num_attrs ++;
     }
@@ -365,11 +386,12 @@ PIKEFUN mapping get_no_ns_attributes()
 
       val = xmlGetNoNsProp(MY_NODE, attr->name);
 
-      if(val == NULL) val = "";
-
-      push_text((char *)(attr->name));
-      push_text((char *)(val));
-      num_attrs ++;
+      if(val != NULL) 
+      {
+        push_text((char *)(attr->name));
+        push_text((char *)(val));
+        num_attrs ++;
+      }
     }
    
    f_aggregate_mapping(num_attrs*2);
@@ -413,6 +435,7 @@ PIKEFUN mapping get_ns_attributes(string ns_uri)
 
       push_text((char *)(attr->name));
       push_text((char *)(val));
+      xmlFree(val);
 //      printf("Found a property: %s\n", (char *)(attr->name));
       num_attrs ++;
     }
@@ -582,20 +605,29 @@ PIKEFUN object new_pi(string name, string contents)
   }
 }
 
-/*!  @decl Node set_attribute(string name, string value, string|void ns)
- *!  
+/*!  @decl Node set_attribute(string name, string value)
+ *!  @decl Node set_ns_attribute(string name, string ns, string value)
+ *!
  *!  sets a new attribute, overwriting any existing value.
  *!  if @[value] is zero, the attribute will be removed from the node.
  */
-PIKEFUN object set_attribute(string name, string value, string ns)
+PIKEFUN object set_ns_attribute(string name, string ns, string value)
 {
   struct object * o;
   xmlAttrPtr attr;
-  xmlNsPtr ns;
+  xmlNsPtr ans;
+
+printf("called ns version\n");
 
   check_node_created();
 
-  attr = xmlNewNsProp(MY_NODE, ns, (xmlChar *)name->str, (xmlChar *)value->str);
+  ans = xmlSearchNs(MY_NODE->doc, MY_NODE, (xmlChar *)ns->str);
+  if(ans == NULL)
+  {
+    Pike_error("Namespace %s does not exist.\n", ns->str);
+  }
+
+  attr = xmlNewNsProp(MY_NODE, ans, (xmlChar *)name->str, (xmlChar *)value->str);
 
   if(attr == NULL)
   {
@@ -604,33 +636,63 @@ PIKEFUN object set_attribute(string name, string value, string ns)
   }
   else
   {
-    o = NEW_NODE();
-    OBJ2_NODE(o)->object_data->node = THIS->object_data->node;
-    NEW_NODE_REFS(o);
-    push_object(o);
+    push_object(this_object());
   }
+}
+
+/*! @decl delete_attribute(string name, string|void ns)
+ *!
+ *! 
+ */
+PIKEFUN object delete_attribute(string name)
+{
+  check_node_created();
+  xmlUnsetProp(MY_NODE, (xmlChar *)name->str);
+
+  push_object(this_object());
+
+}
+
+PIKEFUN object delete_attribute(string name, string ns)
+{
+  xmlNsPtr ans;
+
+  check_node_created();
+
+  ans = xmlSearchNs(MY_NODE->doc, MY_NODE, (xmlChar *)ns->str);
+  if(ans == NULL)
+  {
+    Pike_error("Namespace %s does not exist.\n", ns->str);
+  }
+
+  xmlUnsetNsProp(MY_NODE, ans, (xmlChar *)name->str);
+
+  push_object(this_object());
+
 }
 
 PIKEFUN object set_attribute(string name, string value)
 {
   struct object * o;
   xmlAttrPtr attr;
+  xmlAttrPtr val;
 
   check_node_created();
+
+  xmlUnsetProp(MY_NODE, (xmlChar *)name->str);
 
   attr = xmlNewProp(MY_NODE, (xmlChar *)name->str, (xmlChar *)value->str);
 
   if(attr == NULL)
   {
+    pop_n_elems(2);
     push_int(0);
     return;
   }
   else
   {
-    o = NEW_NODE();
-    OBJ2_NODE(o)->object_data->node = THIS->object_data->node;
-    NEW_NODE_REFS(o);
-    push_object(o);
+    pop_n_elems(2);
+    push_object(this_object());
   }
 }
 
@@ -717,6 +779,23 @@ PIKEFUN object new_child(string name, string content)
     NEW_NODE_REFS(o);
     push_object(o);
   }
+}
+
+/*! @decl Node add_ns(string href, string prefix)
+ *!
+ */
+PIKEFUN object add_ns(string href, string prefix)
+{
+  xmlNsPtr ns;
+
+  ns = xmlNewNs(MY_NODE, (xmlChar *) href->str, (xmlChar *) prefix->str);
+
+  if(ns == NULL)
+  {
+    Pike_error("Unable to create new namespace.\n");
+  }
+
+  push_object(this_object());
 }
 
 /*!  @decl Node add_child(Node child)
@@ -943,6 +1022,18 @@ PIKEFUN string get_node_name()
   if((char *)(MY_NODE->name) != NULL)
     push_text((char *)(MY_NODE->name));
   else push_int(0);
+} 
+
+/*! @decl string get_node_name()
+ *!  gets the name of this node, if it has one.
+ */
+PIKEFUN string set_node_name(string name)
+{
+  check_node_created();
+
+  xmlNodeSetName(MY_NODE, (xmlChar *)name->str);
+
+  push_object(this_object());
 } 
 
 /*! @decl string render_xml(int level, int format)
