@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.8 2005-03-21 22:16:50 hww3 Exp $
+ * $Id: XML2.cmod,v 1.9 2005-03-21 22:21:43 hww3 Exp $
  */
 
 /*
@@ -1160,7 +1160,6 @@ PIKEFUN array select_xpath_nodes(string xpath, object node)
     pop_n_elems(2);
     Pike_error("Unable to create new XPath context.\n");
   }
-printf("ready to evaluate the expression...\n");
   xpathObj = xmlXPathEvalExpression((xmlChar *)xpath->str, xpathCtx);
   if(xpathObj == NULL) {  
     pop_n_elems(2);
@@ -1171,7 +1170,6 @@ printf("ready to evaluate the expression...\n");
   /* now we should generate an array from the node set. */
   set = xpathObj->nodesetval;
 
-printf("done.\n");
 
   if(set == NULL)
   {
@@ -1184,17 +1182,13 @@ printf("done.\n");
 
   pop_n_elems(2);
 
-printf("popped.\n");
   if(set->nodeNr > 0)
   {
   xn = set->nodeTab[0];
-printf("getting ready to loop.\n");
     if(xn != NULL && set->nodeNr > 0) do
     {
       struct Node_struct * ns;
       NODE_OBJECT_DATA * od;
-printf("node...\n");
-printf("node name: %s\n", xn->name);
 
       apply(Pike_fp->current_object, "Node", 0);
       ns = OBJ2_NODE((Pike_sp[0-1].u.object));
@@ -1207,7 +1201,6 @@ printf("node name: %s\n", xn->name);
 
       num_nodes++;
       xn = set->nodeTab[num_nodes];
-// push_text("blah");
     } 
     while (((num_nodes +1) <= set->nodeNr) && xn != NULL);
 
@@ -1309,7 +1302,7 @@ PIKEFUN int utf8_check(string str)
   push_int(result);
 }
 
-/*! @decl render_xml(Node n)
+/*! @decl string render_xml(Node n)
  *!   Renders a node tree as an XML string. The entire document tree will 
  *!  be rendered. To render a portion of a tree, use @[Node.render_xml].
  *!
