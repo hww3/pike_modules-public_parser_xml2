@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.29 2005-03-30 22:03:31 hww3 Exp $
+ * $Id: XML2.cmod,v 1.30 2005-03-30 22:35:41 hww3 Exp $
  */
 
 /*
@@ -168,39 +168,36 @@
   struct svalue * get_callback_func(struct object * o);
 
 static struct _xmlSAXHandler   mySAX = {
-  .internalSubset = my_internalSubset,
-  .isStandalone = my_isStandalone,
-  .hasInternalSubset = my_hasInternalSubset,
-  .hasExternalSubset = my_hasExternalSubset,
-  .resolveEntity = NULL, /* we don't use it by default */
+  .internalSubset = NULL,
+  .isStandalone = NULL,
+  .hasInternalSubset = NULL,
+  .hasExternalSubset = NULL,
+  .resolveEntity = NULL, /* TODO: needs more thought. */
   .getEntity = NULL,
-  .entityDecl = my_entityDecl,
-  .notationDecl = my_notationDecl,
-  .attributeDecl = my_attributeDecl,
-  .elementDecl = my_elementDecl,
-  .unparsedEntityDecl = my_unparsedEntityDecl,
+  .entityDecl = NULL,
+  .notationDecl = NULL,
+  .attributeDecl = NULL,
+  .elementDecl = NULL,
+  .unparsedEntityDecl = NULL,
   .setDocumentLocator = NULL, /* we don't use it here */
-  .startDocument = my_startDocument,
-  .endDocument = my_endDocument,
-  .startElement = my_startElement,
-  .endElement = my_endElement,
-  .reference = my_reference,
-  .characters = my_characters,
-  .ignorableWhitespace = my_ignorableWhitespace,
-  .processingInstruction = my_processingInstruction,
-  .comment = my_comment,
-  .warning = NULL,
-  .error = NULL,
-  .fatalError = NULL,
-  .getParameterEntity = NULL,
-  .cdataBlock = my_cdataBlock,
-  .externalSubset = my_externalSubset,
-/*
-  .startElementNs = my_startElementNs,
-*/
+  .startDocument = NULL,
+  .endDocument = NULL,
+  .startElement = NULL,
+  .endElement = NULL,
+  .reference = NULL,
+  .characters = NULL,
+  .ignorableWhitespace = NULL,
+  .processingInstruction = NULL,
+  .comment = NULL,
+  .warning = NULL, /* not used; we use serror below. */
+  .error = NULL, /* not used; we use serror below. */
+  .fatalError = NULL, /* not used; we use serror below. */ 
+  .getParameterEntity = NULL, /* TODO: needs more thought. */
+  .cdataBlock = NULL,
+  .externalSubset = NULL,
   .startElementNs = NULL,
   .endElementNs = NULL,
-  .serror = my_serror,
+  .serror = NULL
 };
 
 
@@ -794,12 +791,115 @@ PIKECLASS SAX
     f_aggregate(args-2);
 
     make_PSAX_handler();
- 
+
+    switch(callback_id)
+    {
+      case CB_INTERNALSUBSET:
+      mySAX.internalSubset = my_internalSubset;
+      break;
+
+      case CB_ISSTANDALONE:
+      mySAX.isStandalone = my_isStandalone;
+      break;
+
+      case CB_HASINTERNALSUBSET:
+      mySAX.hasInternalSubset = my_hasInternalSubset;
+      break;
+
+      case CB_HASEXTERNALSUBSET:
+      mySAX.hasExternalSubset = my_hasExternalSubset;
+      break;
+  
+      case CB_RESOLVENTITY:
+      mySAX.resolveEntity = NULL; /* TODO: needs more thought. */
+      break;
+
+      case CB_ENTITYDECL:
+      mySAX.entityDecl = my_entityDecl;
+      break;
+
+      case CB_NOTATIONDECL:
+      mySAX.notationDecl = my_notationDecl;
+      break;
+
+      case CB_ATTRIBUTEDECL:
+      mySAX.attributeDecl = my_attributeDecl;
+      break;
+
+      case CB_ELEMENTDECL:
+      mySAX.elementDecl = my_elementDecl;
+      break;
+
+      case CB_UNPARSEDENTITYDECL:
+      mySAX.unparsedEntityDecl = my_unparsedEntityDecl;
+      break;
+
+      case CB_STARTDOCUMENT:
+      mySAX.startDocument = my_startDocument;
+      break;
+
+      case CB_ENDDOCUMENT:
+      mySAX.endDocument = my_endDocument;
+      break;
+
+      case CB_STARTELEMENT:
+      mySAX.startElement = my_startElement;
+      break;
+
+      case CB_ENDELEMENT:
+      mySAX.endElement = my_endElement;
+      break;
+
+      case CB_REFERENCE:
+      mySAX.reference = my_reference;
+      break;
+
+      case CB_CHARACTERS:
+      mySAX.characters = my_characters;
+      break;
+
+      case CB_IGNORABLEWHITESPACE:
+      mySAX.ignorableWhitespace = my_ignorableWhitespace;
+      break;
+
+      case CB_PROCESSINGINSTRUCTION:
+      mySAX.processingInstruction = my_processingInstruction;
+      break;
+
+      case CB_COMMENT:
+      mySAX.comment = my_comment;
+      break;
+
+      case CB_GETPARAMETERENTITY:
+      mySAX.getParameterEntity = NULL; /* TODO: needs more thought. */
+      break;
+
+      case CB_CDATABLOCK:
+      mySAX.cdataBlock = my_cdataBlock;
+      break;
+
+      case CB_EXTERNALSUBSET:
+      mySAX.externalSubset = my_externalSubset;
+      break;
+
+      case CB_STARTELEMENTNS:
+      mySAX.startElementNs = NULL;
+      break;
+
+      case CB_ENDELEMENTNS:
+      mySAX.endElementNs = NULL;
+      break;
+
+      case CB_SERROR:
+      mySAX.serror = my_serror;
+      break;
+
+      default:
+      Pike_error("unknown callback identifier.\n");
+  } 
+
     if(ITEM(THIS->object_data->handlers)[callback_id].type!=PIKE_T_INT)
     {
-/*
-      printf("had something in handlers already. freeing.\n");
-*/
       ae = &(ITEM(THIS->object_data->handlers)[callback_id]);
       free_svalue(ae);
       push_int(0);
@@ -830,11 +930,116 @@ PIKECLASS SAX
   {
     struct svalue * ae;
 
+    switch(callback_id)
+    {
+      case CB_INTERNALSUBSET:
+      mySAX.internalSubset = NULL;
+      break;
+
+      case CB_ISSTANDALONE:
+      mySAX.isStandalone = NULL;
+      break;
+
+      case CB_HASINTERNALSUBSET:
+      mySAX.hasInternalSubset = NULL;
+      break;
+
+      case CB_HASEXTERNALSUBSET:
+      mySAX.hasExternalSubset = NULL;
+      break;
+  
+      case CB_RESOLVENTITY:
+      mySAX.resolveEntity = NULL; /* TODO: needs more thought. */
+      break;
+
+      case CB_ENTITYDECL:
+      mySAX.entityDecl = NULL;
+      break;
+
+      case CB_NOTATIONDECL:
+      mySAX.notationDecl = NULL;
+      break;
+
+      case CB_ATTRIBUTEDECL:
+      mySAX.attributeDecl = NULL;
+      break;
+
+      case CB_ELEMENTDECL:
+      mySAX.elementDecl = NULL;
+      break;
+
+      case CB_UNPARSEDENTITYDECL:
+      mySAX.unparsedEntityDecl = NULL;
+      break;
+
+      case CB_STARTDOCUMENT:
+      mySAX.startDocument = NULL;
+      break;
+
+      case CB_ENDDOCUMENT:
+      mySAX.endDocument = NULL;
+      break;
+
+      case CB_STARTELEMENT:
+      mySAX.startElement = NULL;
+      break;
+
+      case CB_ENDELEMENT:
+      mySAX.endElement = NULL;
+      break;
+
+      case CB_REFERENCE:
+      mySAX.reference = NULL;
+      break;
+
+      case CB_CHARACTERS:
+      mySAX.characters = NULL;
+      break;
+
+      case CB_IGNORABLEWHITESPACE:
+      mySAX.ignorableWhitespace = NULL;
+      break;
+
+      case CB_PROCESSINGINSTRUCTION:
+      mySAX.processingInstruction = NULL;
+      break;
+
+      case CB_COMMENT:
+      mySAX.comment = NULL;
+      break;
+
+      case CB_GETPARAMETERENTITY:
+      mySAX.getParameterEntity = NULL; /* TODO: needs more thought. */
+      break;
+
+      case CB_CDATABLOCK:
+      mySAX.cdataBlock = NULL;
+      break;
+
+      case CB_EXTERNALSUBSET:
+      mySAX.externalSubset = NULL;
+      break;
+
+      case CB_STARTELEMENTNS:
+      mySAX.startElementNs = NULL;
+      break;
+
+      case CB_ENDELEMENTNS:
+      mySAX.endElementNs = NULL;
+      break;
+
+      case CB_SERROR:
+      mySAX.serror = NULL;
+      break;
+
+      default:
+      Pike_error("unknown callback identifier.\n");
+  } 
+
+
+
     if(ITEM(THIS->object_data->handlers)[callback_id].type!=PIKE_T_INT)
     {
-/*
-      printf("had something in handlers already. freeing.\n");
-*/
       ae = &(ITEM(THIS->object_data->handlers)[callback_id]);
       free_svalue(ae);
       push_int(0);
