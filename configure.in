@@ -1,0 +1,21 @@
+# $Id: configure.in,v 1.1.1.1 2005-03-20 19:20:45 hww3 Exp $
+AC_INIT(xml_main.cmod)
+
+AC_MODULE_INIT()
+AC_CONFIG_HEADERS(xml2_config.h)
+
+PKG_CHECK_MODULES(XML2, libxml-2.0)
+
+CPPFLAGS="${CPPFLAGS} ${XML2_CFLAGS}"
+LDFLAGS="${LDFLAGS} ${XML2_LIBS}"
+
+AC_CHECK_HEADERS(libxml/parser.h)
+
+AC_CHECK_LIB(xml2, xmlParseMemory) 
+
+AC_SUBST(XML2_CFLAGS) 
+AC_SUBST(XML2_LIBS)
+
+AC_OUTPUT(Makefile)
+
+
