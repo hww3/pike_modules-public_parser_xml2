@@ -1,5 +1,23 @@
 Version History
 
+Version 1.2
+
+- Support for creation of certain types of nodes
+- Support for adding children and siblings
+- Support for creating new documents
+- Support for output of document to XML 
+- More documentation
+- More constants
+- Testing clocks this module as 500% faster than Parser.XML.NSTree
+
+Limitations: 
+
+- Incomplete Namespace support
+- No support for adding attributes to nodes. 
+- Not all types of node can be created. 
+- No support for deleting or copying nodes.
+
+
 Version 1.1
 
 Support for getting namespace information from nodes.
