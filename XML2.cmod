@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.7 2005-03-21 22:10:54 hww3 Exp $
+ * $Id: XML2.cmod,v 1.8 2005-03-21 22:16:50 hww3 Exp $
  */
 
 /*
@@ -640,7 +640,7 @@ printf("called ns version\n");
   }
 }
 
-/*! @decl delete_attribute(string name, string|void ns)
+/*! @decl object delete_attribute(string name, string|void ns)
  *!
  *! 
  */
