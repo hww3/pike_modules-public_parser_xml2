@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.25 2005-03-29 21:54:58 hww3 Exp $
+ * $Id: XML2.cmod,v 1.26 2005-03-29 22:06:07 hww3 Exp $
  */
 
 /*
@@ -142,7 +142,7 @@
 
 */
 
-
+  void my_unparsedEntityDecl(void * ctx, const xmlChar * name, const xmlChar * publicId, const xmlChar * systemId, const xmlChar * notationName);
   void my_attributeDecl(void * ctx, const xmlChar * elem, const xmlChar* fullname, int type, int def, const xmlChar * defaultValue, xmlEnumerationPtr tree);
   void my_elementDecl(void * ctx, const xmlChar * name, int type, xmlElementContentPtr content);
   void my_startElement(void * ctx, const xmlChar * fullname, const xmlChar ** atts);
@@ -176,7 +176,7 @@ static struct _xmlSAXHandler   mySAX = {
   .notationDecl = my_notationDecl,
   .attributeDecl = my_attributeDecl,
   .elementDecl = NULL,
-  .unparsedEntityDecl = NULL,
+  .unparsedEntityDecl = my_unparsedEntityDecl,
   .setDocumentLocator = NULL, /* we don't use it here */
   .startDocument = my_startDocument,
   .endDocument = my_endDocument,
@@ -335,6 +335,33 @@ PIKECLASS SAX
          push_svalue(&ITEM(a)[z]);
        }
        apply_svalue(&Pike_sp[0- (a->size+3)], a->size + 2);
+    }    
+  }
+
+  void my_unparsedEntityDecl(void * ctx, const xmlChar * name, const xmlChar * publicId, const xmlChar * systemId, const xmlChar * notationName)
+  {
+    if(ITEM(THIS->object_data->handlers)[CB_ATTRIBUTEDECL].type!=PIKE_T_INT)
+    {
+       struct svalue * func;
+       struct array * a;
+       struct object * o;
+       int z = 0;
+
+       o = ITEM(THIS->object_data->handlers)[CB_ATTRIBUTEDECL].u.object;
+       a = get_callback_data(o);       
+       func = get_callback_func(o);       
+       push_svalue(func);
+
+       push_text((char *)name);
+       push_text((char *)publicId);
+       push_text((char *)systemId);
+       push_text((char *)notationName);
+       
+       for(z = 0; z < a->size; z++)
+       {
+         push_svalue(&ITEM(a)[z]);
+       }
+       apply_svalue(&Pike_sp[0- (a->size+5)], a->size + 4);
     }    
   }
 
