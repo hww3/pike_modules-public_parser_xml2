@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.33 2005-04-02 18:30:32 hww3 Exp $
+ * $Id: XML2.cmod,v 1.34 2005-04-02 18:32:37 hww3 Exp $
  */
 
 /*
@@ -1164,7 +1164,7 @@ printf("setting callback %d\n", callback_id);
 
     if(THIS->object_data->context != NULL)
     {
-//      xmlFreeParserCtxt(THIS->object_data->context);
+      xmlFreeParserCtxt(THIS->object_data->context);
       THIS->object_data->context=NULL;
     }
     push_int(retval);
