@@ -1,0 +1,17 @@
+Version History
+
+Version 1.1
+
+Support for getting namespace information from nodes.
+Support for dumping a node to XML.
+Support for more node operations, such as getting language.
+Constants have been shortened and moved into their own class.
+Approximately 30% of methods have documentation now.
+
+Version 1.0 
+
+This is the first release of the Public.Parser.XML2 module.
+There are very rudimentary parsing and tree navigation methods.
+Currently, the tree is static once parsed.
+
+
