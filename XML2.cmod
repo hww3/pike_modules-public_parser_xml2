@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.3 2005-03-21 00:41:10 hww3 Exp $
+ * $Id: XML2.cmod,v 1.4 2005-03-21 19:11:40 hww3 Exp $
  */
 
 /*
@@ -90,6 +90,9 @@
 #include <libxml/tree.h>
 #endif
 
+#include <libxml/xpath.h>
+#include <libxml/xpathInternals.h>
+
   typedef struct
   {
     xmlNodePtr node;
@@ -156,6 +159,11 @@ PIKEFUN int get_line_no()
   push_int(MY_NODE->line);
 }
 
+/*! @decl Node set_content(string content)
+ *!
+ *! sets the content for a node
+ *!
+ */
 PIKEFUN object set_content(string content)
 {
   check_node_created();
@@ -168,7 +176,7 @@ PIKEFUN object set_content(string content)
 /*! @decl string get_text()
  *!
  *! gets the contents of a text node, or the contents and children of an 
- *! element.
+ *! element, or the value of an attribute node.
  */
 PIKEFUN string get_text()
 {
@@ -184,7 +192,7 @@ PIKEFUN string get_text()
 
 /*! @decl string get_node_path()
  *!
- *! returns a structure based path for this Node.
+ *! returns an XPath/XQuery based path for this Node.
  */
 PIKEFUN string get_node_path()
 {
@@ -243,6 +251,9 @@ PIKEFUN mapping get_nss()
   f_aggregate_mapping(num_ns*2);
 }
 
+/*! @decl string get_base()
+ *!
+ */
 PIKEFUN string get_base()
 {
   xmlChar * val;
@@ -255,6 +266,9 @@ PIKEFUN string get_base()
     push_text(val);
 }
 
+/*! @decl string get_lang()
+ *!
+ */
 PIKEFUN string get_lang()
 {
   xmlChar * val;
@@ -267,6 +281,9 @@ PIKEFUN string get_lang()
     push_text(val);
 }
 
+/*! @decl int get_space_preserve()
+ *!
+ */
 PIKEFUN int get_space_preserve()
 {
   int i;
@@ -406,7 +423,7 @@ PIKEFUN mapping get_ns_attributes(string ns_uri)
     return;
 }
 
-/*!  @decl array(Node) children()
+/*!  @decl array children()
  *!     get all children of this node
  *!  @returns
  *!      an array of all elements with are a direct child of this element.
@@ -534,6 +551,84 @@ PIKEFUN object new_cdata_block(string contents)
   {
     o = NEW_NODE();
     OBJ2_NODE(o)->object_data->node = node;
+    NEW_NODE_REFS(o);
+    push_object(o);
+  }
+}
+
+/*!  @decl Node new_pi(string name, string contents)
+ *!     returns a linked Processing Instruction node.
+ */
+PIKEFUN object new_pi(string name, string contents)
+{
+  struct object * o;
+  xmlNodePtr node;
+
+  check_node_created();
+
+  node = xmlNewDocPI(MY_NODE->doc, name->str, contents->str);
+  
+  if(node == NULL)
+  {
+    push_int(0);
+    return;
+  }
+  else
+  {
+    o = NEW_NODE();
+    OBJ2_NODE(o)->object_data->node = node;
+    NEW_NODE_REFS(o);
+    push_object(o);
+  }
+}
+
+/*!  @decl Node set_attribute(string name, string value, string|void ns)
+ *!  
+ *!  sets a new attribute, overwriting any existing value.
+ *!  if @[value] is zero, the attribute will be removed from the node.
+ */
+PIKEFUN object set_attribute(string name, string value, string ns)
+{
+  struct object * o;
+  xmlAttrPtr attr;
+  xmlNsPtr ns;
+
+  check_node_created();
+
+  attr = xmlNewNsProp(MY_NODE, ns, (xmlChar *)name->str, (xmlChar *)value->str);
+
+  if(attr == NULL)
+  {
+    push_int(0);
+    return;
+  }
+  else
+  {
+    o = NEW_NODE();
+    OBJ2_NODE(o)->object_data->node = THIS->object_data->node;
+    NEW_NODE_REFS(o);
+    push_object(o);
+  }
+}
+
+PIKEFUN object set_attribute(string name, string value)
+{
+  struct object * o;
+  xmlAttrPtr attr;
+
+  check_node_created();
+
+  attr = xmlNewProp(MY_NODE, (xmlChar *)name->str, (xmlChar *)value->str);
+
+  if(attr == NULL)
+  {
+    push_int(0);
+    return;
+  }
+  else
+  {
+    o = NEW_NODE();
+    OBJ2_NODE(o)->object_data->node = THIS->object_data->node;
     NEW_NODE_REFS(o);
     push_object(o);
   }
@@ -803,6 +898,10 @@ PIKEFUN object prev()
   }
 }
 
+/*! @decl int is_blank()
+ *!
+ *!  is this node empty?
+ */
 PIKEFUN int is_blank()
 {
   check_node_created();
@@ -810,6 +909,10 @@ PIKEFUN int is_blank()
   RETURN xmlIsBlankNode(MY_NODE);
 }
 
+/*! @decl int is_text()
+ *! 
+ *!  is this a text node?
+ */
 PIKEFUN int is_text()
 {
   check_node_created();
@@ -817,6 +920,13 @@ PIKEFUN int is_text()
   RETURN xmlNodeIsText(MY_NODE);
 }
 
+/*!  @decl int get_node_type()
+ *!
+ *!  get the type of node.
+ *!  
+ *!  @returns
+ *!   the integer node type. Node type constantes are 
+ *!   defined in @[Constants].
 PIKEFUN int get_node_type()
 {
   check_node_created();
@@ -835,6 +945,18 @@ PIKEFUN string get_node_name()
   else push_int(0);
 } 
 
+/*! @decl string render_xml(int level, int format)
+ *!
+ *! renders the node and all children as xml. 
+ *!
+ *! @param level
+ *!   the indentation level to use
+ *!
+ *! @param format
+ *!    should the xml be formated for ease of human reading.
+ *!    this setting only takes 	effect if 
+ *!    Public.Parser.XML2.xmlKeepBlanksDefault(0) has been called.
+ */
 PIKEFUN string render_xml(int level, int format)
 {
   int dumped;
@@ -906,7 +1028,7 @@ EXIT
 // printf("NODE EXIT, refs = %d\n", (*(THIS->object_data->refs)));
   }
 
-  if(THIS->object_data)
+   if(THIS->object_data)
   {
     free(THIS->object_data);
   }
@@ -920,6 +1042,96 @@ EXIT
     start of Public.Parser.XML2 module functions
 
 */
+
+/*! @decl array(Node) select_xpath_nodes(string xpath, object node)
+ *!
+ *! selects nodes based on an XPath query and returns the result.
+ */
+PIKEFUN array select_xpath_nodes(string xpath, object node)
+{
+  xmlXPathContextPtr xpathCtx;
+  xmlXPathObjectPtr xpathObj;
+  xmlNodeSetPtr set;
+  xmlNodePtr xn;
+  struct object * o;
+  int num_nodes = 0;
+
+//  check_node_created();
+  if(OBJ2_NODE(node)->object_data->node == NULL)
+  { 
+    pop_n_elems(2);
+    Pike_error("Node not initialized.\n");
+  }
+
+  xpathCtx = xmlXPathNewContext(OBJ2_NODE(node)->object_data->node->doc);
+  if(xpathCtx == NULL)
+  {
+    pop_n_elems(2);
+    Pike_error("Unable to create new XPath context.\n");
+  }
+printf("ready to evaluate the expression...\n");
+  xpathObj = xmlXPathEvalExpression((xmlChar *)xpath->str, xpathCtx);
+  if(xpathObj == NULL) {  
+    pop_n_elems(2);
+    xmlXPathFreeContext(xpathCtx);
+    Pike_error("Unable to evaluate the XPath expression.\n");
+  }
+
+  /* now we should generate an array from the node set. */
+  set = xpathObj->nodesetval;
+
+printf("done.\n");
+
+  if(set == NULL)
+  {
+    pop_n_elems(2);
+    push_int(0);
+    xmlXPathFreeContext(xpathCtx);
+    xmlXPathFreeObject(xpathObj);
+    return;
+  }  
+
+  pop_n_elems(2);
+
+printf("popped.\n");
+  if(set->nodeNr > 0)
+  {
+  xn = set->nodeTab[0];
+printf("getting ready to loop.\n");
+    if(xn != NULL && set->nodeNr > 0) do
+    {
+      struct Node_struct * ns;
+      NODE_OBJECT_DATA * od;
+printf("node...\n");
+printf("node name: %s\n", xn->name);
+
+      apply(Pike_fp->current_object, "Node", 0);
+      ns = OBJ2_NODE((Pike_sp[0-1].u.object));
+      od = (NODE_OBJECT_DATA *)(ns->object_data);
+
+      od->node=xn;
+      od->refs = OBJ2_NODE(node)->object_data->refs;
+    
+      (* od->refs)++;
+
+      num_nodes++;
+      xn = set->nodeTab[num_nodes];
+// push_text("blah");
+    } 
+    while (((num_nodes +1) <= set->nodeNr) && xn != NULL);
+
+
+    if(num_nodes>0) {
+      f_aggregate(num_nodes);
+    }
+  }
+  else push_int(0);
+
+  xmlXPathFreeContext(xpathCtx);
+  xmlXPathFreeObject(xpathObj);
+
+  return;
+}
 
 /*! @decl int substituteEntitiesDefault(int def)
  */
@@ -945,6 +1157,9 @@ PIKEFUN int keepBlanksDefault(int def)
   push_int(xmlKeepBlanksDefault(def));
 }
 
+/*!  @decl string utf8_to_html(string str)
+ *!
+ */
 PIKEFUN string utf8_to_html(string str)
 {
   char *html = NULL;
@@ -967,6 +1182,9 @@ PIKEFUN string utf8_to_html(string str)
 }
 
 
+/*!  @decl string utf8_to_isolat1(string str)
+ *!
+ */
 PIKEFUN string utf8_to_isolat1(string str)
 {
   char *html = NULL;
@@ -988,6 +1206,9 @@ PIKEFUN string utf8_to_isolat1(string str)
   free(html);
 }
 
+/*! @decl int utf8_check(string str)
+ *!
+ */
 PIKEFUN int utf8_check(string str)
 {
   int result;
