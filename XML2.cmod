@@ -14,7 +14,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.37 2005-04-04 02:47:57 hww3 Exp $
+ * $Id: XML2.cmod,v 1.38 2005-04-04 21:05:41 hww3 Exp $
  */
 
 /*
@@ -135,10 +135,12 @@
 
   void my_startElementNs(void * ctx, const xmlChar * localname, 
     const xmlChar * prefix, const xmlChar * uri, 
-    int nb_namespaces, const xmlChar ** namespaces, 					 
+    int nb_namespaces, const xmlChar ** namespaces,
     int nb_attributes, int nb_defaulted,
     const xmlChar ** atts);
 
+  void my_endElementNs(void * ctx, const xmlChar * localname,
+    const xmlChar * prefix, const xmlChar * URI);
 
   void my_serror(void * ctx, xmlErrorPtr error);
   void my_entityDecl(void * ctx, const xmlChar * name, int type, const xmlChar * publicId, const xmlChar * systemId, xmlChar * content);
@@ -664,9 +666,42 @@ printf("start element\n");
     }    
   }
 
-/* This function is for the SAX2 interface, which we can't seem 
-    to figure out yet.
- */
+  void my_endElementNs(void * ctx, const xmlChar * localname,
+    const xmlChar * prefix, const xmlChar * URI)
+  {
+    int z = 0;
+
+    if(ITEM(THIS->object_data->handlers)[CB_ENDELEMENTNS].type!=PIKE_T_INT)
+    {
+       struct svalue * func;
+       struct array * a;
+       struct object * o;
+
+       o = ITEM(THIS->object_data->handlers)[CB_ENDELEMENTNS].u.object;
+       a = get_callback_data(o);       
+       func = get_callback_func(o);       
+       push_svalue(func);
+
+       push_text((char *)localname);
+
+       if(prefix != NULL)
+         push_text((char *)prefix);
+       else
+         push_int(0);
+       if(uri != NULL)
+         push_text((char *)uri);
+       else
+          push_int(0);
+
+
+       for(z = 0; z < a->size; z++)
+       {
+         push_svalue(&ITEM(a)[z]);
+       }
+       apply_svalue(&Pike_sp[0- (a->size+4)], a->size + 3);
+    }
+  }
+
   void my_startElementNs(void * ctx, const xmlChar * localname, 
     const xmlChar * prefix, const xmlChar * uri, 
     int nb_namespaces, const xmlChar ** namespaces, 					 
@@ -729,7 +764,6 @@ printf("start element\n");
          }
           f_aggregate(i);
        }
-       printf("got an array of size %d\n", i);
 
        for(z = 0; z < a->size; z++)
        {
@@ -929,7 +963,7 @@ printf("start element\n");
       break;
 
       case CB_ENDELEMENTNS:
-      mySAX->endElementNs = NULL;
+      mySAX->endElementNs = my_endElementNs;
       break;
 
       case CB_SERROR:
