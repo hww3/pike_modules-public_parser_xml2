@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.32 2005-04-02 02:55:21 hww3 Exp $
+ * $Id: XML2.cmod,v 1.33 2005-04-02 18:30:32 hww3 Exp $
  */
 
 /*
@@ -100,38 +100,36 @@
 #include <libxml/xpathInternals.h>
 #endif
 
-#define CB_INTERNALSUBSET 1
-#define CB_ISSTANDALONE 2
-#define CB_HASINTERNALSUBSET 3
-#define CB_HASEXTERNALSUBSET 4
-#define CB_RESOLVEENTITY 5
-#define CB_GETENTITY 6
-#define CB_ENTITYDECL 7
-#define CB_NOTATIONDECL 8
-#define CB_ATTRIBUTEDECL 9
-#define CB_ELEMENTDECL 10
-#define CB_UNPARSEDENTITYDECL 11
-#define CB_SETDOCUMENTLOCATOR 12
-#define CB_STARTDOCUMENT 13
-#define CB_ENDDOCUMENT 14
-#define CB_STARTELEMENT 15
-#define CB_ENDELEMENT 16
-#define CB_REFERENCE 17
-#define CB_CHARACTERS 18
-#define CB_IGNORABLEWHITESPACE 19
-#define CB_PROCESSINGINSTRUCTION 20
-#define CB_COMMENT 21
-#define CB_WARNING 22
-#define CB_ERROR 23
-#define CB_FATALERROR 24
-#define CB_GETPARAMETERENTITY 25
-#define CB_CDATABLOCK 26
-#define CB_EXTERNALSUBSET 27
-#define CB_STARTELEMENTNS 28
-#define CB_ENDELEMENTNS 29
-#define CB_SERROR 30
-
-  void set_psax_callback(INT32 args, int cb);
+#define CB_INTERNALSUBSET 0
+#define CB_ISSTANDALONE 1
+#define CB_HASINTERNALSUBSET 2
+#define CB_HASEXTERNALSUBSET 3
+#define CB_RESOLVEENTITY 4
+#define CB_GETENTITY 5
+#define CB_ENTITYDECL 6
+#define CB_NOTATIONDECL 7
+#define CB_ATTRIBUTEDECL 8
+#define CB_ELEMENTDECL 9
+#define CB_UNPARSEDENTITYDECL 10
+#define CB_SETDOCUMENTLOCATOR 11
+#define CB_STARTDOCUMENT 12
+#define CB_ENDDOCUMENT 13
+#define CB_STARTELEMENT 14
+#define CB_ENDELEMENT 15
+#define CB_REFERENCE 16
+#define CB_CHARACTERS 17
+#define CB_IGNORABLEWHITESPACE 18
+#define CB_PROCESSINGINSTRUCTION 19
+#define CB_COMMENT 20
+#define CB_WARNING 21
+#define CB_ERROR 22
+#define CB_FATALERROR 23
+#define CB_GETPARAMETERENTITY 24
+#define CB_CDATABLOCK 25
+#define CB_EXTERNALSUBSET 26
+#define CB_STARTELEMENTNS 27
+#define CB_ENDELEMENTNS 28
+#define CB_SERROR 29
 
 /*
   void my_startElementNs(void * ctx, const xmlChar * localname, 
@@ -139,7 +137,6 @@
     int nb_namespaces, const xmlChar ** namespaces, 					 
     int nb_attributes, int nb_defaulted,
     const xmlChar ** atts);
-
 */
 
   void my_serror(void * ctx, xmlErrorPtr error);
@@ -167,38 +164,6 @@
   struct array * get_callback_data(struct object * o);
   struct svalue * get_callback_func(struct object * o);
 
-static struct _xmlSAXHandler   mySAX = {
-  .internalSubset = NULL,
-  .isStandalone = NULL,
-  .hasInternalSubset = NULL,
-  .hasExternalSubset = NULL,
-  .resolveEntity = NULL, /* TODO: needs more thought. */
-  .getEntity = NULL,
-  .entityDecl = NULL,
-  .notationDecl = NULL,
-  .attributeDecl = NULL,
-  .elementDecl = NULL,
-  .unparsedEntityDecl = NULL,
-  .setDocumentLocator = NULL, /* we don't use it here */
-  .startDocument = NULL,
-  .endDocument = NULL,
-  .startElement = NULL,
-  .endElement = NULL,
-  .reference = NULL,
-  .characters = NULL,
-  .ignorableWhitespace = NULL,
-  .processingInstruction = NULL,
-  .comment = NULL,
-  .warning = NULL, /* not used; we use serror below. */
-  .error = NULL, /* not used; we use serror below. */
-  .fatalError = NULL, /* not used; we use serror below. */ 
-  .getParameterEntity = NULL, /* TODO: needs more thought. */
-  .cdataBlock = NULL,
-  .externalSubset = NULL,
-  .startElementNs = NULL,
-  .endElementNs = NULL,
-  .serror = NULL
-};
 
 
   typedef struct
@@ -213,6 +178,8 @@ static struct _xmlSAXHandler   mySAX = {
     xmlNodePtr node;
     INT32 * refs;
   } NODE_OBJECT_DATA;
+
+#define mySAX THIS->object_data->sax
 
 #define MY_NODE (THIS->object_data->node)
 
@@ -749,11 +716,13 @@ PIKECLASS SAX
 
   void my_startDocument(void * data)
   {
+    printf("start doc!\n");
     PSAX_plain_callback(CB_STARTDOCUMENT, data);
   }
 
   void my_endDocument(void * data)
   {
+    printf("end doc!\n");
     PSAX_plain_callback(CB_ENDDOCUMENT, data);
   }
 
@@ -831,116 +800,116 @@ PIKECLASS SAX
   PIKEFUN void set_callback(int callback_id, function f, mixed ... extra_args)
   {
     struct svalue * ae;
-
-    f_aggregate(args-2);
-
-    make_PSAX_handler();
+printf("setting callback %d\n", callback_id);
 
     switch(callback_id)
     {
       case CB_INTERNALSUBSET:
-      mySAX.internalSubset = my_internalSubset;
+      mySAX->internalSubset = my_internalSubset;
       break;
 
       case CB_ISSTANDALONE:
-      mySAX.isStandalone = my_isStandalone;
+      mySAX->isStandalone = my_isStandalone;
       break;
 
       case CB_HASINTERNALSUBSET:
-      mySAX.hasInternalSubset = my_hasInternalSubset;
+      mySAX->hasInternalSubset = my_hasInternalSubset;
       break;
 
       case CB_HASEXTERNALSUBSET:
-      mySAX.hasExternalSubset = my_hasExternalSubset;
+      mySAX->hasExternalSubset = my_hasExternalSubset;
       break;
   
       case CB_RESOLVEENTITY:
-      mySAX.resolveEntity = NULL; /* TODO: needs more thought. */
+      mySAX->resolveEntity = NULL; 
       break;
 
       case CB_ENTITYDECL:
-      mySAX.entityDecl = my_entityDecl;
+      mySAX->entityDecl = my_entityDecl;
       break;
 
       case CB_NOTATIONDECL:
-      mySAX.notationDecl = my_notationDecl;
+      mySAX->notationDecl = my_notationDecl;
       break;
 
       case CB_ATTRIBUTEDECL:
-      mySAX.attributeDecl = my_attributeDecl;
+      mySAX->attributeDecl = my_attributeDecl;
       break;
 
       case CB_ELEMENTDECL:
-      mySAX.elementDecl = my_elementDecl;
+      mySAX->elementDecl = my_elementDecl;
       break;
 
       case CB_UNPARSEDENTITYDECL:
-      mySAX.unparsedEntityDecl = my_unparsedEntityDecl;
+      mySAX->unparsedEntityDecl = my_unparsedEntityDecl;
       break;
 
       case CB_STARTDOCUMENT:
-      mySAX.startDocument = my_startDocument;
+      mySAX->startDocument = my_startDocument;
       break;
 
       case CB_ENDDOCUMENT:
-      mySAX.endDocument = my_endDocument;
+      mySAX->endDocument = my_endDocument;
       break;
 
       case CB_STARTELEMENT:
-      mySAX.startElement = my_startElement;
+      mySAX->startElement = my_startElement;
       break;
 
       case CB_ENDELEMENT:
-      mySAX.endElement = my_endElement;
+      mySAX->endElement = my_endElement;
       break;
 
       case CB_REFERENCE:
-      mySAX.reference = my_reference;
+      mySAX->reference = my_reference;
       break;
 
       case CB_CHARACTERS:
-      mySAX.characters = my_characters;
+      mySAX->characters = my_characters;
       break;
 
       case CB_IGNORABLEWHITESPACE:
-      mySAX.ignorableWhitespace = my_ignorableWhitespace;
+      mySAX->ignorableWhitespace = my_ignorableWhitespace;
       break;
 
       case CB_PROCESSINGINSTRUCTION:
-      mySAX.processingInstruction = my_processingInstruction;
+      mySAX->processingInstruction = my_processingInstruction;
       break;
 
       case CB_COMMENT:
-      mySAX.comment = my_comment;
+      mySAX->comment = my_comment;
       break;
 
       case CB_GETPARAMETERENTITY:
-      mySAX.getParameterEntity = NULL; /* TODO: needs more thought. */
+      mySAX->getParameterEntity = NULL; 
       break;
 
       case CB_CDATABLOCK:
-      mySAX.cdataBlock = my_cdataBlock;
+      mySAX->cdataBlock = my_cdataBlock;
       break;
 
       case CB_EXTERNALSUBSET:
-      mySAX.externalSubset = my_externalSubset;
+      mySAX->externalSubset = my_externalSubset;
       break;
 
       case CB_STARTELEMENTNS:
-      mySAX.startElementNs = NULL;
+      mySAX->startElementNs = NULL;
       break;
 
       case CB_ENDELEMENTNS:
-      mySAX.endElementNs = NULL;
+      mySAX->endElementNs = NULL;
       break;
 
       case CB_SERROR:
-      mySAX.serror = my_serror;
+      mySAX->serror = my_serror;
       break;
 
       default:
       Pike_error("unknown callback identifier.\n");
   } 
+    f_aggregate(args-2);
+
+    make_PSAX_handler();
 
     if(ITEM(THIS->object_data->handlers)[callback_id].type!=PIKE_T_INT)
     {
@@ -955,7 +924,8 @@ PIKECLASS SAX
     // add_ref(f->u.efun);
     (ITEM(THIS->object_data->handlers)[callback_id]) = Pike_sp[0-1];
 
-    pop_n_elems(2);
+//    pop_stack();
+
   }
 
 
@@ -977,103 +947,103 @@ PIKECLASS SAX
     switch(callback_id)
     {
       case CB_INTERNALSUBSET:
-      mySAX.internalSubset = NULL;
+      mySAX->internalSubset = NULL;
       break;
 
       case CB_ISSTANDALONE:
-      mySAX.isStandalone = NULL;
+      mySAX->isStandalone = NULL;
       break;
 
       case CB_HASINTERNALSUBSET:
-      mySAX.hasInternalSubset = NULL;
+      mySAX->hasInternalSubset = NULL;
       break;
 
       case CB_HASEXTERNALSUBSET:
-      mySAX.hasExternalSubset = NULL;
+      mySAX->hasExternalSubset = NULL;
       break;
   
       case CB_RESOLVEENTITY:
-      mySAX.resolveEntity = NULL; /* TODO: needs more thought. */
+      mySAX->resolveEntity = NULL; /* TODO: needs more thought. */
       break;
 
       case CB_ENTITYDECL:
-      mySAX.entityDecl = NULL;
+      mySAX->entityDecl = NULL;
       break;
 
       case CB_NOTATIONDECL:
-      mySAX.notationDecl = NULL;
+      mySAX->notationDecl = NULL;
       break;
 
       case CB_ATTRIBUTEDECL:
-      mySAX.attributeDecl = NULL;
+      mySAX->attributeDecl = NULL;
       break;
 
       case CB_ELEMENTDECL:
-      mySAX.elementDecl = NULL;
+      mySAX->elementDecl = NULL;
       break;
 
       case CB_UNPARSEDENTITYDECL:
-      mySAX.unparsedEntityDecl = NULL;
+      mySAX->unparsedEntityDecl = NULL;
       break;
 
       case CB_STARTDOCUMENT:
-      mySAX.startDocument = NULL;
+      mySAX->startDocument = NULL;
       break;
 
       case CB_ENDDOCUMENT:
-      mySAX.endDocument = NULL;
+      mySAX->endDocument = NULL;
       break;
 
       case CB_STARTELEMENT:
-      mySAX.startElement = NULL;
+      mySAX->startElement = NULL;
       break;
 
       case CB_ENDELEMENT:
-      mySAX.endElement = NULL;
+      mySAX->endElement = NULL;
       break;
 
       case CB_REFERENCE:
-      mySAX.reference = NULL;
+      mySAX->reference = NULL;
       break;
 
       case CB_CHARACTERS:
-      mySAX.characters = NULL;
+      mySAX->characters = NULL;
       break;
 
       case CB_IGNORABLEWHITESPACE:
-      mySAX.ignorableWhitespace = NULL;
+      mySAX->ignorableWhitespace = NULL;
       break;
 
       case CB_PROCESSINGINSTRUCTION:
-      mySAX.processingInstruction = NULL;
+      mySAX->processingInstruction = NULL;
       break;
 
       case CB_COMMENT:
-      mySAX.comment = NULL;
+      mySAX->comment = NULL;
       break;
 
       case CB_GETPARAMETERENTITY:
-      mySAX.getParameterEntity = NULL; /* TODO: needs more thought. */
+      mySAX->getParameterEntity = NULL; /* TODO: needs more thought. */
       break;
 
       case CB_CDATABLOCK:
-      mySAX.cdataBlock = NULL;
+      mySAX->cdataBlock = NULL;
       break;
 
       case CB_EXTERNALSUBSET:
-      mySAX.externalSubset = NULL;
+      mySAX->externalSubset = NULL;
       break;
 
       case CB_STARTELEMENTNS:
-      mySAX.startElementNs = NULL;
+      mySAX->startElementNs = NULL;
       break;
 
       case CB_ENDELEMENTNS:
-      mySAX.endElementNs = NULL;
+      mySAX->endElementNs = NULL;
       break;
 
       case CB_SERROR:
-      mySAX.serror = NULL;
+      mySAX->serror = NULL;
       break;
 
       default:
@@ -1114,6 +1084,15 @@ PIKECLASS SAX
   PIKEFUN int feed(string d)
   {
     int retval;
+    xmlParserCtxtPtr context;
+
+    if(THIS->object_data->context == NULL)
+    {
+
+      context = xmlCreatePushParserCtxt(mySAX, NULL, NULL, 0, NULL);
+      if(context == NULL) Pike_error("unable to create parser context.\n");
+      THIS->object_data->context = context;
+    } 
 
     retval = xmlParseChunk(THIS->object_data->context, d->str, d->len, 0);
     push_int(retval);
@@ -1133,14 +1112,18 @@ PIKECLASS SAX
     xmlParserCtxtPtr context;
     char * b = "foo";
 
+    if(THIS->object_data->context == NULL)
+    {
+
+      context = xmlCreatePushParserCtxt(mySAX, NULL, NULL, 0, NULL);
+      if(context == NULL) Pike_error("unable to create parser context.\n");
+      THIS->object_data->context = context;
+    } 
+
     retval = xmlParseChunk(THIS->object_data->context, b, 0, 1);
     push_int(retval);
 
-    if(THIS->object_data->context)
-      xmlFreeParserCtxt(THIS->object_data->context);
-    context = xmlCreatePushParserCtxt(THIS->object_data->sax, NULL, NULL,
-      0, NULL);
-    THIS->object_data->context = context;
+    THIS->object_data->context = NULL;
   }
 
 /*!  @decl int parse(string d)
@@ -1165,16 +1148,25 @@ PIKECLASS SAX
   {
     int retval;
     xmlParserCtxtPtr context;
+    xmlSAXHandlerPtr ySAX;
+
+
+    if(THIS->object_data->context == NULL)
+    {
+      context = xmlCreatePushParserCtxt(mySAX, NULL, NULL, 0, NULL);
+      if(context == NULL) Pike_error("unable to create parser context.\n");
+      THIS->object_data->context = context;
+    }
+
 
     retval = xmlParseChunk(THIS->object_data->context, d->str, d->len, 0);
     retval = xmlParseChunk(THIS->object_data->context, d->str, 0, 1);
 
-    if(THIS->object_data->context)
-      xmlFreeParserCtxt(THIS->object_data->context);
-    context = xmlCreatePushParserCtxt(THIS->object_data->sax, NULL, NULL,
-      0, NULL);
-    THIS->object_data->context = context;
-
+    if(THIS->object_data->context != NULL)
+    {
+//      xmlFreeParserCtxt(THIS->object_data->context);
+      THIS->object_data->context=NULL;
+    }
     push_int(retval);
   }
 
@@ -1185,7 +1177,12 @@ PIKECLASS SAX
    xmlParserCtxtPtr context;
 
    sax = malloc(sizeof(SAX_OBJECT_DATA));
-   sax->sax = &mySAX;
+
+   if(sax == NULL) 
+     Pike_error("sax_init: out of memory.\n");
+
+   sax->sax = malloc(sizeof(struct _xmlSAXHandler));
+
    push_int(30);
    f_allocate(1);
 
@@ -1197,31 +1194,54 @@ PIKECLASS SAX
    pop_stack();
 
    THIS->object_data = sax;
+   THIS->object_data->context = NULL;
 
-   if(sax == NULL) 
-     Pike_error("sax_init: out of memory.\n");
-  
+
+      mySAX->internalSubset = NULL;
+      mySAX->isStandalone = NULL;
+      mySAX->hasInternalSubset = NULL;
+      mySAX->hasExternalSubset = NULL;
+      mySAX->resolveEntity = NULL;
+      mySAX->entityDecl = NULL;
+      mySAX->notationDecl = NULL;
+      mySAX->attributeDecl = NULL;
+      mySAX->elementDecl = NULL;
+      mySAX->unparsedEntityDecl = NULL;
+      mySAX->startDocument = NULL;
+      mySAX->endDocument = NULL;
+      mySAX->startElement = NULL;
+      mySAX->endElement = NULL;
+      mySAX->reference = NULL;
+      mySAX->characters = NULL;
+      mySAX->ignorableWhitespace = NULL;
+      mySAX->processingInstruction = NULL;
+      mySAX->comment = NULL;
+      mySAX->setDocumentLocator = NULL;
+      mySAX->getParameterEntity = NULL;
+      mySAX->getEntity = NULL;
+      mySAX->cdataBlock = NULL;
+      mySAX->externalSubset = NULL;
+      mySAX->startElementNs = NULL;
+      mySAX->endElementNs = NULL;
+      mySAX->serror = NULL;
+
     xmlDefaultSAXHandlerInit();
-    context = xmlCreatePushParserCtxt(THIS->object_data->sax, NULL, NULL,
-      0, NULL);
-
-    THIS->object_data->context = context;
+//    context = xmlCreatePushParserCtxt(mySAX, NULL, NULL, 0, NULL);
+//    THIS->object_data->context = context;
   }
  
   EXIT
   {
-/*
-printf("SAX exit\n");
-*/
-    if(THIS->object_data->context)
-      xmlFreeParserCtxt(THIS->object_data->context);
-
+    if(THIS->object_data->context != NULL)
+    {
+      xmlFreeParserCtxt(THIS->object_data->context);  
+    }
     if(THIS->object_data->handlers != NULL)
     {
       int x = 0;
       for(x = 0; x < THIS->object_data->handlers->size; x++)
       {
-        free_svalue(&ITEM(THIS->object_data->handlers)[x]);
+      free_svalue(&ITEM(THIS->object_data->handlers)[x]);
       }
       free_array(THIS->object_data->handlers);
     }
@@ -1239,11 +1259,14 @@ printf("SAX exit\n");
       THIS->user_data = user_data;
       add_ref(user_data);    
       assign_svalue(&(THIS->cb), cb);
-//      add_ref(THIS->cb.u.efun);
+  //    add_ref(THIS->cb.u.efun);
+  //    add_ref(THIS->user_data);
     }
 EXIT
 {
   printf("PSAXHandler exit\n");
+//  free_array(THIS->user_data);
+//  free_svalue(& THIS->cb);
 }
   }
 
@@ -1258,7 +1281,6 @@ void make_PSAX_handler()
   push_object(o);
   add_ref(o);
   return;
-
 }
 
 struct array * get_callback_data(struct object * o)
