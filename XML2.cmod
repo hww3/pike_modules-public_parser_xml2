@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.14 2005-03-24 02:01:40 hww3 Exp $
+ * $Id: XML2.cmod,v 1.15 2005-03-28 03:05:49 hww3 Exp $
  */
 
 /*
@@ -145,6 +145,7 @@
   void my_startElement(void * ctx, const xmlChar * fullname, const xmlChar ** atts);
   void my_comment(void * ctx, const xmlChar * name);
   void my_characters(void * ctx, const xmlChar * ch, int len);
+  void my_processingInstruction(void * ctx, const xmlChar * target, const xmlChar * data);
   void my_reference(void * ctx, const xmlChar * name);
   void my_endElement(void * ctx, const xmlChar * name);
   int my_hasInternalSubset(void * data);
@@ -175,7 +176,7 @@ static struct _xmlSAXHandler   mySAX = {
   .reference = my_reference,
   .characters = my_characters,
   .ignorableWhitespace = NULL,
-  .processingInstruction = NULL,
+  .processingInstruction = my_processingInstruction,
   .comment = my_comment,
   .warning = NULL,
   .error = NULL,
@@ -277,6 +278,31 @@ PIKECLASS SAX
        return retval;
     }    
     return 0;
+  }
+
+  void my_processingInstruction(void * ctx, const xmlChar * target, const xmlChar * data)
+  {
+    if(ITEM(THIS->object_data->handlers)[CB_PROCESSINGINSTRUCTION].type!=PIKE_T_INT)
+    {
+       struct svalue * func;
+       struct array * a;
+       struct object * o;
+       int z = 0;
+
+       o = ITEM(THIS->object_data->handlers)[CB_PROCESSINGINSTRUCTION].u.object;
+       a = get_callback_data(o);       
+       func = get_callback_func(o);       
+       push_svalue(func);
+
+       push_text((char *)target);
+       push_text((char *)data);
+
+       for(z = 0; z < a->size; z++)
+       {
+         push_svalue(&ITEM(a)[z]);
+       }
+       apply_svalue(&Pike_sp[0- (a->size+3)], a->size + 2);
+    }    
   }
 
   void my_endElement(void * ctx, const xmlChar * name)
