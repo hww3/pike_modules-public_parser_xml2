@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.43 2005-04-06 23:17:50 hww3 Exp $
+ * $Id: XML2.cmod,v 1.44 2005-04-06 23:46:03 hww3 Exp $
  */
 
 /*
@@ -1664,7 +1664,10 @@ PIKEFUN mapping get_nss()
 
   for(ns = * list; (ns!=NULL); ns = ns->next)
   {
-    push_text(ns->prefix);
+    if(ns->prefix==NULL)
+      push_text("_default");
+    else 
+      push_text(ns->prefix);
     push_text(ns->href);
     num_ns++;
   }
