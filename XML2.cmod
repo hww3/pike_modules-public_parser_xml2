@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.20 2005-03-28 04:01:56 hww3 Exp $
+ * $Id: XML2.cmod,v 1.21 2005-03-28 04:12:19 hww3 Exp $
  */
 
 /*
@@ -146,6 +146,7 @@
   void my_comment(void * ctx, const xmlChar * name);
   void my_characters(void * ctx, const xmlChar * ch, int len);
   void my_cdataBlock(void * ctx, const xmlChar * ch, int len);
+  void my_ignorableWhitespace(void * ctx, const xmlChar * ch, int len);
   void my_processingInstruction(void * ctx, const xmlChar * target, const xmlChar * data);
   void my_internalSubset(void * ctx, const xmlChar * name, const xmlChar * ExternalID, const xmlChar * SystemID);
   void my_externalSubset(void * ctx, const xmlChar * name, const xmlChar * ExternalID, const xmlChar * SystemID);
@@ -179,7 +180,7 @@ static struct _xmlSAXHandler   mySAX = {
   .endElement = my_endElement,
   .reference = my_reference,
   .characters = my_characters,
-  .ignorableWhitespace = NULL,
+  .ignorableWhitespace = my_ignorableWhitespace,
   .processingInstruction = my_processingInstruction,
   .comment = my_comment,
   .warning = NULL,
@@ -412,6 +413,11 @@ PIKECLASS SAX
   void my_cdataBlock(void * ctx, const xmlChar * ch, int len)
   {
     PSAX_string_len_callback(CB_CDATABLOCK, ctx, ch, len);
+  }
+
+  void my_ignorableWhitespace(void * ctx, const xmlChar * ch, int len)
+  {
+    PSAX_string_len_callback(CB_IGNORABLEWHITESPACE, ctx, ch, len);
   }
 
   void my_characters(void * ctx, const xmlChar * ch, int len)
