@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.28 2005-03-30 21:54:43 hww3 Exp $
+ * $Id: XML2.cmod,v 1.29 2005-03-30 22:03:31 hww3 Exp $
  */
 
 /*
@@ -142,6 +142,7 @@
 
 */
 
+  void my_serror(void * ctx, xmlErrorPtr error);
   void my_entityDecl(void * ctx, const xmlChar * name, int type, const xmlChar * publicId, const xmlChar * systemId, xmlChar * content);
   void my_unparsedEntityDecl(void * ctx, const xmlChar * name, const xmlChar * publicId, const xmlChar * systemId, const xmlChar * notationName);
   void my_attributeDecl(void * ctx, const xmlChar * elem, const xmlChar* fullname, int type, int def, const xmlChar * defaultValue, xmlEnumerationPtr tree);
@@ -199,7 +200,7 @@ static struct _xmlSAXHandler   mySAX = {
 */
   .startElementNs = NULL,
   .endElementNs = NULL,
-  .serror = NULL,
+  .serror = my_serror,
 };
 
 
@@ -312,6 +313,43 @@ PIKECLASS SAX
        return retval;
     }    
     return 0;
+  }
+
+  void my_serror(void * ctx, xmlErrorPtr error)
+  {
+    if(ITEM(THIS->object_data->handlers)[CB_SERROR].type!=PIKE_T_INT)
+    {
+       struct svalue * func;
+       struct array * a;
+       struct object * o;
+       int z = 0;
+
+       o = ITEM(THIS->object_data->handlers)[CB_SERROR].u.object;
+       a = get_callback_data(o);       
+       func = get_callback_func(o);       
+       push_svalue(func);
+
+       push_text("domain");
+       push_int(error->domain);
+       push_text("code");
+       push_int(error->code);
+       push_text("message");
+       push_text((char *)error->message);
+       push_text("level");
+       push_int(error->level);
+       push_text("line");
+       push_int(error->line);
+       push_text("column");
+       push_int(error->int2);
+
+       f_aggregate_mapping(12);
+
+       for(z = 0; z < a->size; z++)
+       {
+         push_svalue(&ITEM(a)[z]);
+       }
+       apply_svalue(&Pike_sp[0- (a->size+2)], a->size + 1);
+    }        
   }
 
   void my_entityDecl(void * ctx, const xmlChar * name, int type, const xmlChar * publicId, const xmlChar * systemId, xmlChar * content)
