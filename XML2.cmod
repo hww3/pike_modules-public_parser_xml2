@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.2 2005-03-20 19:28:01 hww3 Exp $
+ * $Id: XML2.cmod,v 1.3 2005-03-21 00:41:10 hww3 Exp $
  */
 
 /*
@@ -455,6 +455,60 @@ PIKEFUN object parent()
     OBJ2_NODE(o)->object_data->node = MY_NODE->parent;
     NEW_NODE_REFS(o);
 // printf("refs: %d\n", (* OBJ2_NODE(o)->object_data->refs));
+    push_object(o);
+  }
+}
+
+/*!  @decl Node get_root_node()
+ *!     get the Node which is the root of this tree.
+ */
+PIKEFUN object get_root_node()
+{
+  struct object * o;
+  xmlNodePtr node;
+
+  check_node_created();
+  
+  node = xmlDocGetRootElement(MY_NODE->doc);
+  if(node == NULL)
+  {
+    push_int(0);
+    return;
+  }
+
+  else 
+  {
+    o=NEW_NODE();
+    OBJ2_NODE(o)->object_data->node = node;
+    NEW_NODE_REFS(o);
+    push_object(o);
+  }
+}
+
+/*!  @decl Node set_root_node()
+ *!     set this Node to be the root of this tree.
+ *!  @returns
+ *!     the old root of the tree, if any existed.
+ */
+PIKEFUN object set_root_node()
+{
+  struct object * o;
+  xmlNodePtr node;
+
+  check_node_created();
+  
+  node = xmlDocSetRootElement(MY_NODE->doc, MY_NODE);
+  if(node == NULL)
+  {
+    push_int(0);
+    return;
+  }
+
+  else 
+  {
+    o=NEW_NODE();
+    OBJ2_NODE(o)->object_data->node = node;
+    NEW_NODE_REFS(o);
     push_object(o);
   }
 }
