@@ -1,3 +1,4 @@
+
 /*
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -13,7 +14,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.36 2005-04-03 16:32:11 hww3 Exp $
+ * $Id: XML2.cmod,v 1.37 2005-04-04 02:47:57 hww3 Exp $
  */
 
 /*
@@ -92,7 +93,7 @@
 #endif
 
 #ifdef HAVE_LIBXML_SAX_H
-#include <libxml/SAX.h>
+#include <libxml/SAX2.h>
 #endif
 
 #ifdef HAVE_LIBXML_XPATH_H
@@ -131,13 +132,13 @@
 #define CB_ENDELEMENTNS 28
 #define CB_SERROR 29
 
-/*
+
   void my_startElementNs(void * ctx, const xmlChar * localname, 
     const xmlChar * prefix, const xmlChar * uri, 
     int nb_namespaces, const xmlChar ** namespaces, 					 
     int nb_attributes, int nb_defaulted,
     const xmlChar ** atts);
-*/
+
 
   void my_serror(void * ctx, xmlErrorPtr error);
   void my_entityDecl(void * ctx, const xmlChar * name, int type, const xmlChar * publicId, const xmlChar * systemId, xmlChar * content);
@@ -288,6 +289,7 @@ PIKECLASS SAX
        struct object * o;
        int z = 0;
 
+printf("serror\n");
        o = ITEM(THIS->object_data->handlers)[CB_SERROR].u.object;
        a = get_callback_data(o);       
        func = get_callback_func(o);       
@@ -629,6 +631,7 @@ PIKECLASS SAX
   void my_startElement(void * data, const xmlChar * name, const xmlChar ** atts)
   {
     int z = 0;
+printf("start element\n");
 
     if(ITEM(THIS->object_data->handlers)[CB_STARTELEMENT].type!=PIKE_T_INT)
     {
@@ -652,7 +655,6 @@ PIKECLASS SAX
          }
        }
          f_aggregate_mapping(z);
-
        for(z = 0; z < a->size; z++)
        {
          push_svalue(&ITEM(a)[z]);
@@ -672,6 +674,8 @@ PIKECLASS SAX
     const xmlChar ** atts)
   {
     int z = 0;
+    int i = 0;
+
     if(ITEM(THIS->object_data->handlers)[CB_STARTELEMENTNS].type!=PIKE_T_INT)
     {
        struct svalue * func;
@@ -684,24 +688,54 @@ PIKECLASS SAX
        push_svalue(func);
 
        push_text((char *)localname);
-       push_text((char *)prefix);
-       push_text((char *)uri);
+
+       if(prefix != NULL)
+         push_text((char *)prefix);
+       else
+         push_int(0);
+       if(uri != NULL)
+         push_text((char *)uri);
+       else
+          push_int(0);
 
        if(atts!= NULL)
        {
-         for(z=0; atts[z] != NULL; z++)
-
+         for(z=0,i=0; i< nb_attributes; i++, z=z+5)
          {
+            push_text("name");
             push_text(atts[z]);
+
+            push_text("prefix");
+            if(atts[z+1] != NULL)
+             push_text(atts[z+1]); 
+            else push_int(0);
+
+            push_text("uri");
+            if(atts[z+2] != NULL)
+             push_text(atts[z+2]); 
+            else push_int(0);
+            push_text("value");
+            if(atts[z+3] != NULL)
+            {
+             char * v;
+             v = malloc((atts[z+4] - atts[z+3])+1);
+             strlcpy(v, atts[z+3], (atts[z+4] - atts[z+3])+1);
+             push_text(v); 
+             free(v);
+            }
+            else push_int(0);
+
+           f_aggregate_mapping(8);
          }
+          f_aggregate(i);
        }
-         f_aggregate_mapping(z);
+       printf("got an array of size %d\n", i);
 
        for(z = 0; z < a->size; z++)
        {
          push_svalue(&ITEM(a)[z]);
        }
-       apply_svalue(&Pike_sp[0- (a->size+4)], a->size + 3);
+       apply_svalue(&Pike_sp[0- (a->size+5)], a->size + 4);
     }    
   }
 
@@ -891,7 +925,7 @@ PIKECLASS SAX
       break;
 
       case CB_STARTELEMENTNS:
-      mySAX->startElementNs = NULL;
+      mySAX->startElementNs = my_startElementNs;
       break;
 
       case CB_ENDELEMENTNS:
@@ -1198,6 +1232,8 @@ PIKECLASS SAX
    THIS->object_data = sax;
    THIS->object_data->context = NULL;
 
+      // for SAX2
+      mySAX->initialized = XML_SAX2_MAGIC;
 
       mySAX->internalSubset = NULL;
       mySAX->isStandalone = NULL;
@@ -1228,6 +1264,7 @@ PIKECLASS SAX
       mySAX->serror = NULL;
 
     xmlDefaultSAXHandlerInit();
+ //   xmlSAXVersion(mySAX, 2);
 //    context = xmlCreatePushParserCtxt(mySAX, NULL, NULL, 0, NULL);
 //    THIS->object_data->context = context;
   }
@@ -2702,10 +2739,8 @@ add_integer_constant("SAX_CB_CDATABLOCK", CB_CDATABLOCK, 0);
 add_integer_constant("SAX_CB_EXTERNALSUBSET", CB_EXTERNALSUBSET, 0);
 
 /*  we don't know how SAX2 works yet...  */
-/*
 add_integer_constant("SAX_CB_STARTELEMENTNS", CB_STARTELEMENTNS, 0);
 add_integer_constant("SAX_CB_ENDELEMENTNS", CB_ENDELEMENTNS, 0);
-*/
 add_integer_constant("SAX_CB_SERROR", CB_SERROR, 0);
     /* some constants */  
   add_integer_constant("INTERNAL_GENERAL_ENTITY", XML_INTERNAL_GENERAL_ENTITY, 0);
