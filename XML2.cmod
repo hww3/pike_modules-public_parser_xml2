@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.26 2005-03-29 22:06:07 hww3 Exp $
+ * $Id: XML2.cmod,v 1.27 2005-03-29 22:10:40 hww3 Exp $
  */
 
 /*
@@ -340,14 +340,14 @@ PIKECLASS SAX
 
   void my_unparsedEntityDecl(void * ctx, const xmlChar * name, const xmlChar * publicId, const xmlChar * systemId, const xmlChar * notationName)
   {
-    if(ITEM(THIS->object_data->handlers)[CB_ATTRIBUTEDECL].type!=PIKE_T_INT)
+    if(ITEM(THIS->object_data->handlers)[CB_UNPARSEDENTITYDECL].type!=PIKE_T_INT)
     {
        struct svalue * func;
        struct array * a;
        struct object * o;
        int z = 0;
 
-       o = ITEM(THIS->object_data->handlers)[CB_ATTRIBUTEDECL].u.object;
+       o = ITEM(THIS->object_data->handlers)[CB_UNPARSEDENTITY].u.object;
        a = get_callback_data(o);       
        func = get_callback_func(o);       
        push_svalue(func);
