@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.34 2005-04-02 18:32:37 hww3 Exp $
+ * $Id: XML2.cmod,v 1.35 2005-04-03 04:22:56 hww3 Exp $
  */
 
 /*
@@ -716,13 +716,11 @@ PIKECLASS SAX
 
   void my_startDocument(void * data)
   {
-    printf("start doc!\n");
     PSAX_plain_callback(CB_STARTDOCUMENT, data);
   }
 
   void my_endDocument(void * data)
   {
-    printf("end doc!\n");
     PSAX_plain_callback(CB_ENDDOCUMENT, data);
   }
 
@@ -800,7 +798,7 @@ PIKECLASS SAX
   PIKEFUN void set_callback(int callback_id, function f, mixed ... extra_args)
   {
     struct svalue * ae;
-printf("setting callback %d\n", callback_id);
+//printf("setting callback %d\n", callback_id);
 
     switch(callback_id)
     {
@@ -1264,7 +1262,7 @@ printf("setting callback %d\n", callback_id);
     }
 EXIT
 {
-  printf("PSAXHandler exit\n");
+//  printf("PSAXHandler exit\n");
 //  free_array(THIS->user_data);
 //  free_svalue(& THIS->cb);
 }
