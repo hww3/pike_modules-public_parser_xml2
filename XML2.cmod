@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.19 2005-03-28 03:47:03 hww3 Exp $
+ * $Id: XML2.cmod,v 1.20 2005-03-28 04:01:56 hww3 Exp $
  */
 
 /*
@@ -155,7 +155,7 @@
   int my_hasExternalSubset(void * data);
   void my_startDocument(void * data);
   void my_endDocument(void * data);
-  void my_isStandalone(void * data);
+  int my_isStandalone(void * data);
   void  make_PSAX_handler();
   struct array * get_callback_data(struct object * o);
   struct svalue * get_callback_func(struct object * o);
@@ -406,13 +406,10 @@ PIKECLASS SAX
          push_svalue(&ITEM(a)[z]);
        }
        apply_svalue(&Pike_sp[0- (a->size+2)], a->size + 1);
-/*       printf("finished callback.\n");
-*/
     }    
-
   }
 
-  void my_cdataBlock(void * ctx, const xmlChar * ch, int len);
+  void my_cdataBlock(void * ctx, const xmlChar * ch, int len)
   {
     PSAX_string_len_callback(CB_CDATABLOCK, ctx, ch, len);
   }
@@ -443,10 +440,7 @@ PIKECLASS SAX
          push_svalue(&ITEM(a)[z]);
        }
        apply_svalue(&Pike_sp[0- (a->size+2)], a->size + 1);
-/*       printf("finished callback.\n");
-*/
     }    
-
   }
 
   void my_comment(void * ctx, const xmlChar * value)
@@ -470,10 +464,7 @@ PIKECLASS SAX
          push_svalue(&ITEM(a)[z]);
        }
        apply_svalue(&Pike_sp[0- (a->size+2)], a->size + 1);
-/*       printf("finished callback.\n");
-*/
     }    
-
   }
 
   void my_startElement(void * data, const xmlChar * name, const xmlChar ** atts)
@@ -498,9 +489,7 @@ PIKECLASS SAX
          for(z=0; atts[z] != NULL; z++)
 
          {
-/* printf("element %d: %s\n", z, atts[z]); */
             push_text(atts[z]);
-//          z++;
          }
        }
          f_aggregate_mapping(z);
@@ -524,7 +513,6 @@ PIKECLASS SAX
     const xmlChar ** atts)
   {
     int z = 0;
-printf("startelementns\n");
     if(ITEM(THIS->object_data->handlers)[CB_STARTELEMENTNS].type!=PIKE_T_INT)
     {
        struct svalue * func;
@@ -546,7 +534,6 @@ printf("startelementns\n");
 
          {
             push_text(atts[z]);
-//          z++;
          }
        }
          f_aggregate_mapping(z);
@@ -556,13 +543,16 @@ printf("startelementns\n");
          push_svalue(&ITEM(a)[z]);
        }
        apply_svalue(&Pike_sp[0- (a->size+4)], a->size + 3);
-       printf("finished callback.\n");
     }    
   }
 
-  void my_isStandalone(void * data)
+  int my_isStandalone(void * data)
   {
+    int retval = 0;
     PSAX_plain_callback(CB_ISSTANDALONE, data);
+    retval = Pike_sp[0-1].u.integer;    
+    pop_stack();
+    return retval;
   }
 
   void my_startDocument(void * data)
