@@ -1,7 +1,16 @@
 This module provides an interface to the libxml2 library. This module has 
-been tested and is known to work on Pike 7.6 under Solaris and Linux. 
-Please report problems and bugs to the author, listed in the
+been tested and is known to work on Pike 7.6 under Solaris and Linux 
+using libxml2 version 2.6. Your mileage may vary, and problem reports are 
+welcome! Please report problems and bugs to the author, listed in the
 AUTHORS document that came with this software.
+
+This module currently provides 2 parsers: a Tree/DOM oriented parser, and 
+a SAX v2 compliant parser. Namespaces are supported for each parser. The 
+SAX parser supports "streamed" or "push" parsing as well as parsing of 
+the complete document. The Tree parser API is similar, though not 
+identical, to the Parser.XML.Tree parser provided with Pike. 
+Non-scientific tests indicate that this parser is considerably faster than 
+that supplied with Pike.
 
 BUILDING
 
