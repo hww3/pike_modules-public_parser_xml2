@@ -2,11 +2,13 @@ Version History
 
 Version 1.3
 
+- Added set_node_name()
+- Added add_ns() and set_ns()
 - Added get_root_node() and set_root_node()
 - Added select_xpath_nodes() to allow selection of nodes based on an XPath 
     specification
 - Added support for creation of PI nodes
-- Added support for setting of attributes
+- Added support for setting and deletion of attributes
 - More documentation
 
 Version 1.2
