@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.44 2005-04-06 23:46:03 hww3 Exp $
+ * $Id: XML2.cmod,v 1.45 2005-04-07 01:16:46 hww3 Exp $
  */
 
 /*
@@ -2846,7 +2846,7 @@ PIKEFUN object new_xml(string version, string root_name)
 
 EXTRA
 {
-  add_string_constant("__version", "1.6", 0);
+  add_string_constant("__version", "1.9", 0);
   add_string_constant("__author", "Bill Welliver <bill@welliver.org>", 0);
 
 }
