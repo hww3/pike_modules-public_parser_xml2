@@ -1,5 +1,5 @@
-# $Id: configure.in,v 1.4 2005-04-09 22:13:59 hww3 Exp $
-AC_INIT(xml_main.cmod)
+# $Id: configure.in,v 1.5 2005-04-09 22:28:07 hww3 Exp $
+AC_INIT(xml2_config.h.in)
 
 AC_MODULE_INIT()
 AC_CONFIG_HEADERS(xml2_config.h)
