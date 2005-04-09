@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: xml2.h,v 1.2 2005-04-09 22:58:42 hww3 Exp $
+ * $Id: xml2.h,v 1.3 2005-04-09 23:00:45 hww3 Exp $
  */
 
 /*
@@ -89,6 +89,22 @@
 #ifdef HAVE_LIBXML_XPATH_H
 #include <libxml/xpath.h>
 #include <libxml/xpathInternals.h>
+#endif
+
+#ifdef HAVE_LIBXSLT_XSLT_H
+#include <libxslt/xslt.h>
+#endif
+
+#ifdef HAVE_LIBXSLT_XSLTINTERNALS_H
+#include <libxslt/xsltInternals.h>
+#endif
+
+#ifdef HAVE_LIBXSLT_TRANSFORM_H
+#include <libxslt/transform.h>
+#endif
+
+#ifdef HAVE_LIBXSLT_XSLTUTILS_H
+#include <libxslt/xsltutils.h>
 #endif
 
 #define CB_INTERNALSUBSET 0
