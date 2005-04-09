@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.5 2005-04-09 22:28:07 hww3 Exp $
+# $Id: configure.in,v 1.6 2005-04-09 22:58:42 hww3 Exp $
 AC_INIT(xml2_config.h.in)
 
 AC_MODULE_INIT()
@@ -15,9 +15,9 @@ AC_CHECK_HEADERS(libxml/xpath.h)
 AC_CHECK_HEADERS(libxml/SAX2.h)
 
 AC_CHECK_HEADERS(libxslt/xslt.h)
-AC_CHECK_HEADERS(libxslt/xsltInternals.h
-AC_CHECK_HEADERS(libxslt/transform.h
-AC_CHECK_HEADERS(libxslt/xsltutils.h
+AC_CHECK_HEADERS(libxslt/xsltInternals.h)
+AC_CHECK_HEADERS(libxslt/transform.h)
+AC_CHECK_HEADERS(libxslt/xsltutils.h)
 
 AC_CHECK_LIB(xml2, xmlCleanupParser) 
 AC_CHECK_LIB(xslt, xsltCleanupGlobals) 

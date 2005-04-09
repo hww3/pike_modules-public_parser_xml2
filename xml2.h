@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: xml2.h,v 1.1 2005-04-07 19:00:41 hww3 Exp $
+ * $Id: xml2.h,v 1.2 2005-04-09 22:58:42 hww3 Exp $
  */
 
 /*
@@ -124,7 +124,9 @@
 
 struct program * Node_program;
 
-extern ptrdiff_t Node_storage_offset;
+struct program * Stylesheet_program;
+
+extern ptrdiff_t Stylesheet_storage_offset;
 
   xmlParserInputPtr my_getParameterEntity(void * ctx, const xmlChar * name); 
 
@@ -186,6 +188,12 @@ extern ptrdiff_t Node_storage_offset;
     INT32 * refs;
   } NODE_OBJECT_DATA;
 
+  typedef struct
+  {
+    xsltStylesheetPtr stylesheet;
+    INT32 * refs;
+  } STYLESHEET_OBJECT_DATA;
+
 #ifndef THIS_IS_XML2_NODE
 
 struct Node_struct {
@@ -194,14 +202,23 @@ struct Node_struct {
 
 #endif
 
+#ifndef THIS_IS_XML2_STYLESHEET
+
+struct Stylesheet_struct {
+ STYLESHEET_OBJECT_DATA   *object_data;
+};
+
+#endif
+
 #define mySAX THIS->object_data->sax
 
 #define MY_NODE (THIS->object_data->node)
+#define MY_STYLESHEET (THIS->object_data->stylesheet)
 
 
 #define OBJ2_NODE(o) ((struct Node_struct *)get_storage(o, Node_program))
 
-
+#define OBJ2_STYLESHEET(o) ((struct Stylesheet_struct *)get_storage(o, Stylesheet_program))
 
 #define NEW_NODE_OBJ(_X_, _Y_) { apply(Pike_fp->current_object, "Node", 0); \
   OBJ2_NODE((Pike_sp[0-1].u.object))->object_data->node = _Y_; \

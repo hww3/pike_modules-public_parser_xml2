@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.47 2005-04-09 22:13:59 hww3 Exp $
+ * $Id: XML2.cmod,v 1.48 2005-04-09 22:58:42 hww3 Exp $
  */
 
 /*
@@ -286,6 +286,50 @@ PIKEFUN string render_xml(object n)
     push_int(0);
   }
 }
+
+/*! @decl Node parse_xslt(string xslt)
+ *!   Parse a string containing an XSLT stylesheet.
+ *!
+ *!  @returns
+ *!    a @[Stylesheet] object containing the parsed stylesheet.
+ */
+PIKEFUN object parse_xslt(string xslt)
+{
+  xsltStylesheetPtr sty = NULL;
+  xmlDocPtr doc = NULL;
+  struct Stylesheet_struct * ss;
+  STYLESHEET_OBJECT_DATA * od;
+
+  doc = xmlReadMemory(xml->str, xml->len, "noname.xml", NULL,
+                        0);
+
+  if(doc == NULL)
+  {
+    xmlFreeDoc(doc);
+    Pike_error("An error occurred while parsing the stylesheet xml.\n");
+  }
+
+  sty = xsltParseStylesheetDoc(doc)
+
+  if(sty == NULL)
+  {
+    Pike_error("Unable to parse stylesheet node.\n");
+  }  
+
+  // ok, we have a parsed sheet. now let's turn it into a real live pike object.
+
+  pop_stack();
+
+  apply(Pike_fp->current_object, "Stylesheet", 0);
+  
+  ss = OBJ2_STYLESHEET((Pike_sp[0-1].u.object));
+  od = (STYLESHEET_OBJECT_DATA *)(ss->object_data);
+
+  od->refs = malloc(sizeof(INT32));
+  (* od->refs)=1;
+  od->stylesheet = sty;
+}
+
 
 /*! @decl Node parse_xml(string xml)
  *!   Parse an string containing XML.
