@@ -1,23 +1,32 @@
-# $Id: configure.in,v 1.3 2005-03-23 23:25:37 hww3 Exp $
+# $Id: configure.in,v 1.4 2005-04-09 22:13:59 hww3 Exp $
 AC_INIT(xml_main.cmod)
 
 AC_MODULE_INIT()
 AC_CONFIG_HEADERS(xml2_config.h)
 
 PKG_CHECK_MODULES(XML2, libxml-2.0)
+PKG_CHECK_MODULES(XSLT, libxslt)
 
-CPPFLAGS="${CPPFLAGS} ${XML2_CFLAGS}"
-LDFLAGS="${LDFLAGS} ${XML2_LIBS}"
+CPPFLAGS="${CPPFLAGS} ${XML2_CFLAGS} ${XSLT_CFLAGS}"
+LDFLAGS="${LDFLAGS} ${XML2_LIBS} ${XSLT_LIBS}"
 
 AC_CHECK_HEADERS(libxml/parser.h)
 AC_CHECK_HEADERS(libxml/xpath.h)
 AC_CHECK_HEADERS(libxml/SAX2.h)
 
-AC_CHECK_LIB(xml2, xmlParseMemory) 
+AC_CHECK_HEADERS(libxslt/xslt.h)
+AC_CHECK_HEADERS(libxslt/xsltInternals.h
+AC_CHECK_HEADERS(libxslt/transform.h
+AC_CHECK_HEADERS(libxslt/xsltutils.h
+
+AC_CHECK_LIB(xml2, xmlCleanupParser) 
+AC_CHECK_LIB(xslt, xsltCleanupGlobals) 
 
 AC_SUBST(XML2_CFLAGS) 
 AC_SUBST(XML2_LIBS)
 
-AC_OUTPUT(Makefile)
+AC_SUBST(XSLT_CFLAGS) 
+AC_SUBST(XSLT_LIBS)
 
+AC_OUTPUT(Makefile)
 

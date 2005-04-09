@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.46 2005-04-07 19:00:59 hww3 Exp $
+ * $Id: XML2.cmod,v 1.47 2005-04-09 22:13:59 hww3 Exp $
  */
 
 /*
@@ -393,6 +393,11 @@ void pike_init_xml2_main()
 void pike_exit_xml2_main()
 {
   EXIT
+  
+#ifdef HAVE_XSLT
+xsltCleanupGlobals();
+#endif /* HAVE_XSLT */
+
   xmlCleanupParser();
 }
 
