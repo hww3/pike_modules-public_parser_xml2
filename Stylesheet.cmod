@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: Stylesheet.cmod,v 1.1 2005-04-09 22:58:42 hww3 Exp $
+ * $Id: Stylesheet.cmod,v 1.2 2005-04-10 05:40:34 hww3 Exp $
  */
 
 /*
@@ -77,6 +77,7 @@ optflags ID_PRIVATE
 {
 
   CVAR STYLESHEET_OBJECT_DATA   *object_data;
+  PIKEVAR object node;
 
 PIKEFUN string _sprintf(int type, mixed t)
 {
@@ -91,7 +92,124 @@ PIKEFUN void create()
 {
 }
 
-int check_stylesheet_create()
+PIKEFUN string apply(object xml)
+{
+  xmlDocPtr output;
+  xmlOutputBufferPtr xmlBuf;
+  int x=0;
+
+  output = xsltApplyStylesheet(THIS->object_data->stylesheet, 
+                                 OBJ2_NODE(xml)->object_data->node->doc, 
+                                 THIS->object_data->atts);
+
+  if(output == NULL)
+  {
+    pop_n_elems(args);
+    Pike_error("unable to transform document.\n");
+  }
+
+  xmlBuf = xmlAllocOutputBuffer(
+        xmlGetCharEncodingHandler((xmlCharEncoding)10));
+
+  xsltSaveResultTo( xmlBuf, output, THIS->object_data->stylesheet);
+
+  pop_n_elems(args);
+
+  push_text(xmlBuf->conv->content);
+
+  xmlOutputBufferClose(xmlBuf);
+
+  if(output != NULL)
+    xmlFreeDoc(output);
+  
+}
+
+PIKEFUN void set_attributes(mapping variables)
+{
+  const char ** vars = NULL;
+  int varcount, i;
+  struct keypair * k;
+  INT32 e;
+  xmlChar* value;
+  const xmlChar* str;
+
+  if ( variables != NULL ) 
+  {
+    struct svalue sind, sval;
+    int tmpint=0;
+
+    varcount = 0;
+
+    if(THIS->object_data->atts != NULL)
+    {
+      free(THIS->object_data->atts);
+      THIS->object_data->atts = NULL;
+    }
+    vars = malloc( sizeof(char *) * 
+                  ( 1 + ((m_sizeof(variables)) * 2 )));
+    MAPPING_LOOP(variables)  
+    {
+      sind = k->ind;
+      sval = k->val;
+      if(!(sind.type == T_STRING && sval.type == T_STRING)) 
+      {
+        continue;
+      }
+      // index
+      str  = (const xmlChar *) sval.u.string->str;
+      if ( xmlStrstr(str, (xmlChar*) "\n") == NULL ) 
+      {
+        if ( xmlStrchr(str, '"') ) 
+        {
+          if (xmlStrchr(str, '\'')) 
+          {
+            Pike_error("Param contains quote and double-quotes.");
+            return;    
+          }
+          value = xmlStrdup((const xmlChar *)"'");
+          value = xmlStrcat(value, str);
+          value = xmlStrcat(value, (const xmlChar *)"'");
+        }
+        else 
+        {
+          value = xmlStrdup((const xmlChar *)"\"");
+          value = xmlStrcat(value, str);
+          value = xmlStrcat(value, (const xmlChar *)"\"");
+        }              
+      }
+      else 
+      {
+        // param contains newlines
+        value = xmlStrdup((const xmlChar *)"\"");
+        value = xmlStrcat(value, (const xmlChar *)"\"");
+      }
+            
+      str = (const xmlChar*) sind.u.string->str;
+
+      // namespaces are bad
+      if ( xmlStrchr(str, ':') ) 
+        vars[tmpint++] = strdup("supressed");
+      else
+        vars[tmpint++] = strdup(str);
+      vars[tmpint++] = value;
+      if ( varcount > MAX_PARAMS )
+        Pike_error("Too many params !");
+      varcount++;
+    }
+    vars[tmpint] = NULL;
+  }
+  else 
+  {
+    vars = malloc(sizeof(char *));
+    vars[0] = NULL;
+  }
+
+  THIS->object_data->atts = vars;
+  pop_stack();
+}
+
+int check_stylesheet_created()
+{
   if(THIS->object_data->stylesheet != NULL)
     return 1;
   Pike_error("Stylesheet not initialized.\n");
@@ -107,7 +225,7 @@ INIT
         Pike_error("init_stylesheet: Out of memory!\n");
 
     dta->stylesheet = NULL;
-
+    dta->atts = NULL;
     THIS->object_data = dta;
 }
 
@@ -121,6 +239,17 @@ EXIT
   else
   {
    (*( THIS->object_data->refs)) --;
+  }
+
+  if(THIS->object_data->atts != NULL)
+  {
+    free(THIS->object_data->atts);
+  }
+
+  if(THIS->node != NULL)
+  {
+// FIXME: this is a memory leak!!!
+//    free_object(THIS->node);
   }
 
    if(THIS->object_data)

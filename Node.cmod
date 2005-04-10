@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: Node.cmod,v 1.1 2005-04-07 19:00:41 hww3 Exp $
+ * $Id: Node.cmod,v 1.2 2005-04-10 05:40:34 hww3 Exp $
  */
 
 /*
@@ -908,7 +908,6 @@ PIKEFUN object next()
     o = NEW_NODE();
     OBJ2_NODE(o)->object_data->node = MY_NODE->next;
     NEW_NODE_REFS(o);
-// printf("refs: %d\n", (* OBJ2_NODE(o)->object_data->refs));
     push_object(o);
   }
 }
@@ -933,7 +932,6 @@ PIKEFUN object prev()
     o = NEW_NODE();
     OBJ2_NODE(o)->object_data->node = MY_NODE->prev;
     NEW_NODE_REFS(o);
-
     push_object(o);
   }
 }
@@ -1066,7 +1064,6 @@ INIT
     dta->node = NULL;
 
     THIS->object_data = dta;
-printf("node start3!\n");
 }
 
 EXIT
@@ -1074,8 +1071,8 @@ EXIT
 
   if((* THIS->object_data->refs)==1)
   {
-    // printf("*** Freeing Doc...\n");
-    xmlFreeDoc(THIS->object_data->node->doc);
+    if(THIS->object_data->node->doc != NULL)
+      xmlFreeDoc(THIS->object_data->node->doc);
   }
   else
   {

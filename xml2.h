@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: xml2.h,v 1.3 2005-04-09 23:00:45 hww3 Exp $
+ * $Id: xml2.h,v 1.4 2005-04-10 05:40:34 hww3 Exp $
  */
 
 /*
@@ -82,7 +82,7 @@
 #include <libxml/tree.h>
 #endif
 
-#ifdef HAVE_LIBXML_SAX_H
+#ifdef HAVE_LIBXML_SAX2_H
 #include <libxml/SAX2.h>
 #endif
 
@@ -137,6 +137,9 @@
 #define CB_STARTELEMENTNS 27
 #define CB_ENDELEMENTNS 28
 #define CB_SERROR 29
+
+/* a rather arbitrary limit on the number of xslt attributes we can supply */
+#define MAX_PARAMS 100
 
 struct program * Node_program;
 
@@ -207,6 +210,7 @@ extern ptrdiff_t Stylesheet_storage_offset;
   typedef struct
   {
     xsltStylesheetPtr stylesheet;
+    const char ** atts;
     INT32 * refs;
   } STYLESHEET_OBJECT_DATA;
 
@@ -222,6 +226,7 @@ struct Node_struct {
 
 struct Stylesheet_struct {
  STYLESHEET_OBJECT_DATA   *object_data;
+ struct object * node;
 };
 
 #endif
