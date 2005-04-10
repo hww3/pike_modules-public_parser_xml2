@@ -1,4 +1,4 @@
-# $Id: Makefile.in,v 1.10 2005-04-10 05:40:34 hww3 Exp $
+# $Id: Makefile.in,v 1.11 2005-04-10 22:36:36 hww3 Exp $
 @make_variables@
 VPATH=@srcdir@:@srcdir@/../..:../..
 OBJS= XML2.o Node.o xml_glue.o Constants.o SAX.o Stylesheet.o
@@ -22,7 +22,7 @@ release:
 	cvs rtag -D now RELEASE_1_${MIN} pike_modules/Public_Parser_XML2
 	cvs export -d Public_Parser_XML2-1.${MIN} -r RELEASE_1_${MIN} pike_modules/Public_Parser_XML2
 	cd Public_Parser_XML2-1.${MIN} && \
-	pike -x module --autoconf && \
+	pike -x module --autoheader && pike -x module --autoconf && \
 	rm -rf autom4*
 	gtar czvf Public_Parser_XML2-1.${MIN}.tar.gz Public_Parser_XML2-1.${MIN}
 
