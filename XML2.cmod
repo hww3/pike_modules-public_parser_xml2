@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.49 2005-04-10 05:40:34 hww3 Exp $
+ * $Id: XML2.cmod,v 1.50 2005-04-10 17:46:04 hww3 Exp $
  */
 
 /*
@@ -252,6 +252,35 @@ PIKEFUN int utf8_check(string str)
   push_int(result);
 }
 
+/*! @decl array(int) get_encodings()
+ *!
+ *! gets the list of available character encoders.
+ *!
+ *! @returns
+ *!  an array of available encoder identifiers.
+ *!
+ */
+PIKEFUN array get_encodings()
+{
+   int num = 0;
+   int cur = 0;
+   int upper_limit = 25;
+   xmlCharEncodingHandlerPtr encoder;
+
+   for (cur = 0; cur < upper_limit; cur++)
+   {
+     encoder = xmlGetCharEncodingHandler((xmlCharEncoding)cur);
+     if(encoder != NULL)
+     {
+       push_int(cur);
+       num++;
+       xmlFree(encoder);
+     }
+   }
+   f_aggregate(num);
+   return;  
+}
+
 /*! @decl string render_xml(Node n)
  *!   Renders a node tree as an XML string. The entire document tree will 
  *!  be rendered. To render a portion of a tree, use @[Node.render_xml].
@@ -372,7 +401,6 @@ PIKEFUN object new_xml(string version, string root_name)
 
   od->refs = malloc(sizeof(INT32));
   (* od->refs)=1;
-// printf("refs: %d\n", *(od->refs));
   od->node = node;
 }
 

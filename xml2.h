@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: xml2.h,v 1.4 2005-04-10 05:40:34 hww3 Exp $
+ * $Id: xml2.h,v 1.5 2005-04-10 17:46:04 hww3 Exp $
  */
 
 /*
@@ -250,4 +250,13 @@ struct Stylesheet_struct {
 #define NEW_NODE() clone_object(Node_program, 0)
 #define NEW_NODE_REFS(o)  OBJ2_NODE(o)->object_data->refs = THIS->object_data->refs; \
       (* OBJ2_NODE(o)->object_data->refs)++; 
+
+#define push_text_len(T, L) do {                                        \
+    const char *_ = (T);                                                \
+    struct svalue *_sp_ = Pike_sp++;                                    \
+    _sp_->subtype=0;                                                    \
+    _sp_->u.string=make_shared_binary_string(_,L);              \
+    debug_malloc_touch(_sp_->u.string);                                 \
+    _sp_->type=PIKE_T_STRING;                                           \
+  }while(0)
 

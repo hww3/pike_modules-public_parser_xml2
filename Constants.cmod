@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: Constants.cmod,v 1.1 2005-04-07 19:00:41 hww3 Exp $
+ * $Id: Constants.cmod,v 1.2 2005-04-10 17:46:03 hww3 Exp $
  */
 
 /*
@@ -75,6 +75,7 @@ PIKECLASS Constants
 EXTRA
 {
   xmlElementType type;
+  xmlCharEncoding c;
 
   type=XML_ELEMENT_NODE;
   add_integer_constant("ELEMENT_NODE", type, 0);
@@ -95,6 +96,56 @@ EXTRA
   type=XML_ELEMENT_DECL;
   add_integer_constant("ELEMENT_DECL", type, 0);
 
+  /* XML character encodings */
+  c = XML_CHAR_ENCODING_ERROR;
+  add_integer_constant("CHAR_ENCODING_ERROR", c, 0);
+  c = XML_CHAR_ENCODING_NONE;
+  add_integer_constant("CHAR_ENCODING_NONE", c, 0);
+  c = XML_CHAR_ENCODING_UTF8;
+  add_integer_constant("CHAR_ENCODING_UTF8", c, 0);
+  c = XML_CHAR_ENCODING_UTF16LE;
+  add_integer_constant("CHAR_ENCODING_UTF16LE", c, 0);
+  c = XML_CHAR_ENCODING_UTF16BE;
+  add_integer_constant("CHAR_ENCODING_UTF16BE", c, 0);
+  c = XML_CHAR_ENCODING_UCS4LE;
+  add_integer_constant("CHAR_ENCODING_UCS4LE", c, 0);
+  c = XML_CHAR_ENCODING_UCS4BE;
+  add_integer_constant("CHAR_ENCODING_UCS4BE", c, 0);
+  c = XML_CHAR_ENCODING_EBCDIC;
+  add_integer_constant("CHAR_ENCODING_EBCDIC", c, 0);
+  c = XML_CHAR_ENCODING_UCS4_2143;
+  add_integer_constant("CHAR_ENCODING_UCS4_2143", c, 0);
+  c = XML_CHAR_ENCODING_UCS4_3412;
+  add_integer_constant("CHAR_ENCODING_UCS4_3412", c, 0);
+  c = XML_CHAR_ENCODING_UCS2;
+  add_integer_constant("CHAR_ENCODING_UCS2", c, 0);
+  c = XML_CHAR_ENCODING_8859_1;
+  add_integer_constant("CHAR_ENCODING_8859_1", c, 0);
+  c = XML_CHAR_ENCODING_8859_2;
+  add_integer_constant("CHAR_ENCODING_8859_2", c, 0);
+  c = XML_CHAR_ENCODING_8859_3;
+  add_integer_constant("CHAR_ENCODING_8859_3", c, 0);
+  c = XML_CHAR_ENCODING_8859_4;
+  add_integer_constant("CHAR_ENCODING_8859_4", c, 0);
+  c = XML_CHAR_ENCODING_8859_5;
+  add_integer_constant("CHAR_ENCODING_8859_5", c, 0);
+  c = XML_CHAR_ENCODING_8859_6;
+  add_integer_constant("CHAR_ENCODING_8859_6", c, 0);
+  c = XML_CHAR_ENCODING_8859_7;
+  add_integer_constant("CHAR_ENCODING_8859_7", c, 0);
+  c = XML_CHAR_ENCODING_8859_8;
+  add_integer_constant("CHAR_ENCODING_8859_8", c, 0);
+  c = XML_CHAR_ENCODING_8859_9;
+  add_integer_constant("CHAR_ENCODING_8859_9", c, 0);
+  c = XML_CHAR_ENCODING_2022_JP;
+  add_integer_constant("CHAR_ENCODING_2022_JP", c, 0);
+  c = XML_CHAR_ENCODING_SHIFT_JIS;
+  add_integer_constant("CHAR_ENCODING_SHIFT_JIS", c, 0);
+  c = XML_CHAR_ENCODING_EUC_JP;
+  add_integer_constant("CHAR_ENCODING_EUC_JP", c, 0);
+  c = XML_CHAR_ENCODING_ASCII;
+  add_integer_constant("CHAR_ENCODING_ASCII", c, 0);
+ 
 /* SAX callback constants */
 add_integer_constant("SAX_CB_INTERNALSUBSET", CB_INTERNALSUBSET, 0);
 add_integer_constant("SAX_CB_ISSTANDALONE", CB_ISSTANDALONE, 0);

@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: Stylesheet.cmod,v 1.2 2005-04-10 05:40:34 hww3 Exp $
+ * $Id: Stylesheet.cmod,v 1.3 2005-04-10 17:46:04 hww3 Exp $
  */
 
 /*
@@ -92,10 +92,23 @@ PIKEFUN void create()
 {
 }
 
-PIKEFUN string apply(object xml)
+/*! @decl Node apply(Node xml)
+ *!
+ *! apply the stylesheet object to an xml file.
+ *!
+ *! @param xml
+ *!   a @[Node] object from the parsed XML document to apply.
+ *!   Any node from the XML document may be used.
+ *!
+ *! @returns
+ *!    a @[Node] object for the transformed document.
+ */
+PIKEFUN object apply(object xml)
 {
   xmlDocPtr output;
-  xmlOutputBufferPtr xmlBuf;
+  struct Node_struct * ns;
+  NODE_OBJECT_DATA * od;
+  struct object * xnode;
   int x=0;
 
   output = xsltApplyStylesheet(THIS->object_data->stylesheet, 
@@ -108,20 +121,81 @@ PIKEFUN string apply(object xml)
     Pike_error("unable to transform document.\n");
   }
 
-  xmlBuf = xmlAllocOutputBuffer(
-        xmlGetCharEncodingHandler((xmlCharEncoding)10));
+  xnode = NEW_NODE();
+  ns = OBJ2_NODE((xnode));
+  od = (NODE_OBJECT_DATA *)(ns->object_data);
 
-  xsltSaveResultTo( xmlBuf, output, THIS->object_data->stylesheet);
+  od->refs = malloc(sizeof(INT32));
+  (* od->refs)=1;
+
+  if(output->children == NULL)
+  {
+    Pike_error("unable to find a node for the document.\n");
+  }
+  od->node = output->children;
+
+  pop_stack();
+
+  push_object(xnode);
+}
+
+/*! @decl string output(Node xml, int|void encoding)
+ *!
+ *!   render the applied stylesheet Node to a string.
+ *!
+ *! @param xml
+ *!   the transformed xml object
+ *! 
+ *! @param encoding
+ *!   an optional encoding for the string. if not supplied, defaults to 
+ *!   ISO-8859-1 (ISO Latin 1). Valid options are found in 
+ *!   @[Public.XML2.Constants], XML_CHAR_ENCODING*.
+ *!
+ *! @returns
+ *!   the string representation of the transformed XML.
+ */
+PIKEFUN string output(object xml)
+{
+  xmlOutputBufferPtr xmlBuf;
+  xmlCharEncodingHandlerPtr encoder;
+
+  encoder = xmlGetCharEncodingHandler((xmlCharEncoding)10);
+ 
+  if(encoder == NULL) 
+    Pike_error("unable to obtain encoder.\n");
+
+  xmlBuf = xmlAllocOutputBuffer(encoder);
+
+  xsltSaveResultTo( xmlBuf, OBJ2_NODE(xml)->object_data->node->doc, 
+                       THIS->object_data->stylesheet);
 
   pop_n_elems(args);
 
   push_text(xmlBuf->conv->content);
 
   xmlOutputBufferClose(xmlBuf);
+}
 
-  if(output != NULL)
-    xmlFreeDoc(output);
-  
+PIKEFUN string output(object xml, int encoding)
+{
+  xmlOutputBufferPtr xmlBuf;
+  xmlCharEncodingHandlerPtr encoder;
+
+  encoder = xmlGetCharEncodingHandler((xmlCharEncoding)encoding);
+
+  if(encoder == NULL)
+    Pike_error("unable to obtain encoder.\n");
+
+  xmlBuf = xmlAllocOutputBuffer(encoder);
+
+  xsltSaveResultTo( xmlBuf, OBJ2_NODE(xml)->object_data->node->doc, 
+                       THIS->object_data->stylesheet);
+
+  pop_n_elems(args);
+
+  push_text_len(xmlBuf->conv->content, xmlBuf->conv->use);
+
+  xmlOutputBufferClose(xmlBuf);
 }
 
 PIKEFUN void set_attributes(mapping variables)
