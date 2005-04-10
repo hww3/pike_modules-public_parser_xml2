@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.50 2005-04-10 17:46:04 hww3 Exp $
+ * $Id: XML2.cmod,v 1.51 2005-04-10 22:28:11 hww3 Exp $
  */
 
 /*
@@ -465,7 +465,7 @@ PIKEFUN object parse_xslt(string xslt)
 
 EXTRA
 {
-  add_string_constant("__version", "1.9", 0);
+  add_string_constant("__version", "1.10", 0);
   add_string_constant("__author", "Bill Welliver <bill@welliver.org>", 0);
 
 }

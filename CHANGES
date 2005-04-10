@@ -1,5 +1,9 @@
 Version History
 
+Version 1.10
+- Added XSLT suppport via libxslt.
+- Split module into components for easier development.
+
 Version 1.9
 - Fixed bug that hid get_node_type()
 - Fixed a bunch of segfault causing bugs
