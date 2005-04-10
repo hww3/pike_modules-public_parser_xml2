@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.51 2005-04-10 22:28:11 hww3 Exp $
+ * $Id: XML2.cmod,v 1.52 2005-04-10 22:37:53 hww3 Exp $
  */
 
 /*
@@ -164,7 +164,7 @@ PIKEFUN array select_xpath_nodes(string xpath, object node)
  */
 PIKEFUN void set_parser_options(int options)
 {
-  
+  pop_stack();
 }
 
 /*! @decl int substituteEntitiesDefault(int def)
@@ -329,8 +329,7 @@ PIKEFUN object parse_xml(string xml)
   struct Node_struct * ns;
   NODE_OBJECT_DATA * od;
 
-  doc = xmlReadMemory(xml->str, xml->len, "noname.xml", NULL, 
-                        0);
+  doc = xmlReadMemory(xml->str, xml->len, "noname.xml", NULL, 0);
   if(doc == NULL)
   {
     Pike_error("Unable to parse XML.\n");
@@ -465,7 +464,7 @@ PIKEFUN object parse_xslt(string xslt)
 
 EXTRA
 {
-  add_string_constant("__version", "1.10", 0);
+  add_string_constant("__version", "1.12", 0);
   add_string_constant("__author", "Bill Welliver <bill@welliver.org>", 0);
 
 }

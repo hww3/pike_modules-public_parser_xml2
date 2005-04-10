@@ -1,6 +1,6 @@
 Version History
 
-Version 1.10
+Version 1.12
 - Added XSLT suppport via libxslt.
 - Split module into components for easier development.
 
