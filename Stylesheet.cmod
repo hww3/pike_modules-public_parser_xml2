@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: Stylesheet.cmod,v 1.3 2005-04-10 17:46:04 hww3 Exp $
+ * $Id: Stylesheet.cmod,v 1.4 2005-04-22 20:33:09 hww3 Exp $
  */
 
 /*
@@ -78,6 +78,7 @@ optflags ID_PRIVATE
 
   CVAR STYLESHEET_OBJECT_DATA   *object_data;
   PIKEVAR object node;
+  PIKEVAR function docloader;
 
 PIKEFUN string _sprintf(int type, mixed t)
 {
@@ -280,6 +281,17 @@ PIKEFUN void set_attributes(mapping variables)
 
   THIS->object_data->atts = vars;
   pop_stack();
+}
+
+PIKEFUN void set_docloader(function f)
+{
+  assign_svalue(&(THIS->docloader), f);
+}
+
+PIKEFUN void clear_docloader()
+{
+
+//  free_svalue(&(THIS->docloader));
 }
 
 int check_stylesheet_created()

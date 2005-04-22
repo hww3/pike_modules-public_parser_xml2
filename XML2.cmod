@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.52 2005-04-10 22:37:53 hww3 Exp $
+ * $Id: XML2.cmod,v 1.53 2005-04-22 20:33:09 hww3 Exp $
  */
 
 /*
@@ -87,6 +87,16 @@ PIKEFUN array select_xpath_nodes(string xpath, object node)
   xmlNodePtr xn;
   struct object * o;
   int num_nodes = 0;
+  char * r= NULL;
+
+  r = get_storage(node, Node_program);
+
+  if(r == NULL)
+  {
+    Pike_error("bad argument 2: expected Node\n");
+  }
+
+
 
 //  check_node_created();
   if(OBJ2_NODE(node)->object_data->node == NULL)
