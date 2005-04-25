@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: xml2.h,v 1.6 2005-04-25 19:06:37 hww3 Exp $
+ * $Id: xml2.h,v 1.7 2005-04-25 20:25:08 hww3 Exp $
  */
 
 /*
@@ -93,6 +93,10 @@
 
 #ifdef HAVE_LIBXSLT_XSLT_H
 #include <libxslt/xslt.h>
+#endif
+
+#ifdef HAVE_LIBXSLT_DOCUMENT_H
+#include <libxslt/document.h>
 #endif
 
 #ifdef HAVE_LIBXSLT_XSLTINTERNALS_H

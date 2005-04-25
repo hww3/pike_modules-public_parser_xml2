@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.54 2005-04-25 19:06:37 hww3 Exp $
+ * $Id: XML2.cmod,v 1.55 2005-04-25 20:25:08 hww3 Exp $
  */
 
 /*
@@ -298,7 +298,7 @@ PIKEFUN string render_xml(object n)
   char * str;
   int bufsize;
 
-  CHECK_NODE_PASSED(node);
+  CHECK_NODE_PASSED(n);
 
 //  check_node_created();
   if(OBJ2_NODE(n)->object_data->node == NULL)

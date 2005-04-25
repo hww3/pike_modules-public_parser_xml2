@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: Stylesheet.cmod,v 1.5 2005-04-25 19:06:37 hww3 Exp $
+ * $Id: Stylesheet.cmod,v 1.6 2005-04-25 20:25:08 hww3 Exp $
  */
 
 /*
@@ -60,9 +60,6 @@
 
 #include "xml2.h"
 
-xmlDocPtr pike_docloader_conv(const xmlChar * URI, xmlDictPtr dict, 
-                               int options, void * ctxt, int type);
-
 /*! @module Public
  */
 
@@ -88,18 +85,18 @@ optflags ID_PRIVATE
   
  */
 xmlDocPtr pike_docloader_conv (const xmlChar * URI, xmlDictPtr dict, 
-                               int options, void * ctxt, xsltLoadType type)
+                               int options, void * ctxt, int type)
 {
     push_svalue(&(THIS->docloader));
     push_text(URI);
     push_int(options);
     push_int(type);
-    apply_svalue(Pike_sp[0-4], 3);
+    apply_svalue(&Pike_sp[0-4], 3);
 
     if(Pike_sp[0-1].type != T_OBJECT)
-      return null;
+      return NULL;
   
-    return null;
+    return NULL;
 }
 
 PIKEFUN string _sprintf(int type, mixed t)
