@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: xml2.h,v 1.5 2005-04-10 17:46:04 hww3 Exp $
+ * $Id: xml2.h,v 1.6 2005-04-25 19:06:37 hww3 Exp $
  */
 
 /*
@@ -232,6 +232,12 @@ struct Stylesheet_struct {
 #endif
 
 #define mySAX THIS->object_data->sax
+
+#define CHECK_NODE_PASSED(_X_) do { char * _Y_; \
+  _Y_ = get_storage(_X_, Node_program); \
+  if(_Y_ == NULL) Pike_error("bad argument: expected Node\n"); \
+  } while (0)
+
 
 #define MY_NODE (THIS->object_data->node)
 #define MY_STYLESHEET (THIS->object_data->stylesheet)
