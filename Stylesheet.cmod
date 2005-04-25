@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: Stylesheet.cmod,v 1.6 2005-04-25 20:25:08 hww3 Exp $
+ * $Id: Stylesheet.cmod,v 1.7 2005-04-25 21:18:59 hww3 Exp $
  */
 
 /*
@@ -87,6 +87,10 @@ optflags ID_PRIVATE
 xmlDocPtr pike_docloader_conv (const xmlChar * URI, xmlDictPtr dict, 
                                int options, void * ctxt, int type)
 {
+    struct Node_struct * ns;
+    NODE_OBJECT_DATA * od;
+    struct object * xnode;
+
     push_svalue(&(THIS->docloader));
     push_text(URI);
     push_int(options);
@@ -95,7 +99,16 @@ xmlDocPtr pike_docloader_conv (const xmlChar * URI, xmlDictPtr dict,
 
     if(Pike_sp[0-1].type != T_OBJECT)
       return NULL;
-  
+
+    CHECK_NODE_PASSED(Pike_sp[0-1].u.object);
+
+    ns = OBJ2_NODE(Pike_sp[0-1].u.object);
+    od = (NODE_OBJECT_DATA *)(ns->object_data);
+
+    if(od->node->doc == NULL)
+      return NULL;    
+    else return od->node->doc;
+
     return NULL;
 }
 
@@ -308,7 +321,11 @@ PIKEFUN void set_attributes(mapping variables)
 PIKEFUN void set_docloader(function f)
 {
   assign_svalue(&(THIS->docloader), f);
+#ifdef HAVE_XSLTSETLOADERFUNC
   xsltSetLoaderFunc(pike_docloader_conv);
+#else
+  Pike_error("set_docloader not available. upgrade your libxslt.\n");
+#endif
 }
 
 PIKEFUN void clear_docloader()
