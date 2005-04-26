@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.55 2005-04-25 20:25:08 hww3 Exp $
+ * $Id: XML2.cmod,v 1.56 2005-04-26 18:07:21 hww3 Exp $
  */
 
 /*
@@ -74,6 +74,7 @@
 */
 
 CVAR PARSER_OBJECT_DATA * object_data;
+PIKEVAR function docloader;
 
 /*! @decl array(Node) select_xpath_nodes(string xpath, object node)
  *!
@@ -158,6 +159,19 @@ PIKEFUN array select_xpath_nodes(string xpath, object node)
   xmlXPathFreeObject(xpathObj);
 
   return;
+}
+
+/*! @decl void set_xslt_docloader(function f) 
+ *!
+ *! 
+ */
+PIKEFUN void set_xslt_docloader(function f)
+{
+  assign_svalue(&(THIS->docloader), f);
+#ifdef HAVE_XSLTSETLOADERFUNC
+#else
+  Pike_error("set_docloader not available. upgrade your libxslt.\n");
+#endif
 }
 
 /*! @decl void set_parser_options(int options)
@@ -320,35 +334,41 @@ PIKEFUN string render_xml(object n)
   }
 }
 
-/*! @decl Node parse_xml(string xml)
+/*! @decl Node parse_xml(string xml, string|void name)
  *!   Parse an string containing XML.
+ *!  @param xml
+ *!   String containing XML data to parse.
+ *!  @param name
+ *!   String containing name/URI of file.
  *!
  *!  @returns
  *!    a @[Node] object containing the root of the tree.
  */
-PIKEFUN object parse_xml(string xml)
+PIKEFUN object parse_xml(string xml, string name)
 {
   xmlDocPtr doc;
   xmlNodePtr node;
   struct Node_struct * ns;
   NODE_OBJECT_DATA * od;
 
-  doc = xmlReadMemory(xml->str, xml->len, "noname.xml", NULL, 0);
+  doc = xmlReadMemory(xml->str, xml->len, name->str, NULL, 0);
   if(doc == NULL)
   {
+    pop_n_elems(2);
     Pike_error("Unable to parse XML.\n");
   }  
 
   node = xmlDocGetRootElement(doc);
   if(node == NULL)
   {
+    pop_n_elems(2);
     xmlFreeDoc(doc);
     Pike_error("Unable to find Root Node.\n");
   }
 
   // ok, we have a parsed file. now let's turn it into a real live pike object.
 
-  pop_stack();
+  pop_n_elems(2);
 
   apply(Pike_fp->current_object, "Node", 0);
   
@@ -360,7 +380,11 @@ PIKEFUN object parse_xml(string xml)
   od->node = node;
 }
 
-
+PIKEFUN object parse_xml(string xml)
+{
+  push_text("noname.xml");
+  f_parse_xml(2);
+}
 
 /*! @decl Node new_xml(string version)
  *!   Create a new XML document with a root node.
@@ -407,13 +431,22 @@ PIKEFUN object new_xml(string version, string root_name)
   od->node = node;
 }
 
-/*! @decl Node parse_xslt(string xslt)
+/*! @decl Node parse_xslt(string xslt, string|void name)
  *!   Parse a string containing an XSLT stylesheet.
+ *!
+ *!  @param name
+ *!   String containing name/URI of file.
  *!
  *!  @returns
  *!    a @[Stylesheet] object containing the parsed stylesheet.
  */
 PIKEFUN object parse_xslt(string xslt)
+{
+  push_text("noname.xsl");
+  f_parse_xslt(2);
+}
+
+PIKEFUN object parse_xslt(string xslt, string name)
 {
   struct object * node_obj = NULL;
   xsltStylesheetPtr sty = NULL;
@@ -423,7 +456,7 @@ PIKEFUN object parse_xslt(string xslt)
 
   // first, we must parse the xml file. conveniently, we have a function
   // that does that already!
-  f_parse_xml(1);
+  f_parse_xml(2);
 
   // we're going to hang on to the node object.
   node_obj = Pike_sp[0-1].u.object;

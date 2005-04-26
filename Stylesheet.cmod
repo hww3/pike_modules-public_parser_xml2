@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: Stylesheet.cmod,v 1.7 2005-04-25 21:18:59 hww3 Exp $
+ * $Id: Stylesheet.cmod,v 1.8 2005-04-26 18:07:21 hww3 Exp $
  */
 
 /*
@@ -78,9 +78,9 @@ optflags ID_PRIVATE
 
   CVAR STYLESHEET_OBJECT_DATA   *object_data;
   PIKEVAR object node;
-  PIKEVAR function docloader;
 
 /* 
+
    The pike - docloader callback glue
   
  */
@@ -101,9 +101,11 @@ xmlDocPtr pike_docloader_conv (const xmlChar * URI, xmlDictPtr dict,
       return NULL;
 
     CHECK_NODE_PASSED(Pike_sp[0-1].u.object);
-
+    add_ref(Pike_sp[0-1].u.object);
     ns = OBJ2_NODE(Pike_sp[0-1].u.object);
     od = (NODE_OBJECT_DATA *)(ns->object_data);
+
+    pop_stack();
 
     if(od->node->doc == NULL)
       return NULL;    
@@ -330,8 +332,6 @@ PIKEFUN void set_docloader(function f)
 
 PIKEFUN void clear_docloader()
 {
-
-//  free_svalue(&(THIS->docloader));
   xsltSetLoaderFunc(NULL);
 }
 
