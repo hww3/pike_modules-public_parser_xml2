@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: xml2.h,v 1.8 2005-04-26 18:07:21 hww3 Exp $
+ * $Id: xml2.h,v 1.9 2005-04-27 19:56:24 hww3 Exp $
  */
 
 /*
@@ -205,6 +205,7 @@ extern ptrdiff_t Stylesheet_storage_offset;
 
   typedef struct
   {
+    int docloader_num;
     xmlParserOption options;
   } PARSER_OBJECT_DATA;
 
