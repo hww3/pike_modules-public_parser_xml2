@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: Stylesheet.cmod,v 1.10 2005-04-27 22:44:39 hww3 Exp $
+ * $Id: Stylesheet.cmod,v 1.11 2005-04-27 23:18:19 hww3 Exp $
  */
 
 /*
@@ -76,7 +76,7 @@ extern int docloader_num;
 
 
 PIKECLASS Stylesheet
-optflags ID_PRIVATE
+optflags ID_PRIVATE;
 program_flags PROGRAM_USES_PARENT;
 {
 
@@ -95,6 +95,7 @@ xmlDocPtr pike_docloader_conv (const xmlChar * URI, xmlDictPtr dict,
     NODE_OBJECT_DATA * od;
     struct object * xnode;
 
+    stack_dup();
     push_text(URI);
     push_int(options);
     push_int(type);
@@ -149,21 +150,17 @@ PIKEFUN object apply(object xml)
   struct object * xnode;
   struct external_variable_context loc;
   int x=0;
+  int have_func = 0;
 
   CHECK_NODE_PASSED(xml);
 
-printf("looking for docloader...%d\n", docloader_num);
     loc.o = Pike_fp->current_object;
     loc.parent_identifier = Pike_fp->fun;
     if (loc.o->prog)
     {
-      printf("finding inherit\n");
       loc.inherit=INHERIT_FROM_INT(loc.o->prog, loc.parent_identifier);
     }
-printf("finding context...\n");
     find_external_context(&loc, 1);
-
-    //docloader_num=OBJ2_(loc.o)->object_data->docloader_num;
 
     printf("docloadeR_num: %d\n", docloader_num);
 
@@ -179,14 +176,25 @@ printf("finding context...\n");
 
     if(Pike_sp[0-1].type == T_FUNCTION)
     {
-      printf("we got a function!\n");
+      have_func = 1;
+      xsltSetLoaderFunc(pike_docloader_conv);
     }
+    else
+      xsltSetLoaderFunc(NULL);
+ 
 
     // we should have the docloader function on the stack now.
 
   output = xsltApplyStylesheet(THIS->object_data->stylesheet, 
                                  OBJ2_NODE(xml)->object_data->node->doc, 
                                  THIS->object_data->atts);
+
+  // we pushed the stack, so let's pop it.
+  if(have_func)
+  {
+    pop_stack();
+  }
+
 
   if(output == NULL)
   {
