@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: Stylesheet.cmod,v 1.9 2005-04-26 22:33:16 hww3 Exp $
+ * $Id: Stylesheet.cmod,v 1.10 2005-04-27 22:44:39 hww3 Exp $
  */
 
 /*
@@ -60,8 +60,6 @@
 
 #include "xml2.h"
 
-static int docloader_num;
-
 /*! @module Public
  */
 
@@ -73,6 +71,9 @@ static int docloader_num;
 
 /*! @class Stylesheet
  */
+
+extern int docloader_num;
+
 
 PIKECLASS Stylesheet
 optflags ID_PRIVATE
@@ -93,25 +94,6 @@ xmlDocPtr pike_docloader_conv (const xmlChar * URI, xmlDictPtr dict,
     struct Node_struct * ns;
     NODE_OBJECT_DATA * od;
     struct object * xnode;
-    struct external_variable_context loc;
-
-    loc.o = Pike_fp->current_object;
-    loc.parent_identifier = Pike_fp->fun;
-    if (loc.o->prog)
-      loc.inherit=INHERIT_FROM_INT(loc.o->prog, loc.parent_identifier);
-    find_external_context(&loc, 1);
-
-      /* Then index as usual.
-       * You can probably use some casting here to avoid needing
-       * outer_variable_num, but the following works even if you
-       * want to access some symbol inherited from Pike code.
-       */
-    low_object_index_no_free(Pike_sp, loc.o,
-                               docloader_num +
-                               loc.inherit->identifier_level);
-    Pike_sp++;
-
-    // we should have the docloader function on the stack now.
 
     push_text(URI);
     push_int(options);
@@ -165,9 +147,43 @@ PIKEFUN object apply(object xml)
   struct Node_struct * ns;
   NODE_OBJECT_DATA * od;
   struct object * xnode;
+  struct external_variable_context loc;
   int x=0;
 
   CHECK_NODE_PASSED(xml);
+
+printf("looking for docloader...%d\n", docloader_num);
+    loc.o = Pike_fp->current_object;
+    loc.parent_identifier = Pike_fp->fun;
+    if (loc.o->prog)
+    {
+      printf("finding inherit\n");
+      loc.inherit=INHERIT_FROM_INT(loc.o->prog, loc.parent_identifier);
+    }
+printf("finding context...\n");
+    find_external_context(&loc, 1);
+
+    //docloader_num=OBJ2_(loc.o)->object_data->docloader_num;
+
+    printf("docloadeR_num: %d\n", docloader_num);
+
+      /* Then index as usual.
+       * You can probably use some casting here to avoid needing
+       * outer_variable_num, but the following works even if you
+       * want to access some symbol inherited from Pike code.
+       */
+    low_object_index_no_free(Pike_sp, loc.o,
+                               docloader_num +
+                               loc.inherit->identifier_level);
+    Pike_sp++;
+
+    if(Pike_sp[0-1].type == T_FUNCTION)
+    {
+      printf("we got a function!\n");
+    }
+
+    // we should have the docloader function on the stack now.
+
   output = xsltApplyStylesheet(THIS->object_data->stylesheet, 
                                  OBJ2_NODE(xml)->object_data->node->doc, 
                                  THIS->object_data->atts);

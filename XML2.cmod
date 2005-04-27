@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.58 2005-04-27 19:56:23 hww3 Exp $
+ * $Id: XML2.cmod,v 1.59 2005-04-27 22:44:39 hww3 Exp $
  */
 
 /*
@@ -58,6 +58,8 @@
 
 #include "xml2.h"
 
+  int docloader_num = -1;
+
 /*! @module Public
  */
 
@@ -73,8 +75,8 @@
 
 */
 
- CVAR PARSER_OBJECT_DATA * object_data;
 PIKEVAR function docloader;
+CVAR PARSER_OBJECT_DATA * object_data;
 
 
 /*! @decl array(Node) select_xpath_nodes(string xpath, object node)
@@ -502,13 +504,11 @@ PIKEFUN object parse_xslt(string xslt, string name)
 
 EXTRA
 {
-/*
   struct pike_string * ps;
-  static int docloader_num = -1;
   MAKE_CONST_STRING(ps, "docloader");
   docloader_num = isidentifier(ps);
   THIS->object_data->docloader_num = docloader_num;
-*/
+
   add_string_constant("__version", "1.12", 0);
   add_string_constant("__author", "Bill Welliver <bill@welliver.org>", 0);
 
@@ -516,20 +516,21 @@ EXTRA
 
 void pike_init_xml2_main()
 {
-  INIT
-/*
   PARSER_OBJECT_DATA * dta;
-printf("init...");
-printf(" done.\n");
-printf("alloc...");
-  dta = (PARSER_OBJECT_DATA*)malloc(sizeof(PARSER_OBJECT_DATA));
 
+  INIT;
+
+  dta = (PARSER_OBJECT_DATA*)malloc(sizeof(PARSER_OBJECT_DATA));
   if(dta == NULL)
   {
     Pike_error("xml2_init: unable to allocate memory.\n");
   }
 
+printf("THIS->object_data: %d\n", sizeof(PARSER_OBJECT_DATA));
+printf("THIS: %d\n", sizeof(struct _struct));
   THIS->object_data = dta;
+  
+/*
 printf(" done.\n");
 */
   LIBXML_TEST_VERSION

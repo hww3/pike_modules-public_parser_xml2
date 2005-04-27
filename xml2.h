@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: xml2.h,v 1.9 2005-04-27 19:56:24 hww3 Exp $
+ * $Id: xml2.h,v 1.10 2005-04-27 22:44:40 hww3 Exp $
  */
 
 /*
@@ -206,7 +206,6 @@ extern ptrdiff_t Stylesheet_storage_offset;
   typedef struct
   {
     int docloader_num;
-    xmlParserOption options;
   } PARSER_OBJECT_DATA;
 
   typedef struct
@@ -250,7 +249,7 @@ struct Stylesheet_struct {
 #define MY_NODE (THIS->object_data->node)
 #define MY_STYLESHEET (THIS->object_data->stylesheet)
 
-
+#define OBJ2_(o) ((struct _struct *)(o->storage+_storage_offset))
 #define OBJ2_NODE(o) ((struct Node_struct *)get_storage(o, Node_program))
 
 #define OBJ2_STYLESHEET(o) ((struct Stylesheet_struct *)get_storage(o, Stylesheet_program))
