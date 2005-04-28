@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.60 2005-04-28 02:32:26 hww3 Exp $
+ * $Id: XML2.cmod,v 1.61 2005-04-28 03:07:42 hww3 Exp $
  */
 
 /*
@@ -194,7 +194,7 @@ PIKEFUN void set_xslt_docloader(function f)
 PIKEFUN void clear_xslt_docloader()
 {
   push_int(0);
-  assign_svalue(&(THIS->docloader), Pike_sp[0-1]);
+  assign_svalue(&(THIS->docloader), Pike_sp-1);
   pop_stack();
 #ifdef HAVE_XSLTSETLOADERFUNC
 #else
