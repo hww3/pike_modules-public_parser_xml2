@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.61 2005-04-28 03:07:42 hww3 Exp $
+ * $Id: XML2.cmod,v 1.62 2005-04-28 16:53:07 hww3 Exp $
  */
 
 /*
@@ -75,7 +75,9 @@
 
 */
 
-PIKEVAR function docloader;
+PIKEVAR function docloader
+optflags ID_STATIC;
+
 CVAR PARSER_OBJECT_DATA * object_data;
 
 
@@ -205,9 +207,14 @@ PIKEFUN void clear_xslt_docloader()
 /*! @decl void set_parser_options(int options)
  *!
  *! sets parser options. 
+ *! 
+ *! @param options
+ *!   a bitwise or of @[Public.Parser.XML2.Constants] options 
+ *!   where valid options start with PARSE_. 
  */
 PIKEFUN void set_parser_options(int options)
 {
+  THIS->object_data->parser_options = options;
   pop_stack();
 }
 
@@ -379,7 +386,7 @@ PIKEFUN object parse_xml(string xml, string name)
   struct Node_struct * ns;
   NODE_OBJECT_DATA * od;
 
-  doc = xmlReadMemory(xml->str, xml->len, name->str, NULL, 0);
+  doc = xmlReadMemory(xml->str, xml->len, name->str, NULL, THIS->object_data->parser_options);
   if(doc == NULL)
   {
     pop_n_elems(2);
@@ -551,8 +558,7 @@ void pike_init_xml2_main()
     Pike_error("xml2_init: unable to allocate memory.\n");
   }
 
-printf("THIS->object_data: %d\n", sizeof(PARSER_OBJECT_DATA));
-printf("THIS: %d\n", sizeof(struct _struct));
+  dta->parser_options = 0;
   THIS->object_data = dta;
   
 /*

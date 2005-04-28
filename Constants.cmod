@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: Constants.cmod,v 1.2 2005-04-10 17:46:03 hww3 Exp $
+ * $Id: Constants.cmod,v 1.3 2005-04-28 16:53:07 hww3 Exp $
  */
 
 /*
@@ -76,6 +76,7 @@ EXTRA
 {
   xmlElementType type;
   xmlCharEncoding c;
+  xmlParserOption o;
 
   type=XML_ELEMENT_NODE;
   add_integer_constant("ELEMENT_NODE", type, 0);
@@ -95,6 +96,40 @@ EXTRA
   add_integer_constant("COMMENT_NODE", type, 0);
   type=XML_ELEMENT_DECL;
   add_integer_constant("ELEMENT_DECL", type, 0);
+
+  /* XML parser options */
+  o = XML_PARSE_RECOVER;
+  add_integer_constant("PARSE_RECOVER", o, 0);
+  o = XML_PARSE_NOENT;
+  add_integer_constant("PARSE_NOENT", o, 0);
+  o = XML_PARSE_DTDLOAD;
+  add_integer_constant("PARSE_DTDLOAD", o, 0);
+  o = XML_PARSE_DTDATTR;
+  add_integer_constant("PARSE_DTDATTR", o, 0);
+  o = XML_PARSE_DTDVALID;
+  add_integer_constant("PARSE_DTDVALID", o, 0);
+  o = XML_PARSE_NOERROR;
+  add_integer_constant("PARSE_NOERROR", o, 0);
+  o = XML_PARSE_NOWARNING;
+  add_integer_constant("PARSE_NOWARNING", o, 0);
+  o = XML_PARSE_PEDANTIC;
+  add_integer_constant("PARSE_PEDANTIC", o, 0);
+  o = XML_PARSE_NOBLANKS;
+  add_integer_constant("PARSE_NOBLANKS", o, 0);
+  o = XML_PARSE_SAX1;
+  add_integer_constant("PARSE_SAX1", o, 0);
+  o = XML_PARSE_XINCLUDE;
+  add_integer_constant("PARSE_XINCLUDE", o, 0);
+  o = XML_PARSE_NONET;
+  add_integer_constant("PARSE_NONET", o, 0);
+  o = XML_PARSE_NODICT;
+  add_integer_constant("PARSE_NODICT", o, 0);
+  o = XML_PARSE_NSCLEAN; 
+  add_integer_constant("PARSE_NSCLEAN", o, 0);
+  o = XML_PARSE_NOCDATA;
+  add_integer_constant("PARSE_NOCDATA", o, 0);
+  o = XML_PARSE_NOXINCNODE;
+  add_integer_constant("PARSE_NOXINCNODE", o, 0);
 
   /* XML character encodings */
   c = XML_CHAR_ENCODING_ERROR;
