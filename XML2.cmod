@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.63 2005-05-03 22:36:34 hww3 Exp $
+ * $Id: XML2.cmod,v 1.64 2005-05-03 22:59:07 hww3 Exp $
  */
 
 /*
@@ -204,7 +204,7 @@ PIKEFUN void clear_xslt_docloader()
 #endif
 }
 
-/*! @decl void set_parser_options(int options)
+/*! @decl void set_xml_parser_options(int options)
  *!
  *! sets parser options. 
  *! 
@@ -212,9 +212,23 @@ PIKEFUN void clear_xslt_docloader()
  *!   a bitwise or of @[Public.Parser.XML2.Constants] options 
  *!   where valid options start with PARSE_. 
  */
-PIKEFUN void set_parser_options(int options)
+PIKEFUN void set_xml_parser_options(int options)
 {
-  THIS->object_data->parser_options = options;
+  THIS->object_data->xml_parser_options = options;
+  pop_stack();
+}
+
+/*! @decl void set_html_parser_options(int options)
+ *!
+ *! sets parser options. 
+ *! 
+ *! @param options
+ *!   a bitwise or of @[Public.Parser.XML2.Constants] options 
+ *!   where valid options start with PARSE_. 
+ */
+PIKEFUN void set_html_parser_options(int options)
+{
+  THIS->object_data->html_parser_options = options;
   pop_stack();
 }
 
@@ -369,6 +383,43 @@ PIKEFUN string render_xml(object n)
   }
 }
 
+/*! @decl string render_html(Node n)
+ *!   Renders a node tree as an HTML string. The entire document tree will 
+ *!  be rendered. To render a portion of a tree, use @[Node.render_html].
+ *!
+ *!   @param n
+ *!     a Node object for a given HTML document.
+ *!
+ */
+PIKEFUN string render_html(object n)
+{
+  int dumped;
+  xmlChar * buf;
+  char * str;
+  int bufsize;
+
+  CHECK_NODE_PASSED(n);
+
+//  check_node_created();
+  if(OBJ2_NODE(n)->object_data->node == NULL)
+  { 
+    Pike_error("Node not initialized.\n");
+  }
+
+  htmlDocDumpMemory(OBJ2_NODE(n)->object_data->node->doc, &buf, &bufsize, 1);
+
+  if(buf!=NULL)
+  {
+    str = (char *)xmlStrdup(buf);
+    xmlFree(buf);
+    push_text(str);
+  }  
+  else
+  {
+    push_int(0);
+  }
+}
+
 /*! @decl Node parse_xml(string xml, string|void name)
  *!   Parse an string containing XML.
  *!  @param xml
@@ -386,7 +437,8 @@ PIKEFUN object parse_xml(string xml, string name)
   struct Node_struct * ns;
   NODE_OBJECT_DATA * od;
 
-  doc = xmlReadMemory(xml->str, xml->len, name->str, NULL, THIS->object_data->parser_options);
+  doc = xmlReadMemory(xml->str, xml->len, name->str, NULL, 
+                      THIS->object_data->xml_parser_options);
   if(doc == NULL)
   {
     pop_n_elems(2);
@@ -419,6 +471,59 @@ PIKEFUN object parse_xml(string xml)
 {
   push_text("noname.xml");
   f_parse_xml(2);
+}
+
+/*! @decl Node parse_html(string html, string|void name)
+ *!   Parse an string containing HTML.
+ *!  @param xml
+ *!   String containing HTML data to parse.
+ *!  @param name
+ *!   String containing name/URI of file.
+ *!
+ *!  @returns
+ *!    a @[Node] object containing the root of the tree.
+ */
+PIKEFUN object parse_html(string html, string name)
+{
+  htmlDocPtr doc;
+  xmlNodePtr node;
+  struct Node_struct * ns;
+  NODE_OBJECT_DATA * od;
+
+  doc = htmlReadMemory(html->str, html->len, name->str, NULL, 
+                       THIS->object_data->html_parser_options);
+  if(doc == NULL)
+  {
+    pop_n_elems(2);
+    Pike_error("Unable to parse HTML.\n");
+  }  
+
+  node = xmlDocGetRootElement(doc);
+  if(node == NULL)
+  {
+    pop_n_elems(2);
+    xmlFreeDoc(doc);
+    Pike_error("Unable to find Root Node.\n");
+  }
+
+  // ok, we have a parsed file. now let's turn it into a real live pike object.
+
+  pop_n_elems(2);
+
+  apply(Pike_fp->current_object, "Node", 0);
+  
+  ns = OBJ2_NODE((Pike_sp[0-1].u.object));
+  od = (NODE_OBJECT_DATA *)(ns->object_data);
+
+  od->refs = malloc(sizeof(INT32));
+  (* od->refs)=1;
+  od->node = node;
+}
+
+PIKEFUN object parse_html(string html)
+{
+  push_text("noname.html");
+  f_parse_html(2);
 }
 
 /*! @decl Node new_xml(string version)
@@ -559,7 +664,8 @@ INIT
     Pike_error("xml2_init: unable to allocate memory.\n");
   }
 
-  dta->parser_options = 0;
+  dta->xml_parser_options = 0;
+  dta->html_parser_options = 0;
   THIS->object_data = dta;
  
   LIBXML_TEST_VERSION

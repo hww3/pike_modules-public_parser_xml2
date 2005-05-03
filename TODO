@@ -1,2 +1,4 @@
 handle element definition properly; we need to do something with 
 xmlElementContentPtr...
+
+we need to support html mode parsing

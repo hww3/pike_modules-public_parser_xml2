@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: Node.cmod,v 1.4 2005-04-25 19:06:37 hww3 Exp $
+ * $Id: Node.cmod,v 1.5 2005-05-03 22:59:07 hww3 Exp $
  */
 
 /*
@@ -1023,6 +1023,31 @@ PIKEFUN string render_xml(int level, int format)
   check_node_created();
   buf = xmlBufferCreate();
   dumped = xmlNodeDump(buf, MY_NODE->doc, MY_NODE, level, format);
+
+  if(dumped>0)
+  {
+    str = (char *)xmlStrdup(buf->content);
+    xmlBufferFree(buf);
+    push_text(str);
+
+  }
+  
+}
+
+/*! @decl string render_html()
+ *!
+ *! renders the node and all children as html. 
+ *!
+ */
+PIKEFUN string render_html()
+{
+  int dumped;
+  xmlBufferPtr buf;
+  char * str;
+
+  check_node_created();
+  buf = xmlBufferCreate();
+  dumped = htmlNodeDump(buf, MY_NODE->doc, MY_NODE);
 
   if(dumped>0)
   {

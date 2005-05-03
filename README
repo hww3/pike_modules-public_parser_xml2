@@ -12,6 +12,9 @@ identical, to the Parser.XML.Tree parser provided with Pike.
 Non-scientific tests indicate that this parser is considerably faster than 
 that supplied with Pike.
 
+Additionally, this module provides an interface to libxslt, allowing 
+transformations of XML data.
+
 BUILDING
 
 To build this module, perform the following steps:

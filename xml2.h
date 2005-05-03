@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: xml2.h,v 1.11 2005-04-28 16:53:08 hww3 Exp $
+ * $Id: xml2.h,v 1.12 2005-05-03 22:59:08 hww3 Exp $
  */
 
 /*
@@ -146,6 +146,7 @@
 #define MAX_PARAMS 100
 
 void f_parse_xml(INT32 args);
+void f_parse_html(INT32 args);
 void f_parse_xslt(INT32 args);
 
 struct program * Node_program;
@@ -206,7 +207,8 @@ extern ptrdiff_t Stylesheet_storage_offset;
   typedef struct
   {
     int docloader_num;
-    int parser_options;
+    int xml_parser_options;
+    int html_parser_options;
   } PARSER_OBJECT_DATA;
 
   typedef struct
