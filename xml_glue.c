@@ -1,9 +1,8 @@
 #include "util.h"
 #include "module.h"
 
-void pike_module_init()
+PIKE_MODULE_INIT
 {
-  INIT
   pike_init_xml2_node();
   pike_init_xml2_constants();
   pike_init_xml2_sax();
@@ -11,9 +10,8 @@ void pike_module_init()
   pike_init_xml2_main();
 }
 
-void pike_module_exit()
+PIKE_MODULE_EXIT
 {
-  EXIT
   pike_exit_xml2_constants();
   pike_exit_xml2_node();
   pike_exit_xml2_sax();

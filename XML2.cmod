@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.62 2005-04-28 16:53:07 hww3 Exp $
+ * $Id: XML2.cmod,v 1.63 2005-05-03 22:36:34 hww3 Exp $
  */
 
 /*
@@ -76,9 +76,9 @@
 */
 
 PIKEVAR function docloader
-optflags ID_STATIC;
-
+  optflags ID_STATIC;
 CVAR PARSER_OBJECT_DATA * object_data;
+
 
 
 /*! @decl array(Node) select_xpath_nodes(string xpath, object node)
@@ -533,7 +533,6 @@ PIKEFUN object parse_xslt(string xslt, string name)
   ss->node = node_obj;
 }
 
-
 EXTRA
 {
   struct pike_string * ps;
@@ -544,13 +543,15 @@ EXTRA
   add_string_constant("__version", "1.12", 0);
   add_string_constant("__author", "Bill Welliver <bill@welliver.org>", 0);
 
+  pike_init_xml2_constants();
+  pike_init_xml2_node();
+  pike_init_xml2_sax();
+  pike_init_xml2_stylesheet();
 }
 
-void pike_init_xml2_main()
+INIT
 {
   PARSER_OBJECT_DATA * dta;
-
-  INIT;
 
   dta = (PARSER_OBJECT_DATA*)malloc(sizeof(PARSER_OBJECT_DATA));
   if(dta == NULL)
@@ -560,16 +561,17 @@ void pike_init_xml2_main()
 
   dta->parser_options = 0;
   THIS->object_data = dta;
-  
-/*
-printf(" done.\n");
-*/
+ 
   LIBXML_TEST_VERSION
 }
 
-void pike_exit_xml2_main()
+EXIT
 {
-  EXIT
+
+  pike_exit_xml2_stylesheet();
+  pike_exit_xml2_sax();
+  pike_exit_xml2_node();
+  pike_exit_xml2_constants();
   
 #ifdef HAVE_XSLT
 xsltCleanupGlobals();
