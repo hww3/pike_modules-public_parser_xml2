@@ -1,5 +1,12 @@
 Version History
 
+Version 1.14
+- Added HTML parser
+- Added XML and HTML parser options
+- Fixed compile problems with some versions of libxml2
+- Added XMLReader interface, missing a lot of methods currently
+- Added Doc loader support for XSLT Stylesheet objects
+
 Version 1.12
 - Added XSLT suppport via libxslt.
 - Split module into components for easier development.
