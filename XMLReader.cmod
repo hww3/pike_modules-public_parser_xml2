@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XMLReader.cmod,v 1.6 2005-05-04 15:19:31 hww3 Exp $
+ * $Id: XMLReader.cmod,v 1.7 2005-05-04 21:41:47 hww3 Exp $
  */
 
 /*
@@ -89,6 +89,37 @@ PIKEFUN string _sprintf(int type, mixed t)
   push_text("XMLReader()");
 }
 
+/*! @decl mapping read_attribute_value()
+ *!
+ */
+PIKEFUN mapping read_attribute_value()
+{
+  int res;
+
+  if(THIS->object_data->reader == NULL)
+  {
+    Pike_error("no xmlReader!\n");
+  }
+  res = xmlTextReaderRead(THIS->object_data->reader);
+  if(res == 1) /* we got data to process! */
+  {
+    push_int(1);
+    return;
+  }
+  else if (res == 0)
+  {
+    push_int(0);
+    return;
+  }
+  else
+  {
+    Pike_error("unable to parse, result code: %d!\n", res);
+  }
+}
+
+/*! @decl mapping read()
+ *!
+ */
 PIKEFUN mapping read()
 {
   int res;
@@ -114,10 +145,10 @@ PIKEFUN mapping read()
   }
 }
 
-/*! @decl int get_node_type()
+/*! @decl int node_type()
  *! 
  */
-PIKEFUN int get_node_type()
+PIKEFUN int node_type()
 {
   if(THIS->object_data->reader == NULL)
   {
@@ -127,10 +158,10 @@ PIKEFUN int get_node_type()
   RETURN xmlTextReaderNodeType(THIS->object_data->reader);
 }
 
-/*! @decl int get_node_depth()
+/*! @decl int depth()
  *! 
  */
-PIKEFUN int get_node_depth()
+PIKEFUN int depth()
 {
   if(THIS->object_data->reader == NULL)
   {
@@ -140,10 +171,10 @@ PIKEFUN int get_node_depth()
   RETURN xmlTextReaderDepth(THIS->object_data->reader);
 }
 
-/*! @decl int get_node_has_attributes()
+/*! @decl int has_attributes()
  *! 
  */
-PIKEFUN int get_node_has_attributes()
+PIKEFUN int has_attributes()
 {
   if(THIS->object_data->reader == NULL)
   {
@@ -153,10 +184,130 @@ PIKEFUN int get_node_has_attributes()
   RETURN xmlTextReaderHasAttributes(THIS->object_data->reader);
 }
 
-/*! @decl int get_node_has_value()
+/*! @decl int attribute_count()
  *! 
  */
-PIKEFUN int get_node_has_value()
+PIKEFUN int attribute_count()
+{
+  if(THIS->object_data->reader == NULL)
+  {
+    Pike_error("no xmlReader!\n");
+  }
+
+  RETURN xmlTextReaderAttributeCount(THIS->object_data->reader);
+}
+
+/*! @decl int next_sibling()
+ *! 
+ */
+PIKEFUN int next_sibling()
+{
+  if(THIS->object_data->reader == NULL)
+  {
+    Pike_error("no xmlReader!\n");
+  }
+
+  RETURN xmlTextReaderNextSibling(THIS->object_data->reader);
+}
+
+/*! @decl int next()
+ *! 
+ */
+PIKEFUN int next()
+{
+  if(THIS->object_data->reader == NULL)
+  {
+    Pike_error("no xmlReader!\n");
+  }
+
+  RETURN xmlTextReaderNext(THIS->object_data->reader);
+}
+
+/*! @decl int element()
+ *! 
+ */
+PIKEFUN int element()
+{
+  if(THIS->object_data->reader == NULL)
+  {
+    Pike_error("no xmlReader!\n");
+  }
+
+  RETURN xmlTextReaderMoveToElement(THIS->object_data->reader);
+}
+
+/*! @decl int first_attribute()
+ *! 
+ */
+PIKEFUN int first_attribute()
+{
+  if(THIS->object_data->reader == NULL)
+  {
+    Pike_error("no xmlReader!\n");
+  }
+
+  RETURN xmlTextReaderMoveToFirstAttribute(THIS->object_data->reader);
+}
+
+/*! @decl int next_attribute()
+ *! 
+ */
+PIKEFUN int next_attribute()
+{
+  if(THIS->object_data->reader == NULL)
+  {
+    Pike_error("no xmlReader!\n");
+  }
+
+  RETURN xmlTextReaderMoveToNextAttribute(THIS->object_data->reader);
+}
+
+/*! @decl int attribute_no()
+ *! 
+ */
+PIKEFUN int attribute_no(int no)
+{
+  if(THIS->object_data->reader == NULL)
+  {
+    Pike_error("no xmlReader!\n");
+  }
+
+  RETURN xmlTextReaderMoveToAttributeNo(THIS->object_data->reader, no);
+}
+
+/*! @decl int attribute_ns(string localName, string namespaceURI)
+ *! 
+ */
+PIKEFUN int attribute_ns(string localName, string namespaceURI)
+{
+  if(THIS->object_data->reader == NULL)
+  {
+    Pike_error("no xmlReader!\n");
+  }
+
+  RETURN xmlTextReaderMoveToAttributeNs(THIS->object_data->reader, 
+    (const xmlChar *)localName->str, (const xmlChar *)namespaceURI->str);
+}
+
+/*! @decl int attribute(string name)
+ *! 
+ */
+PIKEFUN int attribute(string name)
+{
+  if(THIS->object_data->reader == NULL)
+  {
+    Pike_error("no xmlReader!\n");
+  }
+
+  RETURN xmlTextReaderMoveToAttribute(THIS->object_data->reader, 
+    (const xmlChar *)name->str);
+}
+
+
+/*! @decl int has_value()
+ *! 
+ */
+PIKEFUN int has_value()
 {
   if(THIS->object_data->reader == NULL)
   {
@@ -166,10 +317,10 @@ PIKEFUN int get_node_has_value()
   RETURN xmlTextReaderHasValue(THIS->object_data->reader);
 }
 
-/*! @decl int get_node_is_default()
+/*! @decl int is_default()
  *! 
  */
-PIKEFUN int get_node_is_default()
+PIKEFUN int is_default()
 {
   if(THIS->object_data->reader == NULL)
   {
@@ -179,10 +330,23 @@ PIKEFUN int get_node_is_default()
   RETURN xmlTextReaderIsDefault(THIS->object_data->reader);
 }
 
-/*! @decl int get_node_is_empty_element()
+/*! @decl int is_namespace_decl()
  *! 
  */
-PIKEFUN int get_node_is_empty_element()
+PIKEFUN int is_namespace_decl()
+{
+  if(THIS->object_data->reader == NULL)
+  {
+    Pike_error("no xmlReader!\n");
+  }
+
+  RETURN xmlTextReaderIsNamespaceDecl(THIS->object_data->reader);
+}
+
+/*! @decl int is_empty_element()
+ *! 
+ */
+PIKEFUN int is_empty_element()
 {
   if(THIS->object_data->reader == NULL)
   {
@@ -192,10 +356,10 @@ PIKEFUN int get_node_is_empty_element()
   RETURN xmlTextReaderIsEmptyElement(THIS->object_data->reader);
 }
 
-/*! @decl int get_node_is_valid()
+/*! @decl int is_valid()
  *! 
  */
-PIKEFUN int get_node_is_valid()
+PIKEFUN int is_valid()
 {
   if(THIS->object_data->reader == NULL)
   {
@@ -205,11 +369,69 @@ PIKEFUN int get_node_is_valid()
   RETURN xmlTextReaderIsValid(THIS->object_data->reader);
 }
 
-
-/*! @decl int get_node_name()
+/*! @decl int parser_column_number()
  *! 
  */
-PIKEFUN string get_node_name()
+PIKEFUN int parser_column_number()
+{
+  if(THIS->object_data->reader == NULL)
+  {
+    Pike_error("no xmlReader!\n");
+  }
+
+  RETURN xmlTextReaderGetParserColumnNumber(THIS->object_data->reader);
+}
+
+/*! @decl int parser_line_number()
+ *! 
+ */
+PIKEFUN int parser_line_number()
+{
+  if(THIS->object_data->reader == NULL)
+  {
+    Pike_error("no xmlReader!\n");
+  }
+
+  RETURN xmlTextReaderGetParserLineNumber(THIS->object_data->reader);
+}
+
+/*! @decl int get_parser_prop(int prop)
+ *! 
+ *! @param prop
+ *!   the property to get
+ */
+PIKEFUN int get_parser_prop(int prop)
+{
+  if(THIS->object_data->reader == NULL)
+  {
+    Pike_error("no xmlReader!\n");
+  }
+
+  RETURN xmlTextReaderGetParserProp(THIS->object_data->reader, prop);
+}
+
+/*! @decl int set_parser_prop(int prop, int value)
+ *! 
+ *! @param prop
+ *!   the property to set
+ *!
+ *! @param value
+ *!   the value to set
+ */
+PIKEFUN int set_parser_prop(int prop, int value)
+{
+  if(THIS->object_data->reader == NULL)
+  {
+    Pike_error("no xmlReader!\n");
+  }
+
+  RETURN xmlTextReaderSetParserProp(THIS->object_data->reader, prop, value);
+}
+
+/*! @decl string name()
+ *! 
+ */
+PIKEFUN string name()
 {
   xmlChar * c;
 
@@ -228,13 +450,83 @@ PIKEFUN string get_node_name()
     push_int(0);
 }
 
-/*! @decl int get_node_lookup_namespace(string|void prefix)
+/*! @decl string get_attribute(string name)
  *! 
  */
-PIKEFUN string get_node_lookup_namespace(string prefix)
+PIKEFUN string get_attribute(string name)
 {
   xmlChar * c;
 
+  if(THIS->object_data->reader == NULL)
+  {
+    Pike_error("no xmlReader!\n");
+  }
+
+  c = xmlTextReaderGetAttribute(THIS->object_data->reader, name->str);
+  if(c != NULL)
+  {
+    push_text(c);
+    xmlFree(c);
+  }
+  else
+    push_int(0);
+}
+
+
+/*! @decl string get_attribute_no(string name)
+ *! 
+ */
+PIKEFUN string get_attribute_no(int no)
+{
+  xmlChar * c;
+
+  if(THIS->object_data->reader == NULL)
+  {
+    Pike_error("no xmlReader!\n");
+  }
+
+  c = xmlTextReaderGetAttributeNo(THIS->object_data->reader, no);
+  if(c != NULL)
+  {
+    push_text(c);
+    xmlFree(c);
+  }
+  else
+    push_int(0);
+}
+
+/*! @decl string get_attribute_ns(string localName, string namespaceURI)
+ *! 
+ */
+PIKEFUN string get_attribute(string localName, string namespaceURI)
+{
+  xmlChar * c;
+
+  if(THIS->object_data->reader == NULL)
+  {
+    Pike_error("no xmlReader!\n");
+  }
+
+  c = xmlTextReaderGetAttributeNs(THIS->object_data->reader, 
+         localName->str, namespaceURI->str);
+  if(c != NULL)
+  {
+    push_text(c);
+    xmlFree(c);
+  }
+  else
+    push_int(0);
+}
+
+
+/*! @decl string lookup_namespace(string|void prefix)
+ *! 
+ */
+PIKEFUN string lookup_namespace(string prefix)
+{
+  xmlChar * c;
+
+printf("one arg!\n");
   if(THIS->object_data->reader == NULL)
   {
     Pike_error("no xmlReader!\n");
@@ -250,10 +542,11 @@ PIKEFUN string get_node_lookup_namespace(string prefix)
     push_int(0);
 }
 
-PIKEFUN string get_node_lookup_namespace()
+PIKEFUN string lookup_namespace()
 {
   xmlChar * c;
 
+printf("no args!\n");
   if(THIS->object_data->reader == NULL)
   {
     Pike_error("no xmlReader!\n");
@@ -269,10 +562,10 @@ PIKEFUN string get_node_lookup_namespace()
     push_int(0);
 }
 
-/*! @decl int get_node_xml_lang()
+/*! @decl string xml_lang()
  *! 
  */
-PIKEFUN string get_node_xml_lang()
+PIKEFUN string xml_lang()
 {
   xmlChar * c;
 
@@ -292,10 +585,10 @@ PIKEFUN string get_node_xml_lang()
 }
 
 
-/*! @decl int get_node_prefix()
+/*! @decl string prefix()
  *! 
  */
-PIKEFUN string get_node_prefix()
+PIKEFUN string prefix()
 {
   xmlChar * c;
 
@@ -314,10 +607,10 @@ PIKEFUN string get_node_prefix()
     push_int(0);
 }
 
-/*! @decl int get_node_prefix()
+/*! @decl int namespaceuri()
  *! 
  */
-PIKEFUN string get_node_namespaceuri()
+PIKEFUN string namespaceuri()
 {
   xmlChar * c;
 
@@ -335,11 +628,32 @@ PIKEFUN string get_node_namespaceuri()
   else
     push_int(0);
 }
-
-/*! @decl int get_node_prefix()
+/*! @decl int baseuri()
  *! 
  */
-PIKEFUN string get_node_localname()
+PIKEFUN string baseuri()
+{
+  xmlChar * c;
+
+  if(THIS->object_data->reader == NULL)
+  {
+    Pike_error("no xmlReader!\n");
+  }
+
+  c = xmlTextReaderBaseUri(THIS->object_data->reader);
+  if(c != NULL)
+  {
+    push_text(c);
+    xmlFree(c);
+  }
+  else
+    push_int(0);
+}
+
+/*! @decl int localname()
+ *! 
+ */
+PIKEFUN string localname()
 {
   xmlChar * c;
 
@@ -358,10 +672,10 @@ PIKEFUN string get_node_localname()
     push_int(0);
 }
 
-/*! @decl int get_node_value()
+/*! @decl int value()
  *! 
  */
-PIKEFUN string get_node_value()
+PIKEFUN string value()
 {
   xmlChar * c;
 
@@ -380,10 +694,10 @@ PIKEFUN string get_node_value()
     push_int(0);
 }
 
-/*! @decl int get_node_string()
+/*! @decl int string()
  *! 
  */
-PIKEFUN string get_node_string()
+PIKEFUN string string()
 {
   xmlChar * c;
 
@@ -402,10 +716,10 @@ PIKEFUN string get_node_string()
     push_int(0);
 }
 
-/*! @decl int get_node_inner_xml()
+/*! @decl int inner_xml()
  *! 
  */
-PIKEFUN string get_node_inner_xml()
+PIKEFUN string inner_xml()
 {
   xmlChar * c;
 
@@ -424,10 +738,10 @@ PIKEFUN string get_node_inner_xml()
     push_int(0);
 }
 
-/*! @decl int get_node_outer_xml()
+/*! @decl int outer_xml()
  *! 
  */
-PIKEFUN string get_node_outer_xml()
+PIKEFUN string outer_xml()
 {
   xmlChar * c;
 
