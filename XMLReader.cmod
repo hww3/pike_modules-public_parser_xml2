@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XMLReader.cmod,v 1.1 2005-05-04 02:10:19 hww3 Exp $
+ * $Id: XMLReader.cmod,v 1.2 2005-05-04 02:29:35 hww3 Exp $
  */
 
 /*
@@ -86,6 +86,63 @@ PIKEFUN string _sprintf(int type, mixed t)
   push_text("XMLReader()");
 }
 
+PIKEFUN mapping read()
+{
+  int res;
+
+  if(THIS->object_data->reader == NULL)
+  {
+    Pike_error("no xmlReader!\n");
+  }
+  res = xmlTextReaderRead(THIS->object_data->reader);
+  if(res == 1) /* we got data to process! */
+  {
+    push_int(1);
+    return;
+  }
+  else if (res == 0)
+  {
+    push_int(0);
+    return;
+  }
+  else
+  {
+    Pike_error("unable to parse, result code: %d!\n", res);
+  }
+}
+
+/*! @decl int get_node_type()
+ *! 
+ */
+PIKEFUN int get_node_type()
+{
+  if(THIS->object_data->reader == NULL)
+  {
+    Pike_error("no xmlReader!\n");
+  }
+
+  RETURN xmlTextReaderNodeType(THIS->object_data->reader);
+}
+
+/*! @decl int get_node_type()
+ *! 
+ */
+PIKEFUN string get_node_name()
+{
+  xmlChar * c;
+
+  if(THIS->object_data->reader == NULL)
+  {
+    Pike_error("no xmlReader!\n");
+  }
+
+  c = xmlTextReaderName(THIS->object_data->reader);
+  if(c != NULL)
+    push_text(c);
+  else
+    push_int(0);
+}
+
 /*!
  *!  @decl void create(string xml, string|void url, int|void options)
  *!
@@ -94,7 +151,7 @@ PIKEFUN void create(string xml, string url, int options)
 {
   xmlTextReaderPtr reader;
  
-  reader = xmlNewTextReaderForMemory(xml->str, xml->len, url->str, 
+  reader = xmlReaderForMemory(xml->str, xml->len, url->str, 
                NULL, options);
 
   if(reader == NULL)
@@ -112,7 +169,7 @@ PIKEFUN void create(string xml)
   push_text("noname.xml");
   push_int(0);
 
-  f_create(3);
+  f_XMLReader_create(3);
 }
 
 
@@ -133,7 +190,11 @@ INIT
 EXIT
 { 
 
-   if(THIS->object_data)
+  if(THIS->object_data->reader != NULL)
+  {
+    xmlFreeTextReader(THIS->object_data->reader);
+  }
+  if(THIS->object_data)
   {
     free(THIS->object_data);
   }

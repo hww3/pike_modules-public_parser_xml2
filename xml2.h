@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: xml2.h,v 1.13 2005-05-04 02:10:19 hww3 Exp $
+ * $Id: xml2.h,v 1.14 2005-05-04 02:29:35 hww3 Exp $
  */
 
 /*
@@ -149,6 +149,7 @@
 /* a rather arbitrary limit on the number of xslt attributes we can supply */
 #define MAX_PARAMS 100
 
+void f_XMLReader_create(INT32 args);
 void f_parse_xml(INT32 args);
 void f_parse_html(INT32 args);
 void f_parse_xslt(INT32 args);
