@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.65 2005-05-04 02:10:19 hww3 Exp $
+ * $Id: XML2.cmod,v 1.66 2005-05-04 02:56:26 hww3 Exp $
  */
 
 /*
@@ -645,7 +645,7 @@ EXTRA
   docloader_num = isidentifier(ps);
   THIS->object_data->docloader_num = docloader_num;
 
-  add_string_constant("__version", "1.12", 0);
+  add_string_constant("__version", "1.14", 0);
   add_string_constant("__author", "Bill Welliver <bill@welliver.org>", 0);
 
   pike_init_xml2_constants();

@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XMLReader.cmod,v 1.3 2005-05-04 02:51:29 hww3 Exp $
+ * $Id: XMLReader.cmod,v 1.4 2005-05-04 02:56:26 hww3 Exp $
  */
 
 /*
@@ -70,6 +70,9 @@
  */
 
 /*! @class XMLReader
+ *!
+ *! A simplified parser for XML documents. Similar to the C# XMLReader 
+ *! class.
  */
 #ifdef HAVE_LIBXML_XMLREADER_H
 
