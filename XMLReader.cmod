@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XMLReader.cmod,v 1.4 2005-05-04 02:56:26 hww3 Exp $
+ * $Id: XMLReader.cmod,v 1.5 2005-05-04 03:08:35 hww3 Exp $
  */
 
 /*
@@ -303,8 +303,7 @@ PIKEFUN string get_node_outer_xml()
     push_int(0);
 }
 
-/*!
- *!  @decl void create(string xml, string|void url, int|void options)
+/*! @decl void create(string xml, string|void url, int|void options)
  *!
  */
 PIKEFUN void create(string xml, string url, int options)
