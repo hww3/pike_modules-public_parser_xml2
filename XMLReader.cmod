@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XMLReader.cmod,v 1.5 2005-05-04 03:08:35 hww3 Exp $
+ * $Id: XMLReader.cmod,v 1.6 2005-05-04 15:19:31 hww3 Exp $
  */
 
 /*
@@ -127,6 +127,85 @@ PIKEFUN int get_node_type()
   RETURN xmlTextReaderNodeType(THIS->object_data->reader);
 }
 
+/*! @decl int get_node_depth()
+ *! 
+ */
+PIKEFUN int get_node_depth()
+{
+  if(THIS->object_data->reader == NULL)
+  {
+    Pike_error("no xmlReader!\n");
+  }
+
+  RETURN xmlTextReaderDepth(THIS->object_data->reader);
+}
+
+/*! @decl int get_node_has_attributes()
+ *! 
+ */
+PIKEFUN int get_node_has_attributes()
+{
+  if(THIS->object_data->reader == NULL)
+  {
+    Pike_error("no xmlReader!\n");
+  }
+
+  RETURN xmlTextReaderHasAttributes(THIS->object_data->reader);
+}
+
+/*! @decl int get_node_has_value()
+ *! 
+ */
+PIKEFUN int get_node_has_value()
+{
+  if(THIS->object_data->reader == NULL)
+  {
+    Pike_error("no xmlReader!\n");
+  }
+
+  RETURN xmlTextReaderHasValue(THIS->object_data->reader);
+}
+
+/*! @decl int get_node_is_default()
+ *! 
+ */
+PIKEFUN int get_node_is_default()
+{
+  if(THIS->object_data->reader == NULL)
+  {
+    Pike_error("no xmlReader!\n");
+  }
+
+  RETURN xmlTextReaderIsDefault(THIS->object_data->reader);
+}
+
+/*! @decl int get_node_is_empty_element()
+ *! 
+ */
+PIKEFUN int get_node_is_empty_element()
+{
+  if(THIS->object_data->reader == NULL)
+  {
+    Pike_error("no xmlReader!\n");
+  }
+
+  RETURN xmlTextReaderIsEmptyElement(THIS->object_data->reader);
+}
+
+/*! @decl int get_node_is_valid()
+ *! 
+ */
+PIKEFUN int get_node_is_valid()
+{
+  if(THIS->object_data->reader == NULL)
+  {
+    Pike_error("no xmlReader!\n");
+  }
+
+  RETURN xmlTextReaderIsValid(THIS->object_data->reader);
+}
+
+
 /*! @decl int get_node_name()
  *! 
  */
@@ -148,6 +227,70 @@ PIKEFUN string get_node_name()
   else
     push_int(0);
 }
+
+/*! @decl int get_node_lookup_namespace(string|void prefix)
+ *! 
+ */
+PIKEFUN string get_node_lookup_namespace(string prefix)
+{
+  xmlChar * c;
+
+  if(THIS->object_data->reader == NULL)
+  {
+    Pike_error("no xmlReader!\n");
+  }
+
+  c = xmlTextReaderLookupNamespace(THIS->object_data->reader, prefix->str);
+  if(c != NULL)
+  {
+    push_text(c);
+    xmlFree(c);
+  }
+  else
+    push_int(0);
+}
+
+PIKEFUN string get_node_lookup_namespace()
+{
+  xmlChar * c;
+
+  if(THIS->object_data->reader == NULL)
+  {
+    Pike_error("no xmlReader!\n");
+  }
+
+  c = xmlTextReaderLookupNamespace(THIS->object_data->reader, NULL);
+  if(c != NULL)
+  {
+    push_text(c);
+    xmlFree(c);
+  }
+  else
+    push_int(0);
+}
+
+/*! @decl int get_node_xml_lang()
+ *! 
+ */
+PIKEFUN string get_node_xml_lang()
+{
+  xmlChar * c;
+
+  if(THIS->object_data->reader == NULL)
+  {
+    Pike_error("no xmlReader!\n");
+  }
+
+  c = xmlTextReaderXmlLang(THIS->object_data->reader);
+  if(c != NULL)
+  {
+    push_text(c);
+    xmlFree(c);
+  }
+  else
+    push_int(0);
+}
+
 
 /*! @decl int get_node_prefix()
  *! 
