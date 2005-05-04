@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: Stylesheet.cmod,v 1.11 2005-04-27 23:18:19 hww3 Exp $
+ * $Id: Stylesheet.cmod,v 1.12 2005-05-04 02:10:19 hww3 Exp $
  */
 
 /*
@@ -154,6 +154,7 @@ PIKEFUN object apply(object xml)
 
   CHECK_NODE_PASSED(xml);
 
+#ifdef HAVE_XSLTSETLOADERFUNC
     loc.o = Pike_fp->current_object;
     loc.parent_identifier = Pike_fp->fun;
     if (loc.o->prog)
@@ -181,6 +182,7 @@ PIKEFUN object apply(object xml)
     }
     else
       xsltSetLoaderFunc(NULL);
+#endif
  
 
     // we should have the docloader function on the stack now.

@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: Node.cmod,v 1.5 2005-05-03 22:59:07 hww3 Exp $
+ * $Id: Node.cmod,v 1.6 2005-05-04 02:10:19 hww3 Exp $
  */
 
 /*
@@ -73,7 +73,7 @@
  */
 
 PIKECLASS Node
-optflags ID_PRIVATE
+optflags ID_PRIVATE;
 {
 
   CVAR NODE_OBJECT_DATA   *object_data;
@@ -550,6 +550,7 @@ PIKEFUN object new_pi(string name, string contents)
 
   check_node_created();
 
+#ifdef HAVE_XMLNEWDOCPI
   node = xmlNewDocPI(MY_NODE->doc, name->str, contents->str);
   
   if(node == NULL)
@@ -564,6 +565,11 @@ PIKEFUN object new_pi(string name, string contents)
     NEW_NODE_REFS(o);
     push_object(o);
   }
+
+#else
+  Pike_error("new_pi() is not available. please upgrade your libxslt.\n");
+#endif /* HAVE_XMLNEWDOCPI */
+
 }
 
 /*!  @decl Node set_attribute(string name, string value)

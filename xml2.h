@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: xml2.h,v 1.12 2005-05-03 22:59:08 hww3 Exp $
+ * $Id: xml2.h,v 1.13 2005-05-04 02:10:19 hww3 Exp $
  */
 
 /*
@@ -72,6 +72,10 @@
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
+
+#ifdef HAVE_LIBXML_XMLREADER_H
+#include <libxml/xmlreader.h>
+#endif
 
 #ifdef HAVE_LIBXML_PARSER_H
 #include <libxml/parser.h>
@@ -203,6 +207,13 @@ extern ptrdiff_t Stylesheet_storage_offset;
     xmlParserCtxtPtr context;
     xmlParserOption options;
   } SAX_OBJECT_DATA;
+
+  typedef struct
+  {
+#ifdef HAVE_LIBXML_XMLREADER_H
+    xmlTextReaderPtr reader;
+#endif
+  } XMLREADER_OBJECT_DATA;
 
   typedef struct
   {

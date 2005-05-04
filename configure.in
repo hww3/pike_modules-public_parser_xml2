@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.8 2005-04-25 21:18:59 hww3 Exp $
+# $Id: configure.in,v 1.9 2005-05-04 02:10:19 hww3 Exp $
 AC_INIT(xml2_config.h.in)
 
 AC_MODULE_INIT()
@@ -13,6 +13,7 @@ LDFLAGS="${LDFLAGS} ${XML2_LIBS} ${XSLT_LIBS}"
 AC_CHECK_HEADERS(libxml/parser.h)
 AC_CHECK_HEADERS(libxml/xpath.h)
 AC_CHECK_HEADERS(libxml/SAX2.h)
+AC_CHECK_HEADERS(libxml/xmlreader.h)
 
 AC_CHECK_HEADERS(libxslt/xslt.h)
 AC_CHECK_HEADERS(libxslt/xsltInternals.h)
@@ -22,6 +23,8 @@ AC_CHECK_HEADERS(libxslt/document.h)
 
 AC_CHECK_LIB(xml2, xmlCleanupParser) 
 AC_CHECK_LIB(xslt, xsltCleanupGlobals) 
+
+AC_CHECK_FUNCS(xmlNewDocPI) 
 AC_CHECK_FUNCS(xsltSetLoaderFunc) 
 
 AC_SUBST(XML2_CFLAGS) 

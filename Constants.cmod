@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: Constants.cmod,v 1.3 2005-04-28 16:53:07 hww3 Exp $
+ * $Id: Constants.cmod,v 1.4 2005-05-04 02:10:19 hww3 Exp $
  */
 
 /*
@@ -128,8 +128,11 @@ EXTRA
   add_integer_constant("PARSE_NSCLEAN", o, 0);
   o = XML_PARSE_NOCDATA;
   add_integer_constant("PARSE_NOCDATA", o, 0);
+
+#ifdef XML_PARSE_NOXINCNODE
   o = XML_PARSE_NOXINCNODE;
   add_integer_constant("PARSE_NOXINCNODE", o, 0);
+#endif
 
   /* XML character encodings */
   c = XML_CHAR_ENCODING_ERROR;
@@ -405,8 +408,15 @@ add_integer_constant("SAX_CB_SERROR", CB_SERROR, 0);
   add_integer_constant("DTD_UNKNOWN_ID", XML_DTD_UNKNOWN_ID, 0);
   add_integer_constant("DTD_UNKNOWN_NOTATION", XML_DTD_UNKNOWN_NOTATION, 0);
   add_integer_constant("DTD_STANDALONE_DEFAULTED", XML_DTD_STANDALONE_DEFAULTED, 0);
+
+#ifdef XML_DTD_XMLID_VALUE
   add_integer_constant("DTD_XMLID_VALUE", XML_DTD_XMLID_VALUE, 0);
+#endif
+
+#ifdef XML_DTD_XMLID_TYPE
   add_integer_constant("DTD_XMLID_TYPE", XML_DTD_XMLID_TYPE, 0);
+#endif
+
   add_integer_constant("HTML_STRUCURE_ERROR", XML_HTML_STRUCURE_ERROR, 0);
   add_integer_constant("HTML_UNKNOWN_TAG", XML_HTML_UNKNOWN_TAG, 0);
   add_integer_constant("RNGP_ANYNAME_ATTR_ANCESTOR", XML_RNGP_ANYNAME_ATTR_ANCESTOR, 0);
@@ -717,15 +727,43 @@ add_integer_constant("SAX_CB_SERROR", CB_SERROR, 0);
   add_integer_constant("SCHEMAP_INCLUDE_SCHEMA_NOT_URI", XML_SCHEMAP_INCLUDE_SCHEMA_NOT_URI, 0);
   add_integer_constant("SCHEMAP_INCLUDE_SCHEMA_NO_URI", XML_SCHEMAP_INCLUDE_SCHEMA_NO_URI, 0);
   add_integer_constant("SCHEMAP_NOT_SCHEMA", XML_SCHEMAP_NOT_SCHEMA, 0);
+
+#ifdef XML_SCHEMAP_UNKNOWN_MEMBER_TYPE
   add_integer_constant("SCHEMAP_UNKNOWN_MEMBER_TYPE", XML_SCHEMAP_UNKNOWN_MEMBER_TYPE, 0);
+#endif
+
+#ifdef XML_SCHEMAP_INVALID_ATTR_USE
   add_integer_constant("SCHEMAP_INVALID_ATTR_USE", XML_SCHEMAP_INVALID_ATTR_USE, 0);
+#endif
+
+#ifdef XML_SCHEMAP_RECURSIVE
   add_integer_constant("SCHEMAP_RECURSIVE", XML_SCHEMAP_RECURSIVE, 0);
+#endif
+
+#ifdef XML_SCHEMAP_SUPERNUMEROUS_LIST_ITEM_TYPE
   add_integer_constant("SCHEMAP_SUPERNUMEROUS_LIST_ITEM_TYPE", XML_SCHEMAP_SUPERNUMEROUS_LIST_ITEM_TYPE, 0);
+#endif
+
+#ifdef XML_SCHEMAP_INVALID_ATTR_COMBINATION
   add_integer_constant("SCHEMAP_INVALID_ATTR_COMBINATION", XML_SCHEMAP_INVALID_ATTR_COMBINATION, 0);
+#endif
+
+#ifdef XML_SCHEMAP_INVALID_ATTR_INLINE_COMBINATION
   add_integer_constant("SCHEMAP_INVALID_ATTR_INLINE_COMBINATION", XML_SCHEMAP_INVALID_ATTR_INLINE_COMBINATION, 0);
+#endif
+
+#ifdef XML_SCHEMAP_MISSING_SIMPLETYPE_CHILD
   add_integer_constant("SCHEMAP_MISSING_SIMPLETYPE_CHILD", XML_SCHEMAP_MISSING_SIMPLETYPE_CHILD, 0);
+#endif
+
+#ifdef XML_SCHEMAP_INVALID_ATTR_NAME
   add_integer_constant("SCHEMAP_INVALID_ATTR_NAME", XML_SCHEMAP_INVALID_ATTR_NAME, 0);
+#endif
+
+#ifdef XML_SCHEMAP_REF_AND_CONTENT
   add_integer_constant("SCHEMAP_REF_AND_CONTENT", XML_SCHEMAP_REF_AND_CONTENT, 0);
+#endif
+
   add_integer_constant("SCHEMAV_NOROOT", XML_SCHEMAV_NOROOT, 0);
   add_integer_constant("SCHEMAV_UNDECLAREDELEM", XML_SCHEMAV_UNDECLAREDELEM, 0);
   add_integer_constant("SCHEMAV_NOTTOPLEVEL", XML_SCHEMAV_NOTTOPLEVEL, 0);
