@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XMLReader.cmod,v 1.7 2005-05-04 21:41:47 hww3 Exp $
+ * $Id: XMLReader.cmod,v 1.8 2005-05-06 03:06:22 hww3 Exp $
  */
 
 /*
@@ -89,38 +89,14 @@ PIKEFUN string _sprintf(int type, mixed t)
   push_text("XMLReader()");
 }
 
-/*! @decl mapping read_attribute_value()
+/*! @decl int read()
  *!
- */
-PIKEFUN mapping read_attribute_value()
-{
-  int res;
-
-  if(THIS->object_data->reader == NULL)
-  {
-    Pike_error("no xmlReader!\n");
-  }
-  res = xmlTextReaderRead(THIS->object_data->reader);
-  if(res == 1) /* we got data to process! */
-  {
-    push_int(1);
-    return;
-  }
-  else if (res == 0)
-  {
-    push_int(0);
-    return;
-  }
-  else
-  {
-    Pike_error("unable to parse, result code: %d!\n", res);
-  }
-}
-
-/*! @decl mapping read()
+ *! reads the next node of the document and loads its data.
  *!
+ *! returns 1 if a node was read, 0 if no additional nodes are available,
+ *!  and throws an error if a parse error occurred.
  */
-PIKEFUN mapping read()
+PIKEFUN int read()
 {
   int res;
 
@@ -147,6 +123,8 @@ PIKEFUN mapping read()
 
 /*! @decl int node_type()
  *! 
+ *!  returns the type of the current node. Types are described here:
+ *!   http://dotgnu.org/pnetlib-doc/System/Xml/XmlNodeType.html
  */
 PIKEFUN int node_type()
 {
@@ -160,6 +138,7 @@ PIKEFUN int node_type()
 
 /*! @decl int depth()
  *! 
+ *!   returns the depth of the current node within the tree.
  */
 PIKEFUN int depth()
 {
@@ -173,6 +152,7 @@ PIKEFUN int depth()
 
 /*! @decl int has_attributes()
  *! 
+ *!  Does the node have attributes?
  */
 PIKEFUN int has_attributes()
 {
@@ -186,6 +166,7 @@ PIKEFUN int has_attributes()
 
 /*! @decl int attribute_count()
  *! 
+ *!  returns the number of attributes associated with the current node.
  */
 PIKEFUN int attribute_count()
 {
