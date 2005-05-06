@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.69 2005-05-06 22:34:32 hww3 Exp $
+ * $Id: XML2.cmod,v 1.70 2005-05-06 23:32:23 hww3 Exp $
  */
 
 /*
@@ -453,7 +453,12 @@ PIKEFUN string render_html(object n)
 
 void my_generic_error(void * userData, xmlErrorPtr error)
 {
-    printf("error level: %d, message: %s\n", error->level, error->message);
+  char * err;
+
+  sprintf(err, "Public.Parser.XML error: %d, message: %s", error->level, error->message);
+  push_text(err);
+
+  f_werror(1);
 }
 
 /*! @decl Node recover_xml(string xml)
@@ -580,7 +585,8 @@ PIKEFUN object parse_xml(string xml, string name)
   //  xmlSetExternalEntityLoader(entity_loader);
 
   generic_handler = my_generic_error;
-  // xmlSetStructuredErrorFunc((void *)err_ctx, generic_handler);
+
+  //xmlSetStructuredErrorFunc((void *)err_ctx, generic_handler);
 
   doc = xmlReadMemory(xml->str, xml->len, name->str, 
                       NULL, 
@@ -764,12 +770,17 @@ PIKEFUN object parse_xslt(string xslt, string name)
 EXTRA
 {
   struct pike_string * ps;
+  char * err_ctx = "parse_xml";
   MAKE_CONST_STRING(ps, "docloader");
   docloader_num = isidentifier(ps);
   THIS->object_data->docloader_num = docloader_num;
 
   add_string_constant("__version", "1.16", 0);
   add_string_constant("__author", "Bill Welliver <bill@welliver.org>", 0);
+
+  generic_handler = my_generic_error;
+  xmlSetStructuredErrorFunc((void *)err_ctx, generic_handler);
+
 
   pike_init_xml2_constants();
   pike_init_xml2_node();

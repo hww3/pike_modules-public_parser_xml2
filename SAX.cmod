@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: SAX.cmod,v 1.2 2005-05-04 03:04:33 hww3 Exp $
+ * $Id: SAX.cmod,v 1.3 2005-05-06 23:32:23 hww3 Exp $
  */
 
 /*
@@ -1136,7 +1136,7 @@ printf("start element\n");
   {
   }
 
-/*!  @decl int feed(string d)
+/*!  @decl int feed(string d, string|void encoding)
  *!
  *!  feed some XML data to the parser. @[feed] may be called multiple
  *!   times to pass an entire XML document to the parser. The document
@@ -1148,6 +1148,32 @@ printf("start element\n");
  *!  @returns
  *!   the number of bytes processed.
  */
+  PIKEFUN int feed(string d, string encoding)
+  {
+    int retval;
+    xmlParserCtxtPtr context;
+    xmlCharEncodingHandlerPtr enc;
+
+    if(THIS->object_data->context == NULL)
+    {
+
+      context = xmlCreatePushParserCtxt(mySAX, NULL, NULL, 0, NULL);
+      if(context == NULL) Pike_error("unable to create parser context.\n");
+      THIS->object_data->context = context;
+    } 
+
+    /* FIXME: will this cause a memory leak? */
+    enc = xmlFindCharEncodingHandler(encoding->str);
+    if(enc != NULL)
+    {
+      xmlSwitchToEncoding(context, enc);
+      context->charset = XML_CHAR_ENCODING_UTF8;
+    }
+
+    retval = xmlParseChunk(THIS->object_data->context, d->str, d->len, 0);
+    push_int(retval);
+  }
+
   PIKEFUN int feed(string d)
   {
     int retval;
@@ -1155,7 +1181,6 @@ printf("start element\n");
 
     if(THIS->object_data->context == NULL)
     {
-
       context = xmlCreatePushParserCtxt(mySAX, NULL, NULL, 0, NULL);
       if(context == NULL) Pike_error("unable to create parser context.\n");
       THIS->object_data->context = context;
@@ -1197,7 +1222,7 @@ printf("start element\n");
     }
   }
 
-/*!  @decl int parse(string d)
+/*!  @decl int parse(string d, string|void encoding)
  *!
  *!  feed a complete XML document to the parser. data from the document
  *!   will be processed and any registered SAX handler callbacks will
@@ -1240,6 +1265,30 @@ printf("start element\n");
     }
     push_int(retval);
   }
+
+  PIKEFUN int parse(string d, string encoding)
+  {
+    int retval;
+    xmlParserCtxtPtr context;
+    xmlSAXHandlerPtr ySAX;
+    xmlCharEncodingHandlerPtr enc;
+
+    if(THIS->object_data->context == NULL)
+    {
+      context = xmlCreatePushParserCtxt(mySAX, NULL, NULL, 0, NULL);
+      if(context == NULL) Pike_error("unable to create parser context.\n");
+      THIS->object_data->context = context;
+    }
+
+    /* FIXME: will this cause a memory leak? */
+    enc = xmlFindCharEncodingHandler(encoding->str);
+    if(enc != NULL)
+    {
+      xmlSwitchToEncoding(context, enc);
+      context->charset = XML_CHAR_ENCODING_UTF8;
+    }
+    f_SAX_parse(1);
+}
 
   INIT
   {
