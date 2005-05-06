@@ -1,5 +1,9 @@
 Version History
 
+Version 1.16
+- XMLReader interface complete
+- Added a few more Node methods
+
 Version 1.14
 - Added HTML parser
 - Added XML and HTML parser options

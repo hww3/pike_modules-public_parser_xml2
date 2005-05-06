@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: xml2.h,v 1.14 2005-05-04 02:29:35 hww3 Exp $
+ * $Id: xml2.h,v 1.15 2005-05-06 03:13:35 hww3 Exp $
  */
 
 /*
@@ -159,6 +159,9 @@ struct program * Node_program;
 struct program * Stylesheet_program;
 
 extern ptrdiff_t Stylesheet_storage_offset;
+
+xmlExternalEntityLoader entity_loader;
+xmlStructuredErrorFunc generic_handler;
 
   xmlParserInputPtr my_getParameterEntity(void * ctx, const xmlChar * name); 
 

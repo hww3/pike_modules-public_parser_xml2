@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.66 2005-05-04 02:56:26 hww3 Exp $
+ * $Id: XML2.cmod,v 1.67 2005-05-06 03:13:35 hww3 Exp $
  */
 
 /*
@@ -234,7 +234,7 @@ PIKEFUN void set_html_parser_options(int options)
 
 /*! @decl int substituteEntitiesDefault(int def)
  */
-PIKEFUN void substituteEntitiesDefault(int def)
+PIKEFUN int substituteEntitiesDefault(int def)
 {
   def = def ? 1 : 0;
 
@@ -420,6 +420,63 @@ PIKEFUN string render_html(object n)
   }
 }
 
+void my_generic_error(void * userData, xmlErrorPtr error)
+{
+    printf("error level: %d, message: %s\n", error->level, error->message);
+}
+
+/*! @decl Node recover_xml(string xml)
+ *!   Parse an string containing XML, even if it is not Well Formed.
+ *!  @param xml
+ *!   String containing XML data to parse.
+ *!
+ *!  @returns
+ *!    a @[Node] object containing the root of the tree.
+ */
+PIKEFUN object parse_xml_force(string xml)
+{
+  xmlDocPtr doc;
+  xmlNodePtr node;
+  struct Node_struct * ns;
+  NODE_OBJECT_DATA * od;
+
+  doc = xmlRecoverMemory(xml->str, xml->len);
+
+  if(doc == NULL)
+  {
+    pop_n_elems(2);
+    Pike_error("Unable to parse XML.\n");
+  }  
+
+  node = xmlDocGetRootElement(doc);
+  if(node == NULL)
+  {
+    pop_n_elems(2);
+    xmlFreeDoc(doc);
+    Pike_error("Unable to find Root Node.\n");
+  }
+
+  // ok, we have a parsed file. now let's turn it into a real live pike object.
+
+  pop_n_elems(2);
+
+  apply(Pike_fp->current_object, "Node", 0);
+  
+  ns = OBJ2_NODE((Pike_sp[0-1].u.object));
+  od = (NODE_OBJECT_DATA *)(ns->object_data);
+
+  od->refs = malloc(sizeof(INT32));
+  (* od->refs)=1;
+  od->node = node;
+}
+
+xmlParserInputPtr my_entity_loader(const char * URL, const char * ID,
+   xmlParserCtxtPtr context)
+{
+  printf("request for entity %s\n", URL);
+  return NULL; 
+}
+
 /*! @decl Node parse_xml(string xml, string|void name)
  *!   Parse an string containing XML.
  *!  @param xml
@@ -436,6 +493,14 @@ PIKEFUN object parse_xml(string xml, string name)
   xmlNodePtr node;
   struct Node_struct * ns;
   NODE_OBJECT_DATA * od;
+  char * err_ctx = "parse_xml";
+
+  entity_loader = my_entity_loader;
+
+  //  xmlSetExternalEntityLoader(entity_loader);
+
+  generic_handler = my_generic_error;
+  // xmlSetStructuredErrorFunc((void *)err_ctx, generic_handler);
 
   doc = xmlReadMemory(xml->str, xml->len, name->str, NULL, 
                       THIS->object_data->xml_parser_options);
@@ -645,7 +710,7 @@ EXTRA
   docloader_num = isidentifier(ps);
   THIS->object_data->docloader_num = docloader_num;
 
-  add_string_constant("__version", "1.14", 0);
+  add_string_constant("__version", "1.16", 0);
   add_string_constant("__author", "Bill Welliver <bill@welliver.org>", 0);
 
   pike_init_xml2_constants();
