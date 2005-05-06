@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XMLReader.cmod,v 1.8 2005-05-06 03:06:22 hww3 Exp $
+ * $Id: XMLReader.cmod,v 1.9 2005-05-06 03:13:00 hww3 Exp $
  */
 
 /*
@@ -588,7 +588,7 @@ PIKEFUN string prefix()
     push_int(0);
 }
 
-/*! @decl int namespaceuri()
+/*! @decl string namespaceuri()
  *! 
  */
 PIKEFUN string namespaceuri()
@@ -609,7 +609,7 @@ PIKEFUN string namespaceuri()
   else
     push_int(0);
 }
-/*! @decl int baseuri()
+/*! @decl string baseuri()
  *! 
  */
 PIKEFUN string baseuri()
@@ -631,7 +631,7 @@ PIKEFUN string baseuri()
     push_int(0);
 }
 
-/*! @decl int localname()
+/*! @decl string localname()
  *! 
  */
 PIKEFUN string localname()
@@ -653,7 +653,7 @@ PIKEFUN string localname()
     push_int(0);
 }
 
-/*! @decl int value()
+/*! @decl string value()
  *! 
  */
 PIKEFUN string value()
@@ -675,7 +675,7 @@ PIKEFUN string value()
     push_int(0);
 }
 
-/*! @decl int string()
+/*! @decl string string()
  *! 
  */
 PIKEFUN string string()
@@ -697,7 +697,7 @@ PIKEFUN string string()
     push_int(0);
 }
 
-/*! @decl int inner_xml()
+/*! @decl string inner_xml()
  *! 
  */
 PIKEFUN string inner_xml()
@@ -719,7 +719,7 @@ PIKEFUN string inner_xml()
     push_int(0);
 }
 
-/*! @decl int outer_xml()
+/*! @decl string outer_xml()
  *! 
  */
 PIKEFUN string outer_xml()
