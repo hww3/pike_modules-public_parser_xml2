@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XMLReader.cmod,v 1.9 2005-05-06 03:13:00 hww3 Exp $
+ * $Id: XMLReader.cmod,v 1.10 2005-05-06 22:34:32 hww3 Exp $
  */
 
 /*
@@ -744,6 +744,23 @@ PIKEFUN string outer_xml()
 /*! @decl void create(string xml, string|void url, int|void options)
  *!
  */
+PIKEFUN void create(string xml, string url, int options, string encoding)
+{
+  xmlTextReaderPtr reader;
+ 
+  reader = xmlReaderForMemory(xml->str, xml->len, url->str, 
+               encoding->str, options);
+
+  if(reader == NULL)
+  {
+    Pike_error("unable to get xmlReader\n");
+  }
+
+  THIS->object_data->reader = reader;
+
+  pop_n_elems(args);
+}
+
 PIKEFUN void create(string xml, string url, int options)
 {
   xmlTextReaderPtr reader;

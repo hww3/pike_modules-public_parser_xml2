@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: xml2.h,v 1.15 2005-05-06 03:13:35 hww3 Exp $
+ * $Id: xml2.h,v 1.16 2005-05-06 22:34:33 hww3 Exp $
  */
 
 /*
@@ -160,6 +160,7 @@ struct program * Stylesheet_program;
 
 extern ptrdiff_t Stylesheet_storage_offset;
 
+void handle_parsed_tree(xmlDocPtr doc);
 xmlExternalEntityLoader entity_loader;
 xmlStructuredErrorFunc generic_handler;
 

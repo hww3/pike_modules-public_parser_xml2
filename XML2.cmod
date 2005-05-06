@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.68 2005-05-06 21:09:48 hww3 Exp $
+ * $Id: XML2.cmod,v 1.69 2005-05-06 22:34:32 hww3 Exp $
  */
 
 /*
@@ -521,10 +521,6 @@ xmlParserInputPtr my_entity_loader(const char * URL, const char * ID,
 PIKEFUN object parse_xml(string xml, string name, string encoding)
 {
   xmlDocPtr doc;
-  xmlNodePtr node;
-  struct Node_struct * ns;
-  NODE_OBJECT_DATA * od;
-  char * err_ctx = "parse_xml";
 
   entity_loader = my_entity_loader;
 
@@ -536,6 +532,17 @@ PIKEFUN object parse_xml(string xml, string name, string encoding)
   doc = xmlReadMemory(xml->str, xml->len, name->str, 
                       (const char *)encoding->str, 
                       THIS->object_data->xml_parser_options);
+
+  handle_parsed_tree(doc);
+}
+
+void handle_parsed_tree(xmlDocPtr doc)
+{
+  xmlNodePtr node;
+  struct Node_struct * ns;
+  NODE_OBJECT_DATA * od;
+  char * err_ctx = "parse_xml";
+
   if(doc == NULL)
   {
     pop_n_elems(3);
@@ -566,20 +573,32 @@ PIKEFUN object parse_xml(string xml, string name, string encoding)
 
 PIKEFUN object parse_xml(string xml, string name)
 {
-  push_text("UTF-8");
-  f_parse_xml(3);
+  xmlDocPtr doc;
+
+  entity_loader = my_entity_loader;
+
+  //  xmlSetExternalEntityLoader(entity_loader);
+
+  generic_handler = my_generic_error;
+  // xmlSetStructuredErrorFunc((void *)err_ctx, generic_handler);
+
+  doc = xmlReadMemory(xml->str, xml->len, name->str, 
+                      NULL, 
+                      THIS->object_data->xml_parser_options);
+
+  handle_parsed_tree(doc);
+  
 }
 
 PIKEFUN object parse_xml(string xml)
 {
   push_text("noname.xml");
-  push_text("UTF-8");
-  f_parse_xml(3);
+  f_parse_xml(2);
 }
 
-/*! @decl Node parse_html(string html, string|void name)
+/*! @decl Node parse_html(string html, string|void name, string|void encoding)
  *!   Parse an string containing HTML.
- *!  @param xml
+ *!  @param html
  *!   String containing HTML data to parse.
  *!  @param name
  *!   String containing name/URI of file.
@@ -587,41 +606,41 @@ PIKEFUN object parse_xml(string xml)
  *!  @returns
  *!    a @[Node] object containing the root of the tree.
  */
+PIKEFUN object parse_html(string html, string name, string encoding)
+{
+  xmlDocPtr doc;
+
+  entity_loader = my_entity_loader;
+
+  //  xmlSetExternalEntityLoader(entity_loader);
+
+  generic_handler = my_generic_error;
+  // xmlSetStructuredErrorFunc((void *)err_ctx, generic_handler);
+
+  doc = htmlReadMemory(html->str, html->len, name->str, 
+                      (const char *)encoding->str, 
+                      THIS->object_data->html_parser_options);
+
+  handle_parsed_tree(doc);
+}
+
 PIKEFUN object parse_html(string html, string name)
 {
-  htmlDocPtr doc;
-  xmlNodePtr node;
-  struct Node_struct * ns;
-  NODE_OBJECT_DATA * od;
+  xmlDocPtr doc;
 
-  doc = htmlReadMemory(html->str, html->len, name->str, NULL, 
-                       THIS->object_data->html_parser_options);
-  if(doc == NULL)
-  {
-    pop_n_elems(2);
-    Pike_error("Unable to parse HTML.\n");
-  }  
+  entity_loader = my_entity_loader;
 
-  node = xmlDocGetRootElement(doc);
-  if(node == NULL)
-  {
-    pop_n_elems(2);
-    xmlFreeDoc(doc);
-    Pike_error("Unable to find Root Node.\n");
-  }
+  //  xmlSetExternalEntityLoader(entity_loader);
 
-  // ok, we have a parsed file. now let's turn it into a real live pike object.
+  generic_handler = my_generic_error;
+  // xmlSetStructuredErrorFunc((void *)err_ctx, generic_handler);
 
-  pop_n_elems(2);
+  doc = htmlReadMemory(html->str, html->len, name->str, 
+                      NULL, 
+                      THIS->object_data->html_parser_options);
 
-  apply(Pike_fp->current_object, "Node", 0);
+  handle_parsed_tree(doc);
   
-  ns = OBJ2_NODE((Pike_sp[0-1].u.object));
-  od = (NODE_OBJECT_DATA *)(ns->object_data);
-
-  od->refs = malloc(sizeof(INT32));
-  (* od->refs)=1;
-  od->node = node;
 }
 
 PIKEFUN object parse_html(string html)
