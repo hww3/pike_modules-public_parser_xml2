@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: Node.cmod,v 1.7 2005-05-06 02:45:51 hww3 Exp $
+ * $Id: Node.cmod,v 1.8 2005-05-06 03:15:56 hww3 Exp $
  */
 
 /*
@@ -731,7 +731,7 @@ PIKEFUN object new_doc_comment(string content)
 
   check_node_created();
 
-  node = xmlNewDocComment(content->str);
+  node = xmlNewDocComment(MY_NODE->doc, content->str);
   
   if(node == NULL)
   {
