@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.67 2005-05-06 03:13:35 hww3 Exp $
+ * $Id: XML2.cmod,v 1.68 2005-05-06 21:09:48 hww3 Exp $
  */
 
 /*
@@ -346,6 +346,37 @@ PIKEFUN array get_encodings()
    return;  
 }
 
+/*!  @decl string get_encoding_name(int e)
+ *!
+ */
+PIKEFUN string get_encoding_name(int e)
+{
+  const char * enc = NULL;
+
+  enc = xmlGetCharEncodingName(e);
+
+  if(enc != NULL)
+    push_text(enc);
+
+  else 
+     push_int(0);
+}
+
+/*!  @decl string get_encoding_alias(string e)
+ *!
+ */
+PIKEFUN string get_encoding_alias(string e)
+{
+  const char * enc = NULL;
+
+  enc = xmlGetEncodingAlias(e->str);
+
+  if(enc != NULL)
+    push_text(enc);
+  else 
+     push_int(0);
+}
+
 /*! @decl string render_xml(Node n)
  *!   Renders a node tree as an XML string. The entire document tree will 
  *!  be rendered. To render a portion of a tree, use @[Node.render_xml].
@@ -477,7 +508,7 @@ xmlParserInputPtr my_entity_loader(const char * URL, const char * ID,
   return NULL; 
 }
 
-/*! @decl Node parse_xml(string xml, string|void name)
+/*! @decl Node parse_xml(string xml, string|void name, string|void encoding)
  *!   Parse an string containing XML.
  *!  @param xml
  *!   String containing XML data to parse.
@@ -487,7 +518,7 @@ xmlParserInputPtr my_entity_loader(const char * URL, const char * ID,
  *!  @returns
  *!    a @[Node] object containing the root of the tree.
  */
-PIKEFUN object parse_xml(string xml, string name)
+PIKEFUN object parse_xml(string xml, string name, string encoding)
 {
   xmlDocPtr doc;
   xmlNodePtr node;
@@ -502,25 +533,26 @@ PIKEFUN object parse_xml(string xml, string name)
   generic_handler = my_generic_error;
   // xmlSetStructuredErrorFunc((void *)err_ctx, generic_handler);
 
-  doc = xmlReadMemory(xml->str, xml->len, name->str, NULL, 
+  doc = xmlReadMemory(xml->str, xml->len, name->str, 
+                      (const char *)encoding->str, 
                       THIS->object_data->xml_parser_options);
   if(doc == NULL)
   {
-    pop_n_elems(2);
+    pop_n_elems(3);
     Pike_error("Unable to parse XML.\n");
   }  
 
   node = xmlDocGetRootElement(doc);
   if(node == NULL)
   {
-    pop_n_elems(2);
+    pop_n_elems(3);
     xmlFreeDoc(doc);
     Pike_error("Unable to find Root Node.\n");
   }
 
   // ok, we have a parsed file. now let's turn it into a real live pike object.
 
-  pop_n_elems(2);
+  pop_n_elems(3);
 
   apply(Pike_fp->current_object, "Node", 0);
   
@@ -532,10 +564,17 @@ PIKEFUN object parse_xml(string xml, string name)
   od->node = node;
 }
 
+PIKEFUN object parse_xml(string xml, string name)
+{
+  push_text("UTF-8");
+  f_parse_xml(3);
+}
+
 PIKEFUN object parse_xml(string xml)
 {
   push_text("noname.xml");
-  f_parse_xml(2);
+  push_text("UTF-8");
+  f_parse_xml(3);
 }
 
 /*! @decl Node parse_html(string html, string|void name)
