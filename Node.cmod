@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: Node.cmod,v 1.6 2005-05-04 02:10:19 hww3 Exp $
+ * $Id: Node.cmod,v 1.7 2005-05-06 02:45:51 hww3 Exp $
  */
 
 /*
@@ -705,6 +705,33 @@ PIKEFUN object new_comment(string content)
   check_node_created();
 
   node = xmlNewComment(content->str);
+  
+  if(node == NULL)
+  {
+    push_int(0);
+    return;
+  }
+  else
+  {
+    o = NEW_NODE();
+    OBJ2_NODE(o)->object_data->node = node;
+    NEW_NODE_REFS(o);
+    push_object(o);
+  }
+}
+
+
+/*!  @decl Node new_doc_comment(string content)
+ *!     returns an unlinked character reference node.
+ */
+PIKEFUN object new_doc_comment(string content)
+{
+  struct object * o;
+  xmlNodePtr node;
+
+  check_node_created();
+
+  node = xmlNewDocComment(content->str);
   
   if(node == NULL)
   {
