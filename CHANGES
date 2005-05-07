@@ -1,5 +1,10 @@
 Version History
 
+Version 1.18
+- All parsers now accept encoding parameters
+- Methods for querying encoding/decoding methods
+- Better error messages
+
 Version 1.16
 - XMLReader interface complete
 - Added a few more Node methods
