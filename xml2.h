@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: xml2.h,v 1.17 2005-05-06 23:32:23 hww3 Exp $
+ * $Id: xml2.h,v 1.18 2005-05-07 01:24:43 hww3 Exp $
  */
 
 /*
@@ -151,9 +151,12 @@
 
 void f_XMLReader_create(INT32 args);
 void f_SAX_parse(INT32 args);
+void f_parse_xslt(INT32 args);
 void f_parse_xml(INT32 args);
 void f_parse_html(INT32 args);
 void f_parse_xslt(INT32 args);
+
+void handle_parse_stylesheet();
 
 struct program * Node_program;
 
@@ -165,7 +168,7 @@ void handle_parsed_tree(xmlDocPtr doc);
 xmlExternalEntityLoader entity_loader;
 xmlStructuredErrorFunc generic_handler;
 
-  xmlParserInputPtr my_getParameterEntity(void * ctx, const xmlChar * name); 
+  xmlEntityPtr my_getParameterEntity(void * ctx, const xmlChar * name); 
 
   xmlParserInputPtr my_resolveEntity(void * ctx, const xmlChar * publicId, 
     const xmlChar * systemId);
