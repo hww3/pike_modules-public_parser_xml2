@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.71 2005-05-07 01:24:43 hww3 Exp $
+ * $Id: XML2.cmod,v 1.72 2005-05-07 01:37:53 hww3 Exp $
  */
 
 /*
@@ -453,9 +453,10 @@ PIKEFUN string render_html(object n)
 
 void my_generic_error(void * userData, xmlErrorPtr error)
 {
-  char * err;
+  char err[255];
 
-  sprintf(err, "Public.Parser.XML error: %d, message: %s", error->level, error->message);
+  snprintf(err, 255, "Public.Parser.XML error: %d, message: %s", 
+             error->level, error->message);
   push_text(err);
 
   f_werror(1);
