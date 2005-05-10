@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XMLReader.cmod,v 1.11 2005-05-06 23:32:23 hww3 Exp $
+ * $Id: XMLReader.cmod,v 1.12 2005-05-10 02:52:16 hww3 Exp $
  */
 
 /*
@@ -134,6 +134,41 @@ PIKEFUN int node_type()
   }
 
   RETURN xmlTextReaderNodeType(THIS->object_data->reader);
+}
+
+/*! @decl Node expand()
+ *!
+ */
+
+PIKEFUN object expand()
+{
+  xmlNodePtr node;
+struct object * xnode;
+  struct Node_struct * ns;
+  NODE_OBJECT_DATA * od;
+
+  if(THIS->object_data->reader == NULL)
+  {
+    Pike_error("no xmlReader!\n");
+  }
+
+  node = xmlTextReaderExpand(THIS->object_data->reader);
+
+  if(node == NULL)
+  {
+    Pike_error("error expanding node!\n");
+  }
+
+  xnode = NEW_NODE();
+  ns = OBJ2_NODE((xnode));
+  od = (NODE_OBJECT_DATA *)(ns->object_data);
+    
+  od->refs = malloc(sizeof(INT32));
+  (* od->refs)=1;
+
+  od->node = node;
+
+  push_object(xnode);  
 }
 
 /*! @decl int depth()
@@ -747,7 +782,11 @@ PIKEFUN string outer_xml()
 PIKEFUN void create(string xml, string url, int options, string encoding)
 {
   xmlTextReaderPtr reader;
- 
+/*
+  xmlParserCtxtPtr ctxt;
+  xmlSAXHandlerPtr sax;
+ */
+
   reader = xmlReaderForMemory(xml->str, xml->len, url->str, 
                encoding->str, options);
 
@@ -755,7 +794,12 @@ PIKEFUN void create(string xml, string url, int options, string encoding)
   {
     Pike_error("unable to get xmlReader\n");
   }
+/*
+  ctxt = (struct _xmlTextReader)reader->ctxt;
+  sax = ctxt->sax;
 
+//->getEntity = my_xml_getent;
+*/
   THIS->object_data->reader = reader;
 
   pop_n_elems(args);

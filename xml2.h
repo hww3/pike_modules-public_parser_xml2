@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: xml2.h,v 1.19 2005-05-10 02:06:15 hww3 Exp $
+ * $Id: xml2.h,v 1.20 2005-05-10 02:52:16 hww3 Exp $
  */
 
 /*
@@ -169,6 +169,7 @@ xmlExternalEntityLoader entity_loader;
 xmlStructuredErrorFunc generic_handler;
 
   xmlEntityPtr my_getParameterEntity(void * ctx, const xmlChar * name); 
+xmlEntityPtr my_xml_getent(void * ctx, const xmlChar * name);
 
   xmlEntityPtr my_getEntity(void * ctx, const xmlChar * name);
 
