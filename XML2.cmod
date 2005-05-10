@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.73 2005-05-08 04:29:48 hww3 Exp $
+ * $Id: XML2.cmod,v 1.74 2005-05-10 02:06:15 hww3 Exp $
  */
 
 /*
@@ -543,10 +543,50 @@ PIKEFUN object parse_xml(string xml, string name, string encoding)
                       (const char *)encoding->str, 
                       THIS->object_data->xml_parser_options);
 
-  handle_parsed_tree(doc);
+  handle_parsed_tree(doc, args);
 }
 
-void handle_parsed_tree(xmlDocPtr doc)
+xmlEntityPtr my_xml_getent(void * ctx, const xmlChar * name)
+{
+xmlEntityPtr ent;
+
+        ent = xmlMalloc(sizeof(xmlEntity));
+        if(ent == NULL) printf("unable to allocate entity storage.\n");
+        
+        memset(ent, 0, sizeof(xmlEntity));
+      
+        ent->type = XML_ENTITY_DECL;
+        ent->etype = XML_ENTITY_NODE;
+        ent->name = xmlStrdup(name);   
+        ent->content = xmlStrdup(name);
+        
+        return ent;
+
+}
+
+PIKEFUN object parse_xml_sax(string xml, string name, string encoding)
+{
+  xmlDocPtr doc;
+  xmlSAXHandler * hdlr;
+
+  hdlr = xmlMalloc(sizeof(xmlSAXHandler));
+
+//  xmlSAX2InitDefaultSAXHandler(hdlr, 1);
+  xmlSAXVersion(hdlr, 2);
+  hdlr->getEntity = my_xml_getent;  
+  entity_loader = my_entity_loader;
+
+  //  xmlSetExternalEntityLoader(entity_loader);
+
+  generic_handler = my_generic_error;
+  // xmlSetStructuredErrorFunc((void *)err_ctx, generic_handler);
+
+  doc = xmlSAXParseMemory(hdlr, xml->str, xml->len , 0);
+
+  handle_parsed_tree(doc, args);
+}
+
+void handle_parsed_tree(xmlDocPtr doc, INT32 args)
 {
   xmlNodePtr node;
   struct Node_struct * ns;
@@ -555,21 +595,21 @@ void handle_parsed_tree(xmlDocPtr doc)
 
   if(doc == NULL)
   {
-    pop_n_elems(3);
+    pop_n_elems(args);
     Pike_error("Unable to parse XML.\n");
   }  
 
   node = xmlDocGetRootElement(doc);
   if(node == NULL)
   {
-    pop_n_elems(3);
+    pop_n_elems(args);
     xmlFreeDoc(doc);
     Pike_error("Unable to find Root Node.\n");
   }
 
   // ok, we have a parsed file. now let's turn it into a real live pike object.
 
-  pop_n_elems(3);
+  pop_n_elems(args);
 
   apply(Pike_fp->current_object, "Node", 0);
   
@@ -597,7 +637,7 @@ PIKEFUN object parse_xml(string xml, string name)
                       NULL, 
                       THIS->object_data->xml_parser_options);
 
-  handle_parsed_tree(doc);
+  handle_parsed_tree(doc, args);
   
 }
 
@@ -632,7 +672,7 @@ PIKEFUN object parse_html(string html, string name, string encoding)
                       (const char *)encoding->str, 
                       THIS->object_data->html_parser_options);
 
-  handle_parsed_tree(doc);
+  handle_parsed_tree(doc, args);
 }
 
 PIKEFUN object parse_html(string html, string name)
@@ -650,7 +690,7 @@ PIKEFUN object parse_html(string html, string name)
                       NULL, 
                       THIS->object_data->html_parser_options);
 
-  handle_parsed_tree(doc);
+  handle_parsed_tree(doc, args);
   
 }
 
@@ -725,7 +765,7 @@ PIKEFUN object parse_xslt(object xslt)
 {
   CHECK_NODE_PASSED(xslt);
 
-  handle_parse_stylesheet();
+  handle_parse_stylesheet(args);
 
 }
 
@@ -735,10 +775,10 @@ PIKEFUN object parse_xslt(string xslt, string name)
   // that does that already!
   f_parse_xml(2);
 
-  handle_parse_stylesheet();
+  handle_parse_stylesheet(args);
 }
 
-void handle_parse_stylesheet()
+void handle_parse_stylesheet(INT32 args)
 {
   struct object * node_obj = NULL;
   xsltStylesheetPtr sty = NULL;
@@ -754,6 +794,7 @@ void handle_parse_stylesheet()
 
   if(doc==NULL)
   {
+    pop_stack();
     Pike_error("whoa, horsie! we don't have an xml document!\n");
   }
 
@@ -761,6 +802,7 @@ void handle_parse_stylesheet()
 
   if(sty == NULL)
   {
+    pop_stack();
     Pike_error("Unable to parse stylesheet node.\n");
   }  
 
@@ -797,15 +839,14 @@ EXTRA
   generic_handler = my_generic_error;
   xmlSetStructuredErrorFunc((void *)err_ctx, generic_handler);
 
+  MAKE_CONST_STRING(ps, "docloader");
+  docloader_num = isidentifier(ps);
 
   pike_init_xml2_constants();
   pike_init_xml2_node();
   pike_init_xml2_sax();
   pike_init_xml2_stylesheet();
   pike_init_xml2_xmlreader();
-
-  MAKE_CONST_STRING(ps, "docloader");
-  docloader_num = isidentifier(ps);
 
 }
 

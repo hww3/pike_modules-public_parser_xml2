@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: SAX.cmod,v 1.4 2005-05-07 01:24:43 hww3 Exp $
+ * $Id: SAX.cmod,v 1.5 2005-05-10 02:06:14 hww3 Exp $
  */
 
 /*
@@ -152,6 +152,59 @@ PIKECLASS SAX
        return retval;
     }    
     return 0;
+  }
+
+  xmlEntityPtr my_getEntity(void * ctx, const xmlChar * name)
+  {
+    if(ITEM(THIS->object_data->handlers)[CB_GETENTITY].type!=PIKE_T_INT)
+    {
+      struct svalue * func;
+      struct array * a;
+      struct object * o;
+      int z = 0;
+      xmlEntityPtr ent;
+
+      o = ITEM(THIS->object_data->handlers)[CB_GETENTITY].u.object;
+      a = get_callback_data(o);
+      func = get_callback_func(o);
+      push_svalue(func);
+
+      push_text((char *)name);
+
+      for(z = 0; z < a->size; z++)
+      {
+        push_svalue(&ITEM(a)[z]);
+      }
+
+      apply_svalue(&Pike_sp[0- (a->size+2)], a->size + 1);
+
+      if(Pike_sp[0-1].type == T_STRING)
+      {
+        printf("got value: %s\n", Pike_sp[0-1].u.string->str);
+        ent = xmlMalloc(sizeof(xmlEntity));
+        if(ent == NULL) printf("unable to allocate entity storage.\n");
+
+        memset(ent, 0, sizeof(xmlEntity));
+
+        ent->type = XML_ENTITY_DECL;
+        ent->etype = XML_ENTITY_NODE;
+        ent->name = xmlStrdup(name);
+        ent->content = xmlStrdup(Pike_sp[0-1].u.string->str);
+
+        return ent;
+      }
+      else if(Pike_sp[0-1].type == T_INT && Pike_sp[0-1].u.integer == 0)
+      {
+        return NULL;
+      }
+      else
+      {
+        pop_stack();
+        Pike_error("bad return value from get_entity callback: expected string.\n");
+      }
+    }
+
+    return NULL;
   }
 
   void my_serror(void * ctx, xmlErrorPtr error)
@@ -871,6 +924,10 @@ printf("start element\n");
 
     switch(callback_id)
     {
+      case CB_GETENTITY:
+      mySAX->getEntity = my_getEntity;
+      break;
+
       case CB_INTERNALSUBSET:
       mySAX->internalSubset = my_internalSubset;
       break;
@@ -1013,6 +1070,10 @@ printf("start element\n");
 
     switch(callback_id)
     {
+      case CB_GETENTITY:
+      mySAX->getEntity = NULL;
+      break;
+
       case CB_INTERNALSUBSET:
       mySAX->internalSubset = NULL;
       break;

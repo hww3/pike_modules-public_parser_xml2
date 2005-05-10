@@ -2,7 +2,7 @@
 // test the SAX2 compliant parser.
 //
 
-import .module.Constants;
+import module.Constants;
 
  void serror_cb(mapping(string:mixed) error)
 {
@@ -91,6 +91,14 @@ extra_args)
   werror("reference: \n", name); 
 }
 
+ string getentity_cb(string name, mixed ... extra_args)
+{
+  werror("getentity: %s\n", name); 
+
+return 0;
+  return "name: " + name;
+}
+
  void comment_cb(string value, mixed ... extra_args);
 
  void startelement_cb(string name, mapping(string:string) attributes, mixed ... extra_args);
@@ -121,7 +129,7 @@ int main()
 //  string s = 
 //Protocols.HTTP.get_url_data("http://hww3.riverweb.com/exec/rss?snip=start");
 
-string s  = Stdio.read_file("/tmp/xmldaat");
+string s  = Stdio.read_file("index.rss");
 //
 do
   {
@@ -129,6 +137,7 @@ do
      sax->set_callback(SAX_CB_SERROR, serror_cb);
 //     sax->set_callback(SAX_CB_ENTITYDECL, entitydecl_cb);
 //     sax->set_callback(SAX_CB_ENDELEMENT, endelement_cb);
+     sax->set_callback(SAX_CB_GETENTITY, getentity_cb);
      sax->set_callback(SAX_CB_ELEMENTDECL, elementdecl_cb);
      sax->set_callback(SAX_CB_ATTRIBUTEDECL, attributedecl_cb);
      sax->set_callback(SAX_CB_NOTATIONDECL, notationdecl_cb);
