@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XMLReader.cmod,v 1.13 2005-05-11 19:47:08 hww3 Exp $
+ * $Id: XMLReader.cmod,v 1.14 2005-05-11 19:57:22 hww3 Exp $
  */
 
 /*
@@ -104,6 +104,7 @@ PIKEFUN int read()
   {
     Pike_error("no xmlReader!\n");
   }
+
   res = xmlTextReaderRead(THIS->object_data->reader);
   if(res == 1) /* we got data to process! */
   {
@@ -162,7 +163,7 @@ struct object * xnode;
   xnode = NEW_NODE();
   ns = OBJ2_NODE((xnode));
   od = (NODE_OBJECT_DATA *)(ns->object_data);
-    
+  od->transient = 1;
   od->refs = malloc(sizeof(INT32));
   (* od->refs)=1;
 
