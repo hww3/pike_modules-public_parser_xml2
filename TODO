@@ -1,6 +1,8 @@
 handle element definition properly; we need to do something with 
 xmlElementContentPtr...
 
+we need something similar to HTML.Parser...
+
 we need to support html mode parsing in SAX
 
 Node resulting from XMLReader.expand() does not get destroyed after 
