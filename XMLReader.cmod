@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XMLReader.cmod,v 1.12 2005-05-10 02:52:16 hww3 Exp $
+ * $Id: XMLReader.cmod,v 1.13 2005-05-11 19:47:08 hww3 Exp $
  */
 
 /*
@@ -100,7 +100,7 @@ PIKEFUN int read()
 {
   int res;
 
-  if(THIS->object_data->reader == NULL)
+  if(THIS->object_data == NULL || THIS->object_data->reader == NULL)
   {
     Pike_error("no xmlReader!\n");
   }
@@ -849,10 +849,12 @@ EXIT
   if(THIS->object_data->reader != NULL)
   {
     xmlFreeTextReader(THIS->object_data->reader);
+    THIS->object_data->reader = NULL;
   }
   if(THIS->object_data)
   {
     free(THIS->object_data);
+    THIS->object_data = NULL;
   }
 }
 }

@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.75 2005-05-11 02:27:20 hww3 Exp $
+ * $Id: XML2.cmod,v 1.76 2005-05-11 19:47:08 hww3 Exp $
  */
 
 /*
@@ -120,8 +120,7 @@ PIKEFUN array select_xpath_nodes(string xpath, object node)
   int num_nodes = 0;
 
   CHECK_NODE_PASSED(node);
-
-//  check_node_created();
+printf("xpath\n");
   if(OBJ2_NODE(node)->object_data->node == NULL)
   { 
     pop_n_elems(2);
@@ -147,6 +146,7 @@ PIKEFUN array select_xpath_nodes(string xpath, object node)
 
   if(set == NULL)
   {
+printf("no nodes!\n");
     pop_n_elems(2);
     push_int(0);
     xmlXPathFreeContext(xpathCtx);
@@ -163,7 +163,7 @@ PIKEFUN array select_xpath_nodes(string xpath, object node)
     {
       struct Node_struct * ns;
       NODE_OBJECT_DATA * od;
-
+printf("lookin at a node.\n");
       apply(Pike_fp->current_object, "Node", 0);
       ns = OBJ2_NODE((Pike_sp[0-1].u.object));
       od = (NODE_OBJECT_DATA *)(ns->object_data);
@@ -178,6 +178,7 @@ PIKEFUN array select_xpath_nodes(string xpath, object node)
     } 
     while (((num_nodes +1) <= set->nodeNr) && xn != NULL);
 
+printf("num_nodes: %d\n", num_nodes);
 
     if(num_nodes>0) {
       f_aggregate(num_nodes);
