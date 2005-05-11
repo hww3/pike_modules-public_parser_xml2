@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.74 2005-05-10 02:06:15 hww3 Exp $
+ * $Id: XML2.cmod,v 1.75 2005-05-11 02:27:20 hww3 Exp $
  */
 
 /*
@@ -74,6 +74,27 @@
     start of Public.Parser.XML2 module functions
 
 */
+
+static void
+xmlDetectSAX2(xmlParserCtxtPtr ctxt) {
+    if (ctxt == NULL) return;
+#ifdef LIBXML_SAX1_ENABLED 
+    if ((ctxt->sax) &&  (ctxt->sax->initialized == XML_SAX2_MAGIC) &&
+        ((ctxt->sax->startElementNs != NULL) ||
+         (ctxt->sax->endElementNs != NULL))) ctxt->sax2 = 1;
+#else
+    ctxt->sax2 = 1;
+#endif /* LIBXML_SAX1_ENABLED */
+ 
+    ctxt->str_xml = xmlDictLookup(ctxt->dict, BAD_CAST "xml", 3);
+    ctxt->str_xmlns = xmlDictLookup(ctxt->dict, BAD_CAST "xmlns", 5);
+    ctxt->str_xml_ns = xmlDictLookup(ctxt->dict, XML_XML_NAMESPACE, 36);
+    if ((ctxt->str_xml==NULL) || (ctxt->str_xmlns==NULL) ||
+                (ctxt->str_xml_ns == NULL)) {
+        xmlErrMemory(ctxt, NULL);
+    }
+}
+
 
 PIKEVAR function docloader
   optflags ID_STATIC;
@@ -548,40 +569,62 @@ PIKEFUN object parse_xml(string xml, string name, string encoding)
 
 xmlEntityPtr my_xml_getent(void * ctx, const xmlChar * name)
 {
-xmlEntityPtr ent;
-
-        ent = xmlMalloc(sizeof(xmlEntity));
-        if(ent == NULL) printf("unable to allocate entity storage.\n");
+    xmlEntityPtr ent;
+    
+    if(strcmp(name, "boo") != 0)
+    {
+      printf("somebody else's entity: %s!\n", name);
+      return xmlSAX2GetEntity(ctx, name);
+     }
+    ent = xmlMalloc(sizeof(xmlEntity)); 
+    if(ent == NULL) printf("unable to allocate entity storage.\n");
         
-        memset(ent, 0, sizeof(xmlEntity));
+    memset(ent, 0, sizeof(xmlEntity));
       
-        ent->type = XML_ENTITY_DECL;
-        ent->etype = XML_ENTITY_NODE;
-        ent->name = xmlStrdup(name);   
-        ent->content = xmlStrdup(name);
+    ent->type = XML_ENTITY_DECL;
+    ent->etype = XML_INTERNAL_GENERAL_ENTITY;
+    ent->name = xmlStrdup(name);   
+    ent->content = xmlStrdup(name);
         
-        return ent;
+    return ent;
 
 }
 
 PIKEFUN object parse_xml_sax(string xml, string name, string encoding)
 {
   xmlDocPtr doc;
-  xmlSAXHandler * hdlr;
+  xmlSAXHandler * sax;
+  xmlParserCtxtPtr ctxt;
 
-  hdlr = xmlMalloc(sizeof(xmlSAXHandler));
+  ctxt = xmlCreateMemoryParserCtxt(xml->str, xml->len);
 
-//  xmlSAX2InitDefaultSAXHandler(hdlr, 1);
-  xmlSAXVersion(hdlr, 2);
-  hdlr->getEntity = my_xml_getent;  
-  entity_loader = my_entity_loader;
+  if(ctxt == NULL) Pike_error("unable to allocate context.\n");
 
+  sax = xmlMalloc(sizeof(xmlSAXHandler));
+  xmlSAXVersion(sax, 2);
+  sax->getEntity = my_xml_getent;  
+
+  if(ctxt->sax != NULL)
+    xmlFree(ctxt->sax);
+
+  ctxt->sax = sax;
+
+  xmlDetectSAX2(ctxt);
+  ctxt->recovery = 0;
+//  ctxt->replaceEntities = 0;
+
+  xmlParseDocument(ctxt);
+  //  entity_loader = my_entity_loader;
   //  xmlSetExternalEntityLoader(entity_loader);
 
   generic_handler = my_generic_error;
   // xmlSetStructuredErrorFunc((void *)err_ctx, generic_handler);
 
-  doc = xmlSAXParseMemory(hdlr, xml->str, xml->len , 0);
+  doc = ctxt->myDoc;
+
+   if (sax != NULL)
+        ctxt->sax = NULL;
+    xmlFreeParserCtxt(ctxt);
 
   handle_parsed_tree(doc, args);
 }
@@ -843,6 +886,7 @@ EXTRA
   docloader_num = isidentifier(ps);
 
   pike_init_xml2_constants();
+  pike_init_xml2_html();
   pike_init_xml2_node();
   pike_init_xml2_sax();
   pike_init_xml2_stylesheet();
@@ -874,6 +918,7 @@ EXIT
   pike_exit_xml2_stylesheet();
   pike_exit_xml2_sax();
   pike_exit_xml2_node();
+  pike_exit_xml2_html();
   pike_exit_xml2_constants();
   
 #ifdef HAVE_XSLT

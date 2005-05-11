@@ -1,12 +1,12 @@
-# $Id: Makefile.in,v 1.15 2005-05-04 02:58:14 hww3 Exp $
+# $Id: Makefile.in,v 1.16 2005-05-11 02:27:20 hww3 Exp $
 @make_variables@
 VPATH=@srcdir@:@srcdir@/../..:../..
-OBJS= Node.o XML2.o Constants.o SAX.o Stylesheet.o XMLReader.o
+OBJS= HTML.o Node.o XML2.o Constants.o SAX.o Stylesheet.o XMLReader.o
 #xml_constants.o SAX.o 
 MODDIR=Public.pmod/Parser.pmod/
 MODNAME=XML2
 MODULE_PMOD_IN=
-AUTODOC_SRC_IN=XML2.c Node.c SAX.c Constants.c Stylesheet.c XMLReader.c
+AUTODOC_SRC_IN=XML2.c HTML.c Node.c SAX.c Constants.c Stylesheet.c XMLReader.c
 
 CFLAGS=@XML2_CFLAGS@
 LDFLAGS=@XML2_LIBS@
