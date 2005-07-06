@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: Node.cmod,v 1.9 2005-05-11 19:57:22 hww3 Exp $
+ * $Id: Node.cmod,v 1.10 2005-07-06 17:14:48 hww3 Exp $
  */
 
 /*
@@ -458,6 +458,31 @@ PIKEFUN object parent()
 // printf("refs: %d\n", (* OBJ2_NODE(o)->object_data->refs));
     push_object(o);
   }
+}
+
+/*!  @decl Node replace()
+ *!     replace this node with a different node. if the new node was 
+ *!     already inserted into a document, it is first unlinked from
+ *!     its original document.
+ *!  @returns
+ *!     the old node
+ */
+PIKEFUN object replace(object newnode)
+
+  struct object * o;
+  xmlNodePtr node;
+
+  CHECK_NODE_PASSED(child);
+
+  check_node_created();
+
+  node = xmlReplaceNode(THIS->object_data->node, OBJ2_NODE(o)->object_data->node);  
+
+  o=NEW_NODE();
+  OBJ2_NODE(o)->object_data->node = node;
+  NEW_NODE_REFS(o);
+  pop_stack();
+  push_object(o);
 }
 
 /*!  @decl Node get_root_node()
@@ -1023,10 +1048,10 @@ PIKEFUN string get_node_name()
   else push_int(0);
 } 
 
-/*! @decl string set_node_name(string name)
- *!  gets the name of this node, if it has one.
+/*! @decl object set_node_name(string name)
+ *!  sets the name of this node.
  */
-PIKEFUN string set_node_name(string name)
+PIKEFUN object set_node_name(string name)
 {
   check_node_created();
 
