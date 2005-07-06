@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: Node.cmod,v 1.10 2005-07-06 17:14:48 hww3 Exp $
+ * $Id: Node.cmod,v 1.11 2005-07-06 17:25:01 hww3 Exp $
  */
 
 /*
@@ -483,6 +483,40 @@ PIKEFUN object replace(object newnode)
   NEW_NODE_REFS(o);
   pop_stack();
   push_object(o);
+}
+
+/*!  @decl void unlink()
+ *!
+ *!  unlink a node from its current context. the node not freed.
+ *!  to unlink and destroy the node, use @delete.
+ */
+PIKEFUN void unlink()
+
+  xmlNodePtr node;
+
+  check_node_created();
+
+  node = xmlUnlinkNode(THIS->object_data->node); 
+
+  pop_stack();
+}
+
+/*!  @decl void delete()
+ *!
+ *!  unlink a node and remove it (and its children) from memory
+ */
+PIKEFUN void delete()
+
+  xmlNodePtr node;
+
+  check_node_created();
+
+  node = xmlUnlinkNode(THIS->object_data->node); 
+  xmlFreeNode(node);
+
+  THIS->object_data->node = NULL;  
+
+  pop_stack();
 }
 
 /*!  @decl Node get_root_node()
