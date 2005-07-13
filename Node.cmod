@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: Node.cmod,v 1.15 2005-07-13 17:55:35 hww3 Exp $
+ * $Id: Node.cmod,v 1.16 2005-07-13 18:16:20 hww3 Exp $
  */
 
 /*
@@ -725,6 +725,9 @@ PIKEFUN object new_pi(string name, string contents)
 /*!  @decl Node set_attribute(string name, string value)
  *!  @decl Node set_ns_attribute(string name, string ns, string value)
  *!
+ *!  @param ns
+ *!   the namespace prefix
+ *!
  *!  sets a new attribute, overwriting any existing value.
  *!  if @[value] is zero, the attribute will be removed from the node.
  */
@@ -734,14 +737,12 @@ PIKEFUN object set_ns_attribute(string name, string ns, string value)
   xmlAttrPtr attr;
   xmlNsPtr ans;
 
-printf("called ns version\n");
-
   check_node_created();
 
   ans = xmlSearchNs(MY_NODE->doc, MY_NODE, (xmlChar *)ns->str);
   if(ans == NULL)
   {
-    Pike_error("Namespace %s does not exist.\n", ns->str);
+    Pike_error("Namespace with prefix %s does not exist.\n", ns->str);
   }
 
   attr = xmlNewNsProp(MY_NODE, ans, (xmlChar *)name->str, (xmlChar *)value->str);
@@ -759,7 +760,11 @@ printf("called ns version\n");
 
 /*! @decl object delete_attribute(string name, string|void ns)
  *!
- *! 
+ *! @param name
+ *!   the name of the attribute to delete
+ *!
+ *! @param ns
+ *!   the prefix of the namespace containing the attribute to be deleted 
  */
 PIKEFUN object delete_attribute(string name)
 {
@@ -769,7 +774,6 @@ PIKEFUN object delete_attribute(string name)
   push_object(this_object());
 
 }
-
 PIKEFUN object delete_attribute(string name, string ns)
 {
   xmlNsPtr ans;
@@ -902,8 +906,11 @@ PIKEFUN object new_doc_comment(string content)
 
 
 
-/*!  @decl Node new_child(string ns, string name, string content)
+/*!  @decl Node new_child(string|void ns, string name, string content)
  *!     add a new child element, added to end of children for this node.
+ *! 
+ *!   @param ns
+ *!     the prefix of the namespace for the node (optional)
  */
 PIKEFUN object new_child(string name, string content)
 {
@@ -913,6 +920,36 @@ PIKEFUN object new_child(string name, string content)
   check_node_created();
 
   node = xmlNewChild(MY_NODE, NULL, name->str, content->str);
+  
+  if(node == NULL)
+  {
+    push_int(0);
+    return;
+  }
+  else
+  {
+    o = NEW_NODE();
+    OBJ2_NODE(o)->object_data->node = node;
+    NEW_NODE_REFS(o);
+    push_object(o);
+  }
+}
+
+PIKEFUN object new_child(string ns, string name, string content)
+{
+  struct object * o;
+  xmlNodePtr node;
+  xmlNsPtr ans;
+
+  check_node_created();
+
+  ans = xmlSearchNs(MY_NODE->doc, MY_NODE, (xmlChar *)ns->str);
+  if(ans == NULL)
+  {
+    Pike_error("Namespace with prefix %s does not yet exist.\n", ns->str);
+  }
+
+  node = xmlNewChild(MY_NODE, ans, name->str, content->str);
   
   if(node == NULL)
   {
