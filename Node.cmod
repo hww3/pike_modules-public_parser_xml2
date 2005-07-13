@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: Node.cmod,v 1.12 2005-07-13 15:10:02 hww3 Exp $
+ * $Id: Node.cmod,v 1.13 2005-07-13 15:15:57 hww3 Exp $
  */
 
 /*
@@ -558,7 +558,7 @@ PIKEFUN object copy_list()
  *!    the unlinked node.
  */
 PIKEFUN object unlink()
-
+{
   xmlNodePtr node;
 
   check_node_created();
@@ -577,7 +577,7 @@ PIKEFUN object unlink()
  *!  unlink a node and remove it (and its children) from memory
  */
 PIKEFUN void delete()
-
+{
   xmlNodePtr node;
 
   check_node_created();
@@ -1271,7 +1271,6 @@ INIT
 
 EXIT
 { 
-
   if(THIS != NULL && THIS->object_data != NULL && 
     (* THIS->object_data->refs)==1 && THIS->object_data->transient == 0)
   {
@@ -1280,8 +1279,7 @@ EXIT
   }
   else if(THIS->object_data->transient == 0)
   {
-   (*( THIS->object_data->refs)) --;
-// printf("NODE EXIT, refs = %d\n", (*(THIS->object_data->refs)));
+    (*( THIS->object_data->refs)) --;
   }
 
   // if we're not linked to a document, we can free the node.
@@ -1291,7 +1289,7 @@ EXIT
     THIS->object_data->node = NULL;
   }
 
-   if(THIS->object_data)
+  if(THIS->object_data)
   {
     free(THIS->object_data);
   }
