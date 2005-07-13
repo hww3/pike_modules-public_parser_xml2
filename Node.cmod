@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: Node.cmod,v 1.14 2005-07-13 17:49:57 hww3 Exp $
+ * $Id: Node.cmod,v 1.15 2005-07-13 17:55:35 hww3 Exp $
  */
 
 /*
@@ -143,7 +143,21 @@ PIKEFUN object set_ns(string ns_prefix)
 PIKEFUN object set_content(string content)
 {
   check_node_created();
-  xmlNodeSetContent(MY_NODE, (xmlChar *)content->str);
+  xmlNodeSetContentLen(MY_NODE, (xmlChar *)content->str, content->len);
+  
+  push_object(this_object());
+
+}
+
+/*! @decl Node add_content(string content)
+ *!
+ *! appends the content for a node
+ *!
+ */
+PIKEFUN object add_content(string content)
+{
+  check_node_created();
+  xmlNodeAddContentLen(MY_NODE, (xmlChar *)content->str, content->len);
   
   push_object(this_object());
 
@@ -1178,6 +1192,30 @@ PIKEFUN object set_node_name(string name)
   check_node_created();
 
   xmlNodeSetName(MY_NODE, (xmlChar *)name->str);
+
+  push_object(this_object());
+} 
+
+/*! @decl object set_lang(string language)
+ *!  sets the language of this node.
+ */
+PIKEFUN object set_lang(string language)
+{
+  check_node_created();
+
+  xmlNodeSetLang(MY_NODE, (xmlChar *)language->str);
+
+  push_object(this_object());
+} 
+
+/*! @decl object set_base(string uri)
+ *!  sets the base URI of this node.
+ */
+PIKEFUN object set_base(string uri)
+{
+  check_node_created();
+
+  xmlNodeSetBase(MY_NODE, (xmlChar *)uri->str);
 
   push_object(this_object());
 } 
