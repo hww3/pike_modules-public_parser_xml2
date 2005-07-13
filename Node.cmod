@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: Node.cmod,v 1.13 2005-07-13 15:15:57 hww3 Exp $
+ * $Id: Node.cmod,v 1.14 2005-07-13 17:49:57 hww3 Exp $
  */
 
 /*
@@ -468,15 +468,17 @@ PIKEFUN object parent()
  *!     the old node
  */
 PIKEFUN object replace(object newnode)
-
+{
   struct object * o;
   xmlNodePtr node;
 
-  CHECK_NODE_PASSED(child);
+  CHECK_NODE_PASSED(newnode);
 
   check_node_created();
 
   node = xmlReplaceNode(THIS->object_data->node, OBJ2_NODE(o)->object_data->node);  
+
+  OBJ2_NODE(newnode)->object_data->unlinked = 0;
 
   o=NEW_NODE();
   OBJ2_NODE(o)->object_data->node = node;
@@ -497,13 +499,15 @@ PIKEFUN object replace(object newnode)
  *!  @returns
  *!    the newly copied node.
  */
-PIKEFUN object copy(int extended)
+
+PIKEFUN object copy()
 {
+  struct object * o;
   xmlNodePtr node;
 
   check_node_created();
 
-  node = xmlCopyNode(THIS->object_data->node, extended); 
+  node = xmlCopyNode(THIS->object_data->node, 0);
 
   o=NEW_NODE();
   OBJ2_NODE(o)->object_data->node = node;
@@ -512,13 +516,14 @@ PIKEFUN object copy(int extended)
   push_object(o);
 }
 
-PIKEFUN object copy()
+PIKEFUN object copy(int extended)
 {
+  struct object * o;
   xmlNodePtr node;
 
   check_node_created();
 
-  node = xmlCopyNode(THIS->object_data->node, 0); 
+  node = xmlCopyNode(THIS->object_data->node, extended); 
 
   o=NEW_NODE();
   OBJ2_NODE(o)->object_data->node = node;
@@ -536,6 +541,7 @@ PIKEFUN object copy()
  */
 PIKEFUN object copy_list()
 {
+  struct object * o;
   xmlNodePtr node;
 
   check_node_created();
@@ -559,17 +565,15 @@ PIKEFUN object copy_list()
  */
 PIKEFUN object unlink()
 {
+  struct object * o;
   xmlNodePtr node;
 
   check_node_created();
 
-  node = xmlUnlinkNode(THIS->object_data->node); 
+  xmlUnlinkNode(THIS->object_data->node); 
 
-  o=NEW_NODE();
-  OBJ2_NODE(o)->object_data->node = node;
-  OBJ2_NODE(o)->object_data->unlinked = 1;
-  NEW_NODE_REFS(o);
-  push_object(o);
+  THIS->object_data->unlinked = 1;
+  push_object(this_object());
 }
 
 /*!  @decl void delete()
@@ -582,8 +586,8 @@ PIKEFUN void delete()
 
   check_node_created();
 
-  node = xmlUnlinkNode(THIS->object_data->node); 
-  xmlFreeNode(node);
+  xmlUnlinkNode(THIS->object_data->node); 
+  xmlFreeNode(THIS->object_data->node);
 
   THIS->object_data->node = NULL;  
 
@@ -948,6 +952,7 @@ PIKEFUN object add_child(object child)
   }
   else
   {
+    OBJ2_NODE(child)->object_data->unlinked = 0;
     o = NEW_NODE();
     OBJ2_NODE(o)->object_data->node = node;
     OBJ2_NODE(o)->object_data->unlinked = 0;
@@ -976,6 +981,7 @@ PIKEFUN object add_sibling(object sibling)
   }
   else
   {
+    OBJ2_NODE(sibling)->object_data->unlinked = 0;
     o = NEW_NODE();
     OBJ2_NODE(o)->object_data->node = node;
     OBJ2_NODE(o)->object_data->unlinked = 0;
@@ -1004,6 +1010,7 @@ PIKEFUN object add_next_sibling(object sibling)
   }
   else
   {
+    OBJ2_NODE(sibling)->object_data->unlinked = 0;
     o = NEW_NODE();
     OBJ2_NODE(o)->object_data->node = node;
     OBJ2_NODE(o)->object_data->unlinked = 0;
@@ -1032,6 +1039,7 @@ PIKEFUN object add_prev_sibling(object sibling)
   }
   else
   {
+    OBJ2_NODE(sibling)->object_data->unlinked = 0;
     o = NEW_NODE();
     OBJ2_NODE(o)->object_data->node = node;
     OBJ2_NODE(o)->object_data->unlinked = 0;
