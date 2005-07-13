@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: Node.cmod,v 1.16 2005-07-13 18:16:20 hww3 Exp $
+ * $Id: Node.cmod,v 1.17 2005-07-13 18:24:49 hww3 Exp $
  */
 
 /*
@@ -850,7 +850,7 @@ PIKEFUN object new_char_ref(string name)
 }
 
 /*!  @decl Node new_comment(string content)
- *!     returns an unlinked character reference node.
+ *!     returns an unlinked comment node.
  */
 PIKEFUN object new_comment(string content)
 {
@@ -911,8 +911,73 @@ PIKEFUN object new_doc_comment(string content)
  *! 
  *!   @param ns
  *!     the prefix of the namespace for the node (optional)
+ *!   @seealso
+ *!     new_text_child
  */
 PIKEFUN object new_child(string name, string content)
+{
+  struct object * o;
+  xmlNodePtr node;
+
+  check_node_created();
+
+  node = xmlNewTextChild(MY_NODE, NULL, name->str, content->str);
+  
+  if(node == NULL)
+  {
+    push_int(0);
+    return;
+  }
+  else
+  {
+    o = NEW_NODE();
+    OBJ2_NODE(o)->object_data->node = node;
+    NEW_NODE_REFS(o);
+    push_object(o);
+  }
+}
+
+PIKEFUN object new_child(string ns, string name, string content)
+{
+  struct object * o;
+  xmlNodePtr node;
+  xmlNsPtr ans;
+
+  check_node_created();
+
+  ans = xmlSearchNs(MY_NODE->doc, MY_NODE, (xmlChar *)ns->str);
+  if(ans == NULL)
+  {
+    Pike_error("Namespace with prefix %s does not yet exist.\n", ns->str);
+  }
+
+  node = xmlNewTextChild(MY_NODE, ans, name->str, content->str);
+  
+  if(node == NULL)
+  {
+    push_int(0);
+    return;
+  }
+  else
+  {
+    o = NEW_NODE();
+    OBJ2_NODE(o)->object_data->node = node;
+    NEW_NODE_REFS(o);
+    push_object(o);
+  }
+}
+
+/*!  @decl Node new_text_child(string|void ns, string name, string content)
+ *!     add a new child element, added to end of children for this node.
+ *!     differs from @new_child in that XML reserved entities present in
+ *!     content (such as amersand, greater-than and less-than) will be 
+ *!     automatically replaced by their XML escaped entity representations.
+ *!   @param ns
+ *!     the prefix of the namespace for the node (optional)
+ *!   @seealso
+ *!     new_child
+ */
+PIKEFUN object new_text_child(string name, string content)
 {
   struct object * o;
   xmlNodePtr node;
@@ -935,7 +1000,7 @@ PIKEFUN object new_child(string name, string content)
   }
 }
 
-PIKEFUN object new_child(string ns, string name, string content)
+PIKEFUN object new_text_child(string ns, string name, string content)
 {
   struct object * o;
   xmlNodePtr node;
