@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: Node.cmod,v 1.11 2005-07-06 17:25:01 hww3 Exp $
+ * $Id: Node.cmod,v 1.12 2005-07-13 15:10:02 hww3 Exp $
  */
 
 /*
@@ -480,17 +480,84 @@ PIKEFUN object replace(object newnode)
 
   o=NEW_NODE();
   OBJ2_NODE(o)->object_data->node = node;
+  OBJ2_NODE(o)->object_data->unlinked = 1;
   NEW_NODE_REFS(o);
   pop_stack();
   push_object(o);
 }
 
-/*!  @decl void unlink()
+/*!  @decl Node copy(void|int extended)
+ *!
+ *!   copy a node
+ *!
+ *!  @param extended
+ *!    if 1 do a recursive copy (properties, namespaces and children when 
+ *!    applicable) if 2 copy properties and namespaces (when applicable)
+ *!
+ *!  @returns
+ *!    the newly copied node.
+ */
+PIKEFUN object copy(int extended)
+{
+  xmlNodePtr node;
+
+  check_node_created();
+
+  node = xmlCopyNode(THIS->object_data->node, extended); 
+
+  o=NEW_NODE();
+  OBJ2_NODE(o)->object_data->node = node;
+  OBJ2_NODE(o)->object_data->unlinked = 1;
+  NEW_NODE_REFS(o);
+  push_object(o);
+}
+
+PIKEFUN object copy()
+{
+  xmlNodePtr node;
+
+  check_node_created();
+
+  node = xmlCopyNode(THIS->object_data->node, 0); 
+
+  o=NEW_NODE();
+  OBJ2_NODE(o)->object_data->node = node;
+  OBJ2_NODE(o)->object_data->unlinked = 1;
+  NEW_NODE_REFS(o);
+  push_object(o);
+}
+
+/*!  @decl Node copy_list()
+ *!
+ *!   recursively copy a node list
+ *!
+ *!  @returns
+ *!    the newly copied node.
+ */
+PIKEFUN object copy_list()
+{
+  xmlNodePtr node;
+
+  check_node_created();
+
+  node = xmlCopyNodeList(THIS->object_data->node); 
+
+  o=NEW_NODE();
+  OBJ2_NODE(o)->object_data->node = node;
+  OBJ2_NODE(o)->object_data->unlinked = 1;
+  NEW_NODE_REFS(o);
+  push_object(o);
+}
+
+/*!  @decl Node unlink()
  *!
  *!  unlink a node from its current context. the node not freed.
  *!  to unlink and destroy the node, use @delete.
+ *!
+ *!  @returns
+ *!    the unlinked node.
  */
-PIKEFUN void unlink()
+PIKEFUN object unlink()
 
   xmlNodePtr node;
 
@@ -498,7 +565,11 @@ PIKEFUN void unlink()
 
   node = xmlUnlinkNode(THIS->object_data->node); 
 
-  pop_stack();
+  o=NEW_NODE();
+  OBJ2_NODE(o)->object_data->node = node;
+  OBJ2_NODE(o)->object_data->unlinked = 1;
+  NEW_NODE_REFS(o);
+  push_object(o);
 }
 
 /*!  @decl void delete()
@@ -594,13 +665,14 @@ PIKEFUN object new_cdata_block(string contents)
   {
     o = NEW_NODE();
     OBJ2_NODE(o)->object_data->node = node;
+    OBJ2_NODE(o)->object_data->unlinked = 1;
     NEW_NODE_REFS(o);
     push_object(o);
   }
 }
 
 /*!  @decl Node new_pi(string name, string contents)
- *!     returns a linked Processing Instruction node.
+ *!     returns an unlinked Processing Instruction node.
  */
 PIKEFUN object new_pi(string name, string contents)
 {
@@ -621,6 +693,7 @@ PIKEFUN object new_pi(string name, string contents)
   {
     o = NEW_NODE();
     OBJ2_NODE(o)->object_data->node = node;
+    OBJ2_NODE(o)->object_data->unlinked = 1;
     NEW_NODE_REFS(o);
     push_object(o);
   }
@@ -748,6 +821,7 @@ PIKEFUN object new_char_ref(string name)
   {
     o = NEW_NODE();
     OBJ2_NODE(o)->object_data->node = node;
+    OBJ2_NODE(o)->object_data->unlinked = 1;
     NEW_NODE_REFS(o);
     push_object(o);
   }
@@ -774,6 +848,7 @@ PIKEFUN object new_comment(string content)
   {
     o = NEW_NODE();
     OBJ2_NODE(o)->object_data->node = node;
+    OBJ2_NODE(o)->object_data->unlinked = 1;
     NEW_NODE_REFS(o);
     push_object(o);
   }
@@ -801,6 +876,7 @@ PIKEFUN object new_doc_comment(string content)
   {
     o = NEW_NODE();
     OBJ2_NODE(o)->object_data->node = node;
+    OBJ2_NODE(o)->object_data->unlinked = 1;
     NEW_NODE_REFS(o);
     push_object(o);
   }
@@ -874,6 +950,7 @@ PIKEFUN object add_child(object child)
   {
     o = NEW_NODE();
     OBJ2_NODE(o)->object_data->node = node;
+    OBJ2_NODE(o)->object_data->unlinked = 0;
     NEW_NODE_REFS(o);
     push_object(o);
   }
@@ -901,6 +978,7 @@ PIKEFUN object add_sibling(object sibling)
   {
     o = NEW_NODE();
     OBJ2_NODE(o)->object_data->node = node;
+    OBJ2_NODE(o)->object_data->unlinked = 0;
     NEW_NODE_REFS(o);
     push_object(o);
   }
@@ -928,6 +1006,7 @@ PIKEFUN object add_next_sibling(object sibling)
   {
     o = NEW_NODE();
     OBJ2_NODE(o)->object_data->node = node;
+    OBJ2_NODE(o)->object_data->unlinked = 0;
     NEW_NODE_REFS(o);
     push_object(o);
   }
@@ -955,6 +1034,7 @@ PIKEFUN object add_prev_sibling(object sibling)
   {
     o = NEW_NODE();
     OBJ2_NODE(o)->object_data->node = node;
+    OBJ2_NODE(o)->object_data->unlinked = 0;
     NEW_NODE_REFS(o);
     push_object(o);
   }
@@ -1185,7 +1265,7 @@ INIT
         Pike_error("init_node: Out of memory!\n");
 
     dta->node = NULL;
-
+    dta->unlinked = 0;
     THIS->object_data = dta;
 }
 
@@ -1202,6 +1282,13 @@ EXIT
   {
    (*( THIS->object_data->refs)) --;
 // printf("NODE EXIT, refs = %d\n", (*(THIS->object_data->refs)));
+  }
+
+  // if we're not linked to a document, we can free the node.
+  if(THIS->object_data->node != NULL && THIS->object_data->unlinked==1)
+  {
+    xmlFreeNode(THIS->object_data->node);
+    THIS->object_data->node = NULL;
   }
 
    if(THIS->object_data)
