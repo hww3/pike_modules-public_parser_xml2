@@ -1,6 +1,8 @@
 handle element definition properly; we need to do something with 
 xmlElementContentPtr...
 
+handle character encoding for inputs that aren't 8 bits wide.
+
 we need something similar to HTML.Parser...
 
 we need to support html mode parsing in SAX

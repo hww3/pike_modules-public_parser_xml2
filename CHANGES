@@ -1,5 +1,14 @@
 Version History
 
+Version 1.20
+- Added new functions for Node objects:
+    replace(), unlink(), delete(), copy(), copy_list(), set_base, 
+    set_lang, add_content(), new_text_child() and a namespace aware
+    version of new_child()
+- Some memory optimizations for freeing unlinked nodes upon object
+    destruction.
+- Fixed some documentation
+
 Version 1.18
 - All parsers now accept encoding parameters
 - Methods for querying encoding/decoding methods

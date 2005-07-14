@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: Node.cmod,v 1.17 2005-07-13 18:24:49 hww3 Exp $
+ * $Id: Node.cmod,v 1.18 2005-07-14 14:05:02 hww3 Exp $
  */
 
 /*
@@ -572,7 +572,7 @@ PIKEFUN object copy_list()
 /*!  @decl Node unlink()
  *!
  *!  unlink a node from its current context. the node not freed.
- *!  to unlink and destroy the node, use @delete.
+ *!  to unlink and destroy the node, use @[delete].
  *!
  *!  @returns
  *!    the unlinked node.
@@ -969,7 +969,7 @@ PIKEFUN object new_child(string ns, string name, string content)
 
 /*!  @decl Node new_text_child(string|void ns, string name, string content)
  *!     add a new child element, added to end of children for this node.
- *!     differs from @new_child in that XML reserved entities present in
+ *!     differs from @[new_child] in that XML reserved entities present in
  *!     content (such as amersand, greater-than and less-than) will be 
  *!     automatically replaced by their XML escaped entity representations.
  *!   @param ns
@@ -1266,7 +1266,7 @@ PIKEFUN int is_text()
  *!  
  *!  @returns
  *!   the integer node type. Node type constants are 
- *!   defined in @[Constants].
+ *!   defined in @[Public.Parser.XML2.Constants].
  */
 PIKEFUN int get_node_type()
 {
