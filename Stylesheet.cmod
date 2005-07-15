@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: Stylesheet.cmod,v 1.12 2005-05-04 02:10:19 hww3 Exp $
+ * $Id: Stylesheet.cmod,v 1.13 2005-07-15 17:55:33 hww3 Exp $
  */
 
 /*
@@ -283,6 +283,14 @@ PIKEFUN string output(object xml, int encoding)
   xmlOutputBufferClose(xmlBuf);
 }
 
+/*! @decl void set_attributes(mapping variables)
+ *!
+ *! set attributes for use by the stylesheet transformation
+ *!
+ *! @note
+ *!  Currently, the input to this function is assumed to be UTF-8 encoded.
+ *!  We should probably do that automagically.
+ */
 PIKEFUN void set_attributes(mapping variables)
 {
   const char ** vars = NULL;
