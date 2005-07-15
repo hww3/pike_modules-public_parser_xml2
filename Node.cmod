@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: Node.cmod,v 1.22 2005-07-15 17:41:50 hww3 Exp $
+ * $Id: Node.cmod,v 1.23 2005-07-15 17:51:12 hww3 Exp $
  */
 
 /*
@@ -190,7 +190,10 @@ PIKEFUN string get_text()
   if(val == NULL)
     push_int(0);
   else
+  {
     push_text(val);
+    f_convert_utf8_string(1);
+  }
 }
 
 /*! @decl string get_node_path()
@@ -206,7 +209,10 @@ PIKEFUN string get_node_path()
   if(val == NULL)
     push_int(0);
   else
+  {
     push_text(val);
+    f_convert_utf8_string(1);
+  }
 }
 
 /*! @decl string get_ns()
@@ -221,6 +227,7 @@ PIKEFUN string get_ns()
   {
     str = xmlStrdup(MY_NODE->ns->href);
     push_text(str);    
+    f_convert_utf8_string(1);
   }
   else push_int(0);
 }
@@ -251,7 +258,11 @@ PIKEFUN mapping get_nss()
       push_text("_default");
     else 
       push_text(ns->prefix);
+    f_convert_utf8_string(1);
+
     push_text(ns->href);
+    f_convert_utf8_string(1);
+
     num_ns++;
   }
   f_aggregate_mapping(num_ns*2);
@@ -269,7 +280,10 @@ PIKEFUN string get_base()
   if(val == NULL)
     push_int(0);
   else
+  {
     push_text(val);
+    f_convert_utf8_string(1);
+  }
 }
 
 /*! @decl string get_lang()
@@ -284,7 +298,10 @@ PIKEFUN string get_lang()
   if(val == NULL)
     push_int(0);
   else
+  {
     push_text(val);
+    f_convert_utf8_string(1);
+  }
 }
 
 /*! @decl int get_space_preserve()
@@ -331,7 +348,10 @@ PIKEFUN mapping get_attributes()
       if(val == NULL) val = "";
 
       push_text((char *)(attr->name));
+      f_convert_utf8_string(1);
+    
       push_text((char *)(val));
+      f_convert_utf8_string(1);
 
       xmlFree(val);
 
@@ -377,7 +397,10 @@ PIKEFUN mapping get_no_ns_attributes()
       if(val != NULL) 
       {
         push_text((char *)(attr->name));
+        f_convert_utf8_string(1);
+
         push_text((char *)(val));
+        f_convert_utf8_string(1);
         num_attrs ++;
       }
     }
@@ -426,7 +449,11 @@ PIKEFUN mapping get_ns_attributes(string ns_uri)
       if(val == NULL) val = "";
 
       push_text((char *)(attr->name));
+      f_convert_utf8_string(1);
+
       push_text((char *)(val));
+      f_convert_utf8_string(1);
+
       xmlFree(val);
 //      printf("Found a property: %s\n", (char *)(attr->name));
       num_attrs ++;
@@ -1428,7 +1455,10 @@ PIKEFUN string get_node_name()
 {
   check_node_created();
   if((char *)(MY_NODE->name) != NULL)
+  {
     push_text((char *)(MY_NODE->name));
+    f_convert_utf8_string(1);
+  }
   else push_int(0);
 } 
 
@@ -1479,7 +1509,7 @@ PIKEFUN object set_base(string uri)
 
 /*! @decl string render_xml(int level, int format)
  *!
- *! renders the node and all children as xml. 
+ *! renders the node and all children as xml (which will be encoded as UTF-8 by default). 
  *!
  *! @param level
  *!   the indentation level to use
@@ -1504,14 +1534,13 @@ PIKEFUN string render_xml(int level, int format)
     str = (char *)xmlStrdup(buf->content);
     xmlBufferFree(buf);
     push_text(str);
-
   }
   
 }
 
 /*! @decl string render_html()
  *!
- *! renders the node and all children as html. 
+ *! renders the node and all children as html (which will be encoded as UTF-8 by default). 
  *!
  */
 PIKEFUN string render_html()
