@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: Node.cmod,v 1.18 2005-07-14 14:05:02 hww3 Exp $
+ * $Id: Node.cmod,v 1.19 2005-07-15 01:59:26 hww3 Exp $
  */
 
 /*
@@ -123,7 +123,10 @@ PIKEFUN int get_line_no()
 PIKEFUN object set_ns(string ns_prefix)
 {
   xmlNsPtr ans;
+
+  f_string_to_utf8(1);  
   
+  ns_prefix = Pike_sp[-1].u.string;
   ans = xmlSearchNs(MY_NODE->doc, MY_NODE, (xmlChar *)ns_prefix->str);
   if(ans == NULL)
   {
@@ -131,6 +134,8 @@ PIKEFUN object set_ns(string ns_prefix)
   }
 
   xmlSetNs(MY_NODE, ans);
+
+  pop_stack();
 
   push_object(this_object());
 }
@@ -143,6 +148,10 @@ PIKEFUN object set_ns(string ns_prefix)
 PIKEFUN object set_content(string content)
 {
   check_node_created();
+
+  f_string_to_utf8(1);
+  content = Pike_sp[-1].u.string;
+
   xmlNodeSetContentLen(MY_NODE, (xmlChar *)content->str, content->len);
   
   push_object(this_object());
@@ -157,6 +166,10 @@ PIKEFUN object set_content(string content)
 PIKEFUN object add_content(string content)
 {
   check_node_created();
+
+  f_string_to_utf8(1);
+  content = Pike_sp[-1].u.string;
+
   xmlNodeAddContentLen(MY_NODE, (xmlChar *)content->str, content->len);
   
   push_object(this_object());
@@ -387,6 +400,10 @@ PIKEFUN mapping get_ns_attributes(string ns_uri)
   int num_attrs = 0;
 
   check_node_created();
+
+  f_string_to_utf8(1);
+  ns_uri = Pike_sp[-1].u.string;
+
   /* only element nodes have attributes. */
   if(MY_NODE->type != XML_ELEMENT_NODE)
   {
@@ -671,6 +688,9 @@ PIKEFUN object new_cdata_block(string contents)
   xmlNodePtr node;
 
   check_node_created();
+
+  f_string_to_utf8(1);
+  contents = Pike_sp[-1].u.string;
 
   node = xmlNewCDataBlock(MY_NODE->doc, contents->str, contents->len);
   
@@ -1293,6 +1313,9 @@ PIKEFUN object set_node_name(string name)
 {
   check_node_created();
 
+  f_string_to_utf8(1);
+  name = Pike_sp[-1].u.string;
+
   xmlNodeSetName(MY_NODE, (xmlChar *)name->str);
 
   push_object(this_object());
@@ -1305,6 +1328,9 @@ PIKEFUN object set_lang(string language)
 {
   check_node_created();
 
+  f_string_to_utf8(1);
+  language = Pike_sp[-1].u.string;
+
   xmlNodeSetLang(MY_NODE, (xmlChar *)language->str);
 
   push_object(this_object());
@@ -1316,6 +1342,9 @@ PIKEFUN object set_lang(string language)
 PIKEFUN object set_base(string uri)
 {
   check_node_created();
+
+  f_string_to_utf8(1);
+  uri = Pike_sp[-1].u.string;
 
   xmlNodeSetBase(MY_NODE, (xmlChar *)uri->str);
 
