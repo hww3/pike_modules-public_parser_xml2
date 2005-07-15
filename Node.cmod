@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: Node.cmod,v 1.20 2005-07-15 15:15:24 hww3 Exp $
+ * $Id: Node.cmod,v 1.21 2005-07-15 15:24:31 hww3 Exp $
  */
 
 /*
@@ -728,6 +728,14 @@ PIKEFUN object new_pi(string name, string contents)
 
   check_node_created();
 
+  f_convert_string_utf8(1);
+  contents = Pike_sp[-1].u.string;
+
+  stack_swap();
+
+  f_convert_string_utf8(1);
+  name = Pike_sp[-1].u.string;
+
 #ifdef HAVE_XMLNEWDOCPI
   node = xmlNewDocPI(MY_NODE->doc, name->str, contents->str);
   
@@ -829,6 +837,15 @@ PIKEFUN object set_attribute(string name, string value)
   xmlAttrPtr val;
 
   check_node_created();
+
+  f_convert_string_utf8(1);
+  value = Pike_sp[-1].u.string;
+
+  stack_swap();
+
+  f_convert_string_utf8(1);
+  name = Pike_sp[-1].u.string;
+
 
   xmlUnsetProp(MY_NODE, (xmlChar *)name->str);
 
