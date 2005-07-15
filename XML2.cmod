@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.77 2005-07-14 14:08:21 hww3 Exp $
+ * $Id: XML2.cmod,v 1.78 2005-07-15 15:15:24 hww3 Exp $
  */
 
 /*
@@ -146,7 +146,6 @@ printf("xpath\n");
 
   if(set == NULL)
   {
-printf("no nodes!\n");
     pop_n_elems(2);
     push_int(0);
     xmlXPathFreeContext(xpathCtx);
@@ -163,12 +162,12 @@ printf("no nodes!\n");
     {
       struct Node_struct * ns;
       NODE_OBJECT_DATA * od;
-printf("lookin at a node.\n");
       apply(Pike_fp->current_object, "Node", 0);
       ns = OBJ2_NODE((Pike_sp[0-1].u.object));
       od = (NODE_OBJECT_DATA *)(ns->object_data);
 
       od->node=xn;
+      od->parser = this_object();
       od->refs = OBJ2_NODE(node)->object_data->refs;
     
       (* od->refs)++;
@@ -177,8 +176,6 @@ printf("lookin at a node.\n");
       xn = set->nodeTab[num_nodes];
     } 
     while (((num_nodes +1) <= set->nodeNr) && xn != NULL);
-
-printf("num_nodes: %d\n", num_nodes);
 
     if(num_nodes>0) {
       f_aggregate(num_nodes);
@@ -242,6 +239,41 @@ PIKEFUN void set_xml_parser_options(int options)
 {
   THIS->object_data->xml_parser_options = options;
   pop_stack();
+}
+
+/*! @decl void set_auto_utf8_convert(int flag)
+ *!
+ *! sets whether the parser should automatically convert input to the parser to and from UTF-8.
+ *! libxml2 requires input (aside from data to be parsed, which may be encoded differently) to be
+ *! UTF-8 encoded. This module will automatically convert all string input to and from UTF-8. Calling
+ *! this function with an argument of zero (0) will turn this feature off. In this case, you will be
+ *! responsible for ensuring that any input is properly encoded (if necessary).
+ *! 
+ *! @param flag
+ *!   a boolean value: 0 disables auto conversion, 1 enables.
+ */
+PIKEFUN void set_auto_utf8_convert(int flag)
+{
+  THIS->object_data->auto_encode = flag;
+  pop_stack();
+}
+
+void f_convert_string_utf8(INT32 args)
+{
+  if(  OBJ2_(THIS_NODE->object_data->parser)->object_data->auto_encode !=0)
+  {
+printf("convertinf!\n");
+    f_string_to_utf8(args);
+  }
+}
+
+void f_convert_utf8_string(INT32 args)
+{
+  if(  OBJ2_(THIS_NODE->object_data->parser)->object_data->auto_encode !=0)
+  {
+    f_utf8_to_string(args);
+printf("unconvertinf!\n");
+  }
 }
 
 /*! @decl void set_html_parser_options(int options)
@@ -528,6 +560,7 @@ PIKEFUN object parse_xml_force(string xml)
   ns = OBJ2_NODE((Pike_sp[0-1].u.object));
   od = (NODE_OBJECT_DATA *)(ns->object_data);
 
+  od->parser = this_object();
   od->refs = malloc(sizeof(INT32));
   (* od->refs)=1;
   od->node = node;
@@ -663,6 +696,7 @@ void handle_parsed_tree(xmlDocPtr doc, INT32 args)
   od->refs = malloc(sizeof(INT32));
   (* od->refs)=1;
   od->node = node;
+  od->parser = this_object();
 }
 
 PIKEFUN object parse_xml(string xml, string name)
@@ -787,6 +821,7 @@ PIKEFUN object new_xml(string version, string root_name)
   od->refs = malloc(sizeof(INT32));
   (* od->refs)=1;
   od->node = node;
+  od->parser = this_object();
 }
 
 /*! @decl Node parse_xslt(string xslt, string|void name)
@@ -907,6 +942,7 @@ INIT
 
   dta->xml_parser_options = 0;
   dta->html_parser_options = 0;
+  dta->auto_encode = 1;
   THIS->object_data = dta;
  
   LIBXML_TEST_VERSION

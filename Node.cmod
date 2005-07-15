@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: Node.cmod,v 1.19 2005-07-15 01:59:26 hww3 Exp $
+ * $Id: Node.cmod,v 1.20 2005-07-15 15:15:24 hww3 Exp $
  */
 
 /*
@@ -124,7 +124,7 @@ PIKEFUN object set_ns(string ns_prefix)
 {
   xmlNsPtr ans;
 
-  f_string_to_utf8(1);  
+  f_convert_string_utf8(1);  
   
   ns_prefix = Pike_sp[-1].u.string;
   ans = xmlSearchNs(MY_NODE->doc, MY_NODE, (xmlChar *)ns_prefix->str);
@@ -149,7 +149,7 @@ PIKEFUN object set_content(string content)
 {
   check_node_created();
 
-  f_string_to_utf8(1);
+  f_convert_string_utf8(1);
   content = Pike_sp[-1].u.string;
 
   xmlNodeSetContentLen(MY_NODE, (xmlChar *)content->str, content->len);
@@ -167,7 +167,7 @@ PIKEFUN object add_content(string content)
 {
   check_node_created();
 
-  f_string_to_utf8(1);
+  f_convert_string_utf8(1);
   content = Pike_sp[-1].u.string;
 
   xmlNodeAddContentLen(MY_NODE, (xmlChar *)content->str, content->len);
@@ -401,7 +401,7 @@ PIKEFUN mapping get_ns_attributes(string ns_uri)
 
   check_node_created();
 
-  f_string_to_utf8(1);
+  f_convert_string_utf8(1);
   ns_uri = Pike_sp[-1].u.string;
 
   /* only element nodes have attributes. */
@@ -458,6 +458,7 @@ optflags OPT_SIDE_EFFECT
     if (cur_node != NULL) {
       o = NEW_NODE();
       OBJ2_NODE(o)->object_data->node = cur_node; 
+      OBJ2_NODE(o)->object_data->parser = THIS->object_data->parser; 
       NEW_NODE_REFS(o);
       push_object(o);
       num_children++;
@@ -486,6 +487,7 @@ PIKEFUN object parent()
     o=NEW_NODE();
     OBJ2_NODE(o)->object_data->node = MY_NODE->parent;
     NEW_NODE_REFS(o);
+    OBJ2_NODE(o)->object_data->parser = THIS->object_data->parser; 
 // printf("refs: %d\n", (* OBJ2_NODE(o)->object_data->refs));
     push_object(o);
   }
@@ -512,7 +514,8 @@ PIKEFUN object replace(object newnode)
   OBJ2_NODE(newnode)->object_data->unlinked = 0;
 
   o=NEW_NODE();
-  OBJ2_NODE(o)->object_data->node = node;
+  OBJ2_NODE(o)->object_data->node = node; 
+  OBJ2_NODE(o)->object_data->parser = THIS->object_data->parser; 
   OBJ2_NODE(o)->object_data->unlinked = 1;
   NEW_NODE_REFS(o);
   pop_stack();
@@ -542,6 +545,7 @@ PIKEFUN object copy()
 
   o=NEW_NODE();
   OBJ2_NODE(o)->object_data->node = node;
+  OBJ2_NODE(o)->object_data->parser = THIS->object_data->parser; 
   OBJ2_NODE(o)->object_data->unlinked = 1;
   NEW_NODE_REFS(o);
   push_object(o);
@@ -558,6 +562,7 @@ PIKEFUN object copy(int extended)
 
   o=NEW_NODE();
   OBJ2_NODE(o)->object_data->node = node;
+  OBJ2_NODE(o)->object_data->parser = THIS->object_data->parser; 
   OBJ2_NODE(o)->object_data->unlinked = 1;
   NEW_NODE_REFS(o);
   push_object(o);
@@ -581,6 +586,7 @@ PIKEFUN object copy_list()
 
   o=NEW_NODE();
   OBJ2_NODE(o)->object_data->node = node;
+  OBJ2_NODE(o)->object_data->parser = THIS->object_data->parser; 
   OBJ2_NODE(o)->object_data->unlinked = 1;
   NEW_NODE_REFS(o);
   push_object(o);
@@ -646,6 +652,7 @@ PIKEFUN object get_root_node()
   {
     o=NEW_NODE();
     OBJ2_NODE(o)->object_data->node = node;
+    OBJ2_NODE(o)->object_data->parser = THIS->object_data->parser; 
     NEW_NODE_REFS(o);
     push_object(o);
   }
@@ -675,6 +682,7 @@ PIKEFUN object set_root_node()
     o=NEW_NODE();
     OBJ2_NODE(o)->object_data->node = node;
     NEW_NODE_REFS(o);
+    OBJ2_NODE(o)->object_data->parser = THIS->object_data->parser; 
     push_object(o);
   }
 }
@@ -689,7 +697,7 @@ PIKEFUN object new_cdata_block(string contents)
 
   check_node_created();
 
-  f_string_to_utf8(1);
+  f_convert_string_utf8(1);
   contents = Pike_sp[-1].u.string;
 
   node = xmlNewCDataBlock(MY_NODE->doc, contents->str, contents->len);
@@ -704,7 +712,8 @@ PIKEFUN object new_cdata_block(string contents)
     o = NEW_NODE();
     OBJ2_NODE(o)->object_data->node = node;
     OBJ2_NODE(o)->object_data->unlinked = 1;
-    NEW_NODE_REFS(o);
+    OBJ2_NODE(o)->object_data->parser = THIS->object_data->parser; 
+   NEW_NODE_REFS(o);
     push_object(o);
   }
 }
@@ -731,6 +740,7 @@ PIKEFUN object new_pi(string name, string contents)
   {
     o = NEW_NODE();
     OBJ2_NODE(o)->object_data->node = node;
+    OBJ2_NODE(o)->object_data->parser = THIS->object_data->parser; 
     OBJ2_NODE(o)->object_data->unlinked = 1;
     NEW_NODE_REFS(o);
     push_object(o);
@@ -863,6 +873,7 @@ PIKEFUN object new_char_ref(string name)
   {
     o = NEW_NODE();
     OBJ2_NODE(o)->object_data->node = node;
+    OBJ2_NODE(o)->object_data->parser = THIS->object_data->parser; 
     OBJ2_NODE(o)->object_data->unlinked = 1;
     NEW_NODE_REFS(o);
     push_object(o);
@@ -890,6 +901,7 @@ PIKEFUN object new_comment(string content)
   {
     o = NEW_NODE();
     OBJ2_NODE(o)->object_data->node = node;
+    OBJ2_NODE(o)->object_data->parser = THIS->object_data->parser; 
     OBJ2_NODE(o)->object_data->unlinked = 1;
     NEW_NODE_REFS(o);
     push_object(o);
@@ -918,6 +930,7 @@ PIKEFUN object new_doc_comment(string content)
   {
     o = NEW_NODE();
     OBJ2_NODE(o)->object_data->node = node;
+    OBJ2_NODE(o)->object_data->parser = THIS->object_data->parser; 
     OBJ2_NODE(o)->object_data->unlinked = 1;
     NEW_NODE_REFS(o);
     push_object(o);
@@ -952,6 +965,7 @@ PIKEFUN object new_child(string name, string content)
   {
     o = NEW_NODE();
     OBJ2_NODE(o)->object_data->node = node;
+    OBJ2_NODE(o)->object_data->parser = THIS->object_data->parser; 
     NEW_NODE_REFS(o);
     push_object(o);
   }
@@ -982,6 +996,7 @@ PIKEFUN object new_child(string ns, string name, string content)
   {
     o = NEW_NODE();
     OBJ2_NODE(o)->object_data->node = node;
+    OBJ2_NODE(o)->object_data->parser = THIS->object_data->parser; 
     NEW_NODE_REFS(o);
     push_object(o);
   }
@@ -1015,6 +1030,7 @@ PIKEFUN object new_text_child(string name, string content)
   {
     o = NEW_NODE();
     OBJ2_NODE(o)->object_data->node = node;
+    OBJ2_NODE(o)->object_data->parser = THIS->object_data->parser; 
     NEW_NODE_REFS(o);
     push_object(o);
   }
@@ -1045,6 +1061,7 @@ PIKEFUN object new_text_child(string ns, string name, string content)
   {
     o = NEW_NODE();
     OBJ2_NODE(o)->object_data->node = node;
+    OBJ2_NODE(o)->object_data->parser = THIS->object_data->parser; 
     NEW_NODE_REFS(o);
     push_object(o);
   }
@@ -1090,6 +1107,7 @@ PIKEFUN object add_child(object child)
   {
     OBJ2_NODE(child)->object_data->unlinked = 0;
     o = NEW_NODE();
+    OBJ2_NODE(o)->object_data->parser = THIS->object_data->parser; 
     OBJ2_NODE(o)->object_data->node = node;
     OBJ2_NODE(o)->object_data->unlinked = 0;
     NEW_NODE_REFS(o);
@@ -1120,6 +1138,7 @@ PIKEFUN object add_sibling(object sibling)
     OBJ2_NODE(sibling)->object_data->unlinked = 0;
     o = NEW_NODE();
     OBJ2_NODE(o)->object_data->node = node;
+    OBJ2_NODE(o)->object_data->parser = THIS->object_data->parser; 
     OBJ2_NODE(o)->object_data->unlinked = 0;
     NEW_NODE_REFS(o);
     push_object(o);
@@ -1149,6 +1168,7 @@ PIKEFUN object add_next_sibling(object sibling)
     OBJ2_NODE(sibling)->object_data->unlinked = 0;
     o = NEW_NODE();
     OBJ2_NODE(o)->object_data->node = node;
+    OBJ2_NODE(o)->object_data->parser = THIS->object_data->parser; 
     OBJ2_NODE(o)->object_data->unlinked = 0;
     NEW_NODE_REFS(o);
     push_object(o);
@@ -1178,6 +1198,7 @@ PIKEFUN object add_prev_sibling(object sibling)
     OBJ2_NODE(sibling)->object_data->unlinked = 0;
     o = NEW_NODE();
     OBJ2_NODE(o)->object_data->node = node;
+    OBJ2_NODE(o)->object_data->parser = THIS->object_data->parser; 
     OBJ2_NODE(o)->object_data->unlinked = 0;
     NEW_NODE_REFS(o);
     push_object(o);
@@ -1204,7 +1225,8 @@ PIKEFUN object get_last_child()
   else
   {
     o = NEW_NODE();
-    OBJ2_NODE(o)->object_data->node = node;
+    OBJ2_NODE(o)->object_data->node = node; 
+    OBJ2_NODE(o)->object_data->parser = THIS->object_data->parser; 
     NEW_NODE_REFS(o);
     push_object(o);
   }
@@ -1229,6 +1251,7 @@ PIKEFUN object next()
   {
     o = NEW_NODE();
     OBJ2_NODE(o)->object_data->node = MY_NODE->next;
+    OBJ2_NODE(o)->object_data->parser = THIS->object_data->parser; 
     NEW_NODE_REFS(o);
     push_object(o);
   }
@@ -1253,6 +1276,7 @@ PIKEFUN object prev()
   {
     o = NEW_NODE();
     OBJ2_NODE(o)->object_data->node = MY_NODE->prev;
+    OBJ2_NODE(o)->object_data->parser = THIS->object_data->parser; 
     NEW_NODE_REFS(o);
     push_object(o);
   }
@@ -1313,7 +1337,7 @@ PIKEFUN object set_node_name(string name)
 {
   check_node_created();
 
-  f_string_to_utf8(1);
+  f_convert_string_utf8(1);
   name = Pike_sp[-1].u.string;
 
   xmlNodeSetName(MY_NODE, (xmlChar *)name->str);
@@ -1328,7 +1352,7 @@ PIKEFUN object set_lang(string language)
 {
   check_node_created();
 
-  f_string_to_utf8(1);
+  f_convert_string_utf8(1);
   language = Pike_sp[-1].u.string;
 
   xmlNodeSetLang(MY_NODE, (xmlChar *)language->str);
@@ -1343,7 +1367,7 @@ PIKEFUN object set_base(string uri)
 {
   check_node_created();
 
-  f_string_to_utf8(1);
+  f_convert_string_utf8(1);
   uri = Pike_sp[-1].u.string;
 
   xmlNodeSetBase(MY_NODE, (xmlChar *)uri->str);
@@ -1442,6 +1466,7 @@ INIT
         Pike_error("init_node: Out of memory!\n");
 
     dta->node = NULL;
+    dta->parser = NULL;
     dta->unlinked = 0;
     THIS->object_data = dta;
 }

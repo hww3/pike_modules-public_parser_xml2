@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: xml2.h,v 1.24 2005-07-13 15:15:57 hww3 Exp $
+ * $Id: xml2.h,v 1.25 2005-07-15 15:15:24 hww3 Exp $
  */
 
 /*
@@ -232,6 +232,7 @@ xmlEntityPtr my_xml_getent(void * ctx, const xmlChar * name);
     int docloader_num;
     int xml_parser_options;
     int html_parser_options;
+    int auto_encode;
   } PARSER_OBJECT_DATA;
 
   typedef struct
@@ -239,6 +240,7 @@ xmlEntityPtr my_xml_getent(void * ctx, const xmlChar * name);
     xmlNodePtr node;
     int unlinked;
     int transient;
+    struct object * parser;
     INT32 * refs;
   } NODE_OBJECT_DATA;
 
@@ -256,6 +258,8 @@ xmlEntityPtr my_xml_getent(void * ctx, const xmlChar * name);
   } STYLESHEET_OBJECT_DATA;
 
 #ifndef THIS_IS_XML2_NODE
+
+#define THIS_NODE ((struct Node_struct *)(Pike_interpreter.frame_pointer->current_storage))
 
 struct Node_struct {
  NODE_OBJECT_DATA   *object_data;
