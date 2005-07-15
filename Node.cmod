@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: Node.cmod,v 1.21 2005-07-15 15:24:31 hww3 Exp $
+ * $Id: Node.cmod,v 1.22 2005-07-15 17:41:50 hww3 Exp $
  */
 
 /*
@@ -731,7 +731,7 @@ PIKEFUN object new_pi(string name, string contents)
   f_convert_string_utf8(1);
   contents = Pike_sp[-1].u.string;
 
-  stack_swap();
+  stack_swap_n(2);
 
   f_convert_string_utf8(1);
   name = Pike_sp[-1].u.string;
@@ -777,6 +777,19 @@ PIKEFUN object set_ns_attribute(string name, string ns, string value)
 
   check_node_created();
 
+  f_convert_string_utf8(1);
+  value = Pike_sp[-1].u.string;
+
+  stack_swap_n(2);
+
+  f_convert_string_utf8(1);
+  ns = Pike_sp[-1].u.string;
+
+  stack_swap_n(3);
+
+  f_convert_string_utf8(1);
+  name = Pike_sp[-1].u.string;
+
   ans = xmlSearchNs(MY_NODE->doc, MY_NODE, (xmlChar *)ns->str);
   if(ans == NULL)
   {
@@ -807,6 +820,10 @@ PIKEFUN object set_ns_attribute(string name, string ns, string value)
 PIKEFUN object delete_attribute(string name)
 {
   check_node_created();
+
+  f_convert_string_utf8(1);
+  name = Pike_sp[-1].u.string;
+
   xmlUnsetProp(MY_NODE, (xmlChar *)name->str);
 
   push_object(this_object());
@@ -817,6 +834,14 @@ PIKEFUN object delete_attribute(string name, string ns)
   xmlNsPtr ans;
 
   check_node_created();
+
+  f_convert_string_utf8(1);
+  ns = Pike_sp[-1].u.string;
+
+  stack_swap_n(2);
+
+  f_convert_string_utf8(1);
+  name = Pike_sp[-1].u.string;
 
   ans = xmlSearchNs(MY_NODE->doc, MY_NODE, (xmlChar *)ns->str);
   if(ans == NULL)
@@ -841,11 +866,10 @@ PIKEFUN object set_attribute(string name, string value)
   f_convert_string_utf8(1);
   value = Pike_sp[-1].u.string;
 
-  stack_swap();
+  stack_swap_n(2);
 
   f_convert_string_utf8(1);
   name = Pike_sp[-1].u.string;
-
 
   xmlUnsetProp(MY_NODE, (xmlChar *)name->str);
 
@@ -873,6 +897,9 @@ PIKEFUN object new_char_ref(string name)
   xmlNodePtr node;
 
   check_node_created();
+
+  f_convert_string_utf8(1);
+  name = Pike_sp[-1].u.string;
 
   if(name->str[0] != '&' || name->str[0] != '#')
   {
@@ -907,6 +934,9 @@ PIKEFUN object new_comment(string content)
 
   check_node_created();
 
+  f_convert_string_utf8(1);
+  content = Pike_sp[-1].u.string;
+
   node = xmlNewComment(content->str);
   
   if(node == NULL)
@@ -935,6 +965,9 @@ PIKEFUN object new_doc_comment(string content)
   xmlNodePtr node;
 
   check_node_created();
+
+  f_convert_string_utf8(1);
+  content = Pike_sp[-1].u.string;
 
   node = xmlNewDocComment(MY_NODE->doc, content->str);
   
@@ -971,6 +1004,14 @@ PIKEFUN object new_child(string name, string content)
 
   check_node_created();
 
+  f_convert_string_utf8(1);
+  content = Pike_sp[-1].u.string;
+
+  stack_swap_n(2);
+
+  f_convert_string_utf8(1);
+  name = Pike_sp[-1].u.string;
+
   node = xmlNewTextChild(MY_NODE, NULL, name->str, content->str);
   
   if(node == NULL)
@@ -995,6 +1036,19 @@ PIKEFUN object new_child(string ns, string name, string content)
   xmlNsPtr ans;
 
   check_node_created();
+
+  f_convert_string_utf8(1);
+  content = Pike_sp[-1].u.string;
+
+  stack_swap_n(2);
+
+  f_convert_string_utf8(1);
+  name = Pike_sp[-1].u.string;
+
+  stack_swap_n(3);
+
+  f_convert_string_utf8(1);
+  ns = Pike_sp[-1].u.string;
 
   ans = xmlSearchNs(MY_NODE->doc, MY_NODE, (xmlChar *)ns->str);
   if(ans == NULL)
@@ -1036,6 +1090,14 @@ PIKEFUN object new_text_child(string name, string content)
 
   check_node_created();
 
+  f_convert_string_utf8(1);
+  content = Pike_sp[-1].u.string;
+
+  stack_swap_n(2);
+
+  f_convert_string_utf8(1);
+  name = Pike_sp[-1].u.string;
+
   node = xmlNewChild(MY_NODE, NULL, name->str, content->str);
   
   if(node == NULL)
@@ -1060,6 +1122,19 @@ PIKEFUN object new_text_child(string ns, string name, string content)
   xmlNsPtr ans;
 
   check_node_created();
+
+  f_convert_string_utf8(1);
+  content = Pike_sp[-1].u.string;
+
+  stack_swap_n(2);
+
+  f_convert_string_utf8(1);
+  name = Pike_sp[-1].u.string;
+
+  stack_swap_n(3);
+
+  f_convert_string_utf8(1);
+  ns = Pike_sp[-1].u.string;
 
   ans = xmlSearchNs(MY_NODE->doc, MY_NODE, (xmlChar *)ns->str);
   if(ans == NULL)
@@ -1090,6 +1165,16 @@ PIKEFUN object new_text_child(string ns, string name, string content)
 PIKEFUN object add_ns(string href, string prefix)
 {
   xmlNsPtr ns;
+
+  check_node_created();
+
+  f_convert_string_utf8(1);
+  prefix = Pike_sp[-1].u.string;
+
+  stack_swap_n(2);
+
+  f_convert_string_utf8(1);
+  href = Pike_sp[-1].u.string;
 
   ns = xmlNewNs(MY_NODE, (xmlChar *) href->str, (xmlChar *) prefix->str);
 

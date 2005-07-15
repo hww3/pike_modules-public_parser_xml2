@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: xml2.h,v 1.25 2005-07-15 15:15:24 hww3 Exp $
+ * $Id: xml2.h,v 1.26 2005-07-15 17:41:51 hww3 Exp $
  */
 
 /*
@@ -310,4 +310,11 @@ struct Stylesheet_struct {
     debug_malloc_touch(_sp_->u.string);                                 \
     _sp_->type=PIKE_T_STRING;                                           \
   }while(0)
+
+#define stack_swap_n(Q) do {                                               \
+    struct svalue *_sp_ = Pike_sp;                                      \
+    struct svalue _=_sp_[-1];                                           \
+    _sp_[-1]=_sp_[0-Q];                                                  \
+    _sp_[0-Q]=_;                                                         \
+  } while(0)
 
