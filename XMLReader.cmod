@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XMLReader.cmod,v 1.15 2005-07-15 18:07:00 hww3 Exp $
+ * $Id: XMLReader.cmod,v 1.16 2005-07-15 18:15:36 hww3 Exp $
  */
 
 /*
@@ -302,13 +302,13 @@ PIKEFUN int attribute_ns(string localName, string namespaceURI)
     Pike_error("no xmlReader!\n");
   }
 
-  f_convert_string_utf8(1);
+  f_rconvert_string_utf8(1);
   namespaceURI = Pike_sp[-1].u.string;
 
   stack_swap_n(2);
 
   localName = Pike_sp[-1].u.string;
-  f_convert_string_utf8(1);
+  f_rconvert_string_utf8(1);
 
   RETURN xmlTextReaderMoveToAttributeNs(THIS->object_data->reader, 
     (const xmlChar *)localName->str, (const xmlChar *)namespaceURI->str);
@@ -324,7 +324,7 @@ PIKEFUN int attribute(string name)
     Pike_error("no xmlReader!\n");
   }
 
-  f_convert_string_utf8(1);
+  f_rconvert_string_utf8(1);
   name = Pike_sp[-1].u.string;
 
   RETURN xmlTextReaderMoveToAttribute(THIS->object_data->reader, 
@@ -490,7 +490,7 @@ PIKEFUN string get_attribute(string name)
     Pike_error("no xmlReader!\n");
   }
 
-  f_convert_string_utf8(1);
+  f_rconvert_string_utf8(1);
   name = Pike_sp[-1].u.string;
 
   c = xmlTextReaderGetAttribute(THIS->object_data->reader, name->str);
@@ -538,12 +538,12 @@ PIKEFUN string get_attribute(string localName, string namespaceURI)
     Pike_error("no xmlReader!\n");
   }
 
-  f_convert_string_utf8(1);
+  f_rconvert_string_utf8(1);
   namespaceURI = Pike_sp[-1].u.string;
 
   stack_swap_n(2);
 
-  f_convert_string_utf8(1);
+  f_rconvert_string_utf8(1);
   localName = Pike_sp[-1].u.string;
 
   c = xmlTextReaderGetAttributeNs(THIS->object_data->reader, 
@@ -570,7 +570,7 @@ PIKEFUN string lookup_namespace(string prefix)
     Pike_error("no xmlReader!\n");
   }
 
-  f_convert_string_utf8(1);
+  f_rconvert_string_utf8(1);
   prefix = Pike_sp[-1].u.string;
 
   c = xmlTextReaderLookupNamespace(THIS->object_data->reader, prefix->str);
@@ -814,11 +814,11 @@ PIKEFUN void create(string xml, string url, int options, string encoding)
  */
 
   stack_swap_n(2);
-  f_convert_string_utf8(1);
+  f_rconvert_string_utf8(1);
   url = Pike_sp[-1].u.string;
 
   stack_swap_n(4);
-  f_convert_string_utf8(1);
+  f_rconvert_string_utf8(1);
   encoding = Pike_sp[-1].u.string;
 
   reader = xmlReaderForMemory(xml->str, xml->len, url->str, 
@@ -844,7 +844,7 @@ PIKEFUN void create(string xml, string url, int options)
   xmlTextReaderPtr reader;
 
   stack_swap_n(2);
-  f_convert_string_utf8(1);
+  f_rconvert_string_utf8(1);
   url = Pike_sp[-1].u.string; 
 
   reader = xmlReaderForMemory(xml->str, xml->len, url->str, 

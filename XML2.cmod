@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.78 2005-07-15 15:15:24 hww3 Exp $
+ * $Id: XML2.cmod,v 1.79 2005-07-15 18:15:36 hww3 Exp $
  */
 
 /*
@@ -262,7 +262,6 @@ void f_convert_string_utf8(INT32 args)
 {
   if(  OBJ2_(THIS_NODE->object_data->parser)->object_data->auto_encode !=0)
   {
-printf("convertinf!\n");
     f_string_to_utf8(args);
   }
 }
@@ -272,7 +271,22 @@ void f_convert_utf8_string(INT32 args)
   if(  OBJ2_(THIS_NODE->object_data->parser)->object_data->auto_encode !=0)
   {
     f_utf8_to_string(args);
-printf("unconvertinf!\n");
+  }
+}
+
+void f_rconvert_string_utf8(INT32 args)
+{
+  if(  OBJ2_(THIS_XMLREADER->object_data->parser)->object_data->auto_encode !=0)
+  {
+    f_string_to_utf8(args);
+  }
+}
+
+void f_rconvert_utf8_string(INT32 args)
+{
+  if(  OBJ2_(THIS_XMLREADER->object_data->parser)->object_data->auto_encode !=0)
+  {
+    f_utf8_to_string(args);
   }
 }
 
@@ -893,6 +907,7 @@ void handle_parse_stylesheet(INT32 args)
   
   ss = OBJ2_STYLESHEET((Pike_sp[0-1].u.object));
   od = (STYLESHEET_OBJECT_DATA *)(ss->object_data);
+  od->parser = this_object();
 
   od->refs = malloc(sizeof(INT32));
   (* od->refs)=1;

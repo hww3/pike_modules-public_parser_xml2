@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: xml2.h,v 1.26 2005-07-15 17:41:51 hww3 Exp $
+ * $Id: xml2.h,v 1.27 2005-07-15 18:15:36 hww3 Exp $
  */
 
 /*
@@ -225,6 +225,7 @@ xmlEntityPtr my_xml_getent(void * ctx, const xmlChar * name);
 #ifdef HAVE_LIBXML_XMLREADER_H
     xmlTextReaderPtr reader;
 #endif
+    struct object * parser;
   } XMLREADER_OBJECT_DATA;
 
   typedef struct
@@ -254,6 +255,7 @@ xmlEntityPtr my_xml_getent(void * ctx, const xmlChar * name);
   {
     xsltStylesheetPtr stylesheet;
     const char ** atts;
+    struct object * parser;
     INT32 * refs;
   } STYLESHEET_OBJECT_DATA;
 
@@ -269,10 +271,22 @@ struct Node_struct {
 
 #ifndef THIS_IS_XML2_STYLESHEET
 
+#define THIS_STYLESHEET ((struct Stylesheet_struct *)(Pike_interpreter.frame_pointer->current_storage))
+
 struct Stylesheet_struct {
  STYLESHEET_OBJECT_DATA   *object_data;
  struct object * node;
 };
+
+#endif
+
+#ifndef THIS_IS_XML2_XMLREADER
+
+struct XMLReader_struct {
+XMLREADER_OBJECT_DATA   *object_data;
+};
+
+#define THIS_XMLREADER ((struct XMLReader_struct *)(Pike_interpreter.frame_pointer->current_storage))
 
 #endif
 
