@@ -1,7 +1,8 @@
 handle element definition properly; we need to do something with 
 xmlElementContentPtr...
 
-handle character encoding for inputs that aren't 8 bits wide.
+handle character encoding for inputs that aren't 8 bits wide (only SAX 
+still needs to be done).
 
 we need something similar to HTML.Parser...
 

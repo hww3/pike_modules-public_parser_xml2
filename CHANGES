@@ -1,5 +1,11 @@
 Version History
 
+Version 1.22
+- Node and XMLReader objects automatically encode input to UTF-8 and 
+output from UTF-8 to Pike's internal string representation when wide 
+strings are in use.
+- Added set_auto_utf8_convert() to turn off auto conversion of strings.
+
 Version 1.20
 - Added new functions for Node objects:
     replace(), unlink(), delete(), copy(), copy_list(), set_base, 
