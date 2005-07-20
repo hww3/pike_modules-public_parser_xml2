@@ -1,5 +1,8 @@
 Version History
 
+Version 1.24
+- Added RelaxNG validation (basic)
+
 Version 1.22
 - Node and XMLReader objects automatically encode input to UTF-8 and 
 output from UTF-8 to Pike's internal string representation when wide 

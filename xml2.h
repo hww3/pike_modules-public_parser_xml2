@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: xml2.h,v 1.29 2005-07-20 18:50:41 hww3 Exp $
+ * $Id: xml2.h,v 1.30 2005-07-20 21:08:15 hww3 Exp $
  */
 
 /*
@@ -170,6 +170,8 @@ extern ptrdiff_t Stylesheet_storage_offset;
 void handle_parsed_tree(xmlDocPtr doc, INT32 args);
 xmlExternalEntityLoader entity_loader;
 xmlStructuredErrorFunc generic_handler;
+xmlRelaxNGValidityErrorFunc relaxng_error_handler;
+xmlRelaxNGValidityWarningFunc relaxng_warning_handler;
 
   xmlEntityPtr my_getParameterEntity(void * ctx, const xmlChar * name); 
 xmlEntityPtr my_xml_getent(void * ctx, const xmlChar * name);

@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: RelaxNG.cmod,v 1.3 2005-07-20 18:50:40 hww3 Exp $
+ * $Id: RelaxNG.cmod,v 1.4 2005-07-20 21:08:14 hww3 Exp $
  */
 
 /*
@@ -74,6 +74,7 @@
  *!
  */
 #ifdef HAVE_LIBXML_RELAXNG_H
+
 PIKECLASS RelaxNG
 
 {
@@ -105,7 +106,16 @@ PIKECLASS RelaxNG
       Pike_error("The Node object passed is not part of a larger XML document.\n");
     }
 
+
     validator = xmlRelaxNGNewValidCtxt(THIS->object_data->valid);
+
+/*
+    xmlRelaxNGSetValidErrors(validator, relaxng_error_handler,
+                            relaxng_warning_handler, NULL);
+*/
+
+    xmlRelaxNGSetValidErrors(validator, relaxng_error_handler,
+                            relaxng_warning_handler, NULL);
 
     res = xmlRelaxNGValidateDoc(validator, doc);
 

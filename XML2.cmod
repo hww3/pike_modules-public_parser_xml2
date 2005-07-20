@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.82 2005-07-20 18:50:40 hww3 Exp $
+ * $Id: XML2.cmod,v 1.83 2005-07-20 21:08:14 hww3 Exp $
  */
 
 /*
@@ -523,6 +523,13 @@ PIKEFUN string render_html(object n)
   }
 }
 
+
+void my_relaxng_generic_error(void * userData, const char * error)
+{
+  push_text(error);
+  f_werror(1);
+}
+
 void my_generic_error(void * userData, xmlErrorPtr error)
 {
   char err[255];
@@ -892,17 +899,22 @@ void handle_parse_relaxng(INT32 args)
     Pike_error("whoa, horsie! we don't have an xml document!\n");
   }
 
-printf("getting parser context\n");
   parser = xmlRelaxNGNewDocParserCtxt(doc);
-printf("got it\n");
   if(parser == NULL)
   {
     pop_stack();
     Pike_error("Unable to create relaxng parser context.\n");
   }  
+  
+  relaxng_error_handler = my_relaxng_generic_error;
+  relaxng_warning_handler = my_relaxng_generic_error;
+
+  xmlRelaxNGSetParserErrors(parser, relaxng_error_handler, 
+                            relaxng_warning_handler, NULL);
 
 printf("getting ready to parse the document for relax.\n");
   relax = xmlRelaxNGParse(parser);
+
 printf("done.\n");
   if(relax == NULL)
   {
@@ -991,7 +1003,7 @@ EXTRA
   struct pike_string * ps;
   char * err_ctx = "parse_xml";
 
-  add_string_constant("__version", "1.22", 0);
+  add_string_constant("__version", "1.24", 0);
   add_string_constant("__author", "Bill Welliver <bill@welliver.org>", 0);
 
   generic_handler = my_generic_error;
