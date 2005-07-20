@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: xml2.h,v 1.27 2005-07-15 18:15:36 hww3 Exp $
+ * $Id: xml2.h,v 1.28 2005-07-20 17:21:41 hww3 Exp $
  */
 
 /*
@@ -61,7 +61,7 @@
 #include "xml2_config.h"
 #include "util.h"
 
-#ifdef HAVE_XML2
+#ifdef HAVE_LIBXML2
 #endif /* HAVE_XML2 */
 
 #ifdef HAVE_UNISTD_H
@@ -219,6 +219,13 @@ xmlEntityPtr my_xml_getent(void * ctx, const xmlChar * name);
     xmlParserCtxtPtr context;
     xmlParserOption options;
   } SAX_OBJECT_DATA;
+
+  typedef struct
+  {
+#ifdef HAVE_LIBXML_RELAXNG_H
+    xmlRelaxNGValidCtxtPtr context;
+#endif /* HAVE_LIBXML_RELAXNG_H */
+  } RELAXNG_OBJECT_DATA;
 
   typedef struct
   {
