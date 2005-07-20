@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: xml2.h,v 1.28 2005-07-20 17:21:41 hww3 Exp $
+ * $Id: xml2.h,v 1.29 2005-07-20 18:50:41 hww3 Exp $
  */
 
 /*
@@ -151,16 +151,19 @@
 
 void f_XMLReader_create(INT32 args);
 void f_SAX_parse(INT32 args);
+void f_parse_relaxng(INT32 args);
 void f_parse_xslt(INT32 args);
 void f_parse_xml(INT32 args);
 void f_parse_html(INT32 args);
 void f_parse_xslt(INT32 args);
 
 void handle_parse_stylesheet();
+void handle_parse_relaxng();
 
 struct program * Node_program;
 
 struct program * Stylesheet_program;
+struct program * RelaxNG_program;
 
 extern ptrdiff_t Stylesheet_storage_offset;
 
@@ -222,8 +225,11 @@ xmlEntityPtr my_xml_getent(void * ctx, const xmlChar * name);
 
   typedef struct
   {
+    INT32 * refs;
+    struct object * parser;
 #ifdef HAVE_LIBXML_RELAXNG_H
-    xmlRelaxNGValidCtxtPtr context;
+    xmlRelaxNGPtr valid;
+    xmlRelaxNGParserCtxtPtr context;
 #endif /* HAVE_LIBXML_RELAXNG_H */
   } RELAXNG_OBJECT_DATA;
 
@@ -287,6 +293,17 @@ struct Stylesheet_struct {
 
 #endif
 
+#ifndef THIS_IS_XML2_RELAXNG
+
+#define THIS_RELAXNG ((struct RelaxNG_struct *)(Pike_interpreter.frame_pointer->current_storage))
+
+struct RelaxNG_struct {
+ RELAXNG_OBJECT_DATA   *object_data;
+ struct object * node;
+};
+
+#endif
+
 #ifndef THIS_IS_XML2_XMLREADER
 
 struct XMLReader_struct {
@@ -312,6 +329,7 @@ XMLREADER_OBJECT_DATA   *object_data;
 #define OBJ2_NODE(o) ((struct Node_struct *)get_storage(o, Node_program))
 
 #define OBJ2_STYLESHEET(o) ((struct Stylesheet_struct *)get_storage(o, Stylesheet_program))
+#define OBJ2_RELAXNG(o) ((struct RelaxNG_struct *)get_storage(o, RelaxNG_program))
 
 #define NEW_NODE_OBJ(_X_, _Y_) { apply(Pike_fp->current_object, "Node", 0); \
   OBJ2_NODE((Pike_sp[0-1].u.object))->object_data->node = _Y_; \

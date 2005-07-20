@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.81 2005-07-20 17:21:41 hww3 Exp $
+ * $Id: XML2.cmod,v 1.82 2005-07-20 18:50:40 hww3 Exp $
  */
 
 /*
@@ -838,37 +838,101 @@ PIKEFUN object new_xml(string version, string root_name)
   od->parser = this_object();
 }
 
-/*! @decl Node parse_xslt(string xslt, string|void name)
-/*! @decl Node parse_xslt(Node xslt)
- *!   Parse a string containing an XSLT stylesheet.
+/*! @decl Node parse_relaxng(string relaxng, string|void name)
+/*! @decl Node parse_relaxng(Node relaxng)
+ *!   Parse a string containing an RelaxNG schema.
  *!
  *!  @param name
  *!   String containing name/URI of file.
  *!
  *!  @returns
- *!    a @[Stylesheet] object containing the parsed stylesheet.
+ *!    a @[RelaxNG] object containing the parsed schema.
  */
-PIKEFUN object parse_xslt(string xslt)
+PIKEFUN object parse_relaxng(string relaxng)
 {
-  push_text("noname.xsl");
-  f_parse_xslt(2);
+  push_text("noname.rlx");
+  f_parse_relaxng(2);
 }
 
-PIKEFUN object parse_xslt(object xslt)
+PIKEFUN object parse_relaxng(object relaxng)
 {
-  CHECK_NODE_PASSED(xslt);
+  CHECK_NODE_PASSED(relaxng);
 
-  handle_parse_stylesheet(args);
+  handle_parse_relaxng(args);
 
 }
 
-PIKEFUN object parse_xslt(string xslt, string name)
+PIKEFUN object parse_relaxng(string relaxng, string name)
 {
   // first, we must parse the xml file. conveniently, we have a function
   // that does that already!
   f_parse_xml(2);
 
-  handle_parse_stylesheet(args);
+  handle_parse_relaxng(args);
+}
+
+void handle_parse_relaxng(INT32 args)
+{
+  struct object * node_obj = NULL;
+  xmlDocPtr doc = NULL;
+  xmlRelaxNGParserCtxtPtr parser;
+  xmlRelaxNGPtr relax;
+  struct RelaxNG_struct * rn;
+  RELAXNG_OBJECT_DATA * od;
+
+  // we're going to hang on to the node object.
+  node_obj = Pike_sp[0-1].u.object;
+  add_ref(node_obj);
+
+  doc = OBJ2_NODE(node_obj)->object_data->node->doc;
+
+  if(doc==NULL)
+  {
+    pop_stack();
+    Pike_error("whoa, horsie! we don't have an xml document!\n");
+  }
+
+printf("getting parser context\n");
+  parser = xmlRelaxNGNewDocParserCtxt(doc);
+printf("got it\n");
+  if(parser == NULL)
+  {
+    pop_stack();
+    Pike_error("Unable to create relaxng parser context.\n");
+  }  
+
+printf("getting ready to parse the document for relax.\n");
+  relax = xmlRelaxNGParse(parser);
+printf("done.\n");
+  if(relax == NULL)
+  {
+    pop_stack();
+    Pike_error("Unable to parse the relaxng data.\n");
+  }  
+
+
+  // ok, we have a parsed schema. now let's turn it into a real live pike object.
+
+  pop_stack();
+
+  apply(Pike_fp->current_object, "RelaxNG", 0);
+  
+  rn = OBJ2_RELAXNG((Pike_sp[0-1].u.object));
+  od = (RELAXNG_OBJECT_DATA *)(rn->object_data);
+  od->parser = this_object();
+
+  od->refs = malloc(sizeof(INT32));
+  (* od->refs)=1;
+
+  /* TODO: not sure if this is a leak, but we need it to prevent the 
+     xmlNode from being freed a second time at the pike Node's destruction  
+     (the Stylesheet will free that itself. Note that this is a tricky 
+     subject... since the two are linked, perhaps we should call 
+     Node.destroy() when the Stylesheet is destroyed... */
+  *(OBJ2_NODE(node_obj)->object_data->refs)++;
+  od->context = parser;
+  od->valid = relax;
+  rn->node = node_obj;
 }
 
 void handle_parse_stylesheet(INT32 args)
