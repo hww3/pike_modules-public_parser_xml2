@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: RelaxNG.cmod,v 1.1 2005-07-20 17:21:59 hww3 Exp $
+ * $Id: RelaxNG.cmod,v 1.2 2005-07-20 17:24:35 hww3 Exp $
  */
 
 /*
@@ -92,6 +92,8 @@ PIKECLASS RelaxNG
 
    if(relaxng == NULL) 
      Pike_error("relaxng_init: out of memory.\n");
+
+   relaxng->context = NULL;
 
    THIS->object_data = relaxng;
   }
