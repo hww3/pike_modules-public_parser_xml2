@@ -1,5 +1,8 @@
 Version History
 
+Version 1.26
+- Added validation using DTDs
+
 Version 1.24
 - Added RelaxNG validation (basic)
 

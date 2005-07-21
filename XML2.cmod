@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.84 2005-07-21 19:49:14 hww3 Exp $
+ * $Id: XML2.cmod,v 1.85 2005-07-21 19:49:58 hww3 Exp $
  */
 
 /*
@@ -1036,7 +1036,7 @@ EXTRA
   struct pike_string * ps;
   char * err_ctx = "parse_xml";
 
-  add_string_constant("__version", "1.24", 0);
+  add_string_constant("__version", "1.26", 0);
   add_string_constant("__author", "Bill Welliver <bill@welliver.org>", 0);
 
   generic_handler = my_generic_error;
