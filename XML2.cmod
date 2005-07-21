@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.83 2005-07-20 21:08:14 hww3 Exp $
+ * $Id: XML2.cmod,v 1.84 2005-07-21 19:49:14 hww3 Exp $
  */
 
 /*
@@ -797,6 +797,39 @@ PIKEFUN object parse_html(string html)
 {
   push_text("noname.html");
   f_parse_html(2);
+}
+
+/*! @decl int validate(Node doc)
+ *!
+ *! validates a document against its internal and external DTDs.
+ *!
+ */
+PIKEFUN int validate(object doc)
+{
+  int r;
+  xmlValidCtxtPtr valid;
+  CHECK_NODE_PASSED(doc);
+
+  if(OBJ2_NODE(doc)->object_data->node->doc==NULL)
+  {
+    pop_stack();
+    Pike_error("whoa, horsie! we don't have an xml document!\n");
+  }
+
+  valid = xmlNewValidCtxt();
+  if(valid == NULL)
+  {
+    pop_stack();
+    Pike_error("unable to allocate a validation context\n");
+  }
+
+  r = xmlValidateDocument(valid, OBJ2_NODE(doc)->object_data->node->doc);
+
+  xmlFreeValidCtxt(valid);
+
+  pop_stack();
+
+  push_int(r);
 }
 
 /*! @decl Node new_xml(string version)
