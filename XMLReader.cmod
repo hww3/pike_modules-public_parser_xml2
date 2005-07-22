@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XMLReader.cmod,v 1.16 2005-07-15 18:15:36 hww3 Exp $
+ * $Id: XMLReader.cmod,v 1.17 2005-07-22 19:56:32 hww3 Exp $
  */
 
 /*
@@ -406,8 +406,11 @@ PIKEFUN int parser_column_number()
   {
     Pike_error("no xmlReader!\n");
   }
-
+#ifdef HAVE_XMLTEXTREADERGETPARSERCOLUMNNUMBER
   RETURN xmlTextReaderGetParserColumnNumber(THIS->object_data->reader);
+#else
+  RETURN -1;
+#endif /* HAVE_XMLTEXTREADERGETPARSERCOLUMNNUMBER */
 }
 
 /*! @decl int parser_line_number()
@@ -419,8 +422,11 @@ PIKEFUN int parser_line_number()
   {
     Pike_error("no xmlReader!\n");
   }
-
+#ifdef HAVE_XMLTEXTREADERGETPARSERLINENUMBER
   RETURN xmlTextReaderGetParserLineNumber(THIS->object_data->reader);
+#else
+  RETURN -1;
+#endif /* HAVE_XMLTEXTREADERGETPARSERLINENUMBER */
 }
 
 /*! @decl int get_parser_prop(int prop)

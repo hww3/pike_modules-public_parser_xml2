@@ -1,5 +1,8 @@
 Version History
 
+Version 1.28
+- Checks for some (presumably) late additions to XMLReader
+
 Version 1.26
 - Added validation using DTDs
 
