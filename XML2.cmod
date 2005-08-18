@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.86 2005-08-18 18:04:56 hww3 Exp $
+ * $Id: XML2.cmod,v 1.87 2005-08-18 18:06:54 hww3 Exp $
  */
 
 /*
@@ -849,12 +849,15 @@ PIKEFUN object new_xml(string version, string root_name)
   struct Node_struct * ns;
   NODE_OBJECT_DATA * od;
 
+  // TODO: we need to encode this value!
   doc = xmlNewDoc(version->str);
 
   if(doc == NULL)
   {
     Pike_error("Unable to create new XML document.\n");
   }  
+
+  // TODO: we need to encode this value!
   node = xmlNewNode(NULL, (xmlChar *)root_name->str);
   xmlDocSetRootElement(doc, node);
   if(node == NULL)
@@ -892,6 +895,7 @@ PIKEFUN object new_node(string name)
   struct Node_struct * ns;
   NODE_OBJECT_DATA * od;
 
+  // TODO: we need to encode this value!
   node = xmlNewNode(NULL, name->str);
 
   if(node == NULL)
