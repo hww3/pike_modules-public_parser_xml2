@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.87 2005-08-18 18:06:54 hww3 Exp $
+ * $Id: XML2.cmod,v 1.88 2005-08-18 18:18:53 hww3 Exp $
  */
 
 /*
@@ -902,9 +902,9 @@ PIKEFUN object new_node(string name)
   {
     Pike_error("Unable to create new node.\n");
   }  
-  node = xmlNewNode(NULL, (xmlChar *)root_name->str);
+  node = xmlNewNode(NULL, (xmlChar *)name->str);
 
-  pop_n_elems(3);
+  pop_stack();
 
   apply(Pike_fp->current_object, "Node", 0);
   
