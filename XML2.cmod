@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.85 2005-07-21 19:49:58 hww3 Exp $
+ * $Id: XML2.cmod,v 1.86 2005-08-18 18:04:56 hww3 Exp $
  */
 
 /*
@@ -866,6 +866,41 @@ PIKEFUN object new_xml(string version, string root_name)
   // ok, we have a parsed file. now let's turn it into a real live pike object.
 
   pop_stack();
+
+  apply(Pike_fp->current_object, "Node", 0);
+  
+  ns = OBJ2_NODE((Pike_sp[0-1].u.object));
+  od = (NODE_OBJECT_DATA *)(ns->object_data);
+
+  od->refs = malloc(sizeof(INT32));
+  (* od->refs)=1;
+  od->node = node;
+  od->parser = this_object();
+}
+
+/*! @decl Node new_node(string name)
+ *!   Create a new unlinked XML node.
+ *!
+ *!  @param name
+ *!      the node name
+ *!  @returns
+ *!    a new @[Node] object.
+ */
+PIKEFUN object new_node(string name)
+{
+  xmlNodePtr node;
+  struct Node_struct * ns;
+  NODE_OBJECT_DATA * od;
+
+  node = xmlNewNode(NULL, name->str);
+
+  if(node == NULL)
+  {
+    Pike_error("Unable to create new node.\n");
+  }  
+  node = xmlNewNode(NULL, (xmlChar *)root_name->str);
+
+  pop_n_elems(3);
 
   apply(Pike_fp->current_object, "Node", 0);
   
