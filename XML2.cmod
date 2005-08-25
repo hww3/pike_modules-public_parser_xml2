@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.88 2005-08-18 18:18:53 hww3 Exp $
+ * $Id: XML2.cmod,v 1.89 2005-08-25 18:33:09 hww3 Exp $
  */
 
 /*
@@ -832,7 +832,7 @@ PIKEFUN int validate(object doc)
   push_int(r);
 }
 
-/*! @decl Node new_xml(string version)
+/*! @decl Node new_xml(string version, string root_name)
  *!   Create a new XML document with a root node.
  *!
  *!  @param version
