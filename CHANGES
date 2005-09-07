@@ -1,6 +1,6 @@
 Version History
 
-Version 1.30
+Version 1.32
 - Added new_node() for getting a new unlinked XML node
 - select_xpath_nodes() will evaluate relative to the node passed, making 
     expressions that involve node axes (parent, child, etc) work properly.
