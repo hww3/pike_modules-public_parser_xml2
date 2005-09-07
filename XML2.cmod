@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.89 2005-08-25 18:33:09 hww3 Exp $
+ * $Id: XML2.cmod,v 1.90 2005-09-07 18:01:25 hww3 Exp $
  */
 
 /*
@@ -133,6 +133,9 @@ printf("xpath\n");
     pop_n_elems(2);
     Pike_error("Unable to create new XPath context.\n");
   }
+
+  xpathCtx->node = OBJ2_NODE(node)->object_data->node;
+
   xpathObj = xmlXPathEvalExpression((xmlChar *)xpath->str, xpathCtx);
   if(xpathObj == NULL) {  
     pop_n_elems(2);
