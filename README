@@ -9,17 +9,20 @@ a SAX v2 compliant parser. Namespaces are supported for each parser. The
 SAX parser supports "streamed" or "push" parsing as well as parsing of 
 the complete document. The Tree parser API is similar, though not 
 identical, to the Parser.XML.Tree parser provided with Pike. 
+
 Non-scientific tests indicate that this parser is considerably faster than 
 that supplied with Pike.
 
 Additionally, this module provides an interface to libxslt, allowing 
-transformations of XML data.
+transformations of XML data. Finally, this parser can validate against a 
+DTD or RelaxNG schema.
 
 BUILDING
 
 To build this module, perform the following steps:
 
-0. Install the libxml2 library (http://xmlsoft.org). 
+0. Install the libxml2 and (optionally) libxslt library 
+      (http://xmlsoft.org). 
 1. Make sure that make and your C compiler are in your PATH.
 2. Unpack the module.
 3. Enter the module directory.

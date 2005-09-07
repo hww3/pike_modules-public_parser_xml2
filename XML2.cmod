@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.90 2005-09-07 18:01:25 hww3 Exp $
+ * $Id: XML2.cmod,v 1.91 2005-09-07 22:02:30 hww3 Exp $
  */
 
 /*
@@ -116,11 +116,12 @@ PIKEFUN array select_xpath_nodes(string xpath, object node)
   xmlXPathObjectPtr xpathObj;
   xmlNodeSetPtr set;
   xmlNodePtr xn;
+  xmlNsPtr xmlns;
   struct object * o;
   int num_nodes = 0;
 
   CHECK_NODE_PASSED(node);
-printf("xpath\n");
+
   if(OBJ2_NODE(node)->object_data->node == NULL)
   { 
     pop_n_elems(2);
@@ -134,6 +135,19 @@ printf("xpath\n");
     Pike_error("Unable to create new XPath context.\n");
   }
 
+/*
+
+  xmlns = xmlGetNsList(OBJ2_NODE(node)->object_data->node->doc,
+              OBJ2_NODE(node)->object_data->node);
+
+  while(xmlns != NULL)
+  {
+    printf("registering ns %s, %s\n", xmlns->prefix, xmlns->href);
+    xmlXPathRegisterNs(xpathCtx, xmlns->prefix, xmlns->href);
+    xmlns = xmlns->next;
+  }
+
+*/
   xpathCtx->node = OBJ2_NODE(node)->object_data->node;
 
   xpathObj = xmlXPathEvalExpression((xmlChar *)xpath->str, xpathCtx);
@@ -1078,7 +1092,7 @@ EXTRA
   struct pike_string * ps;
   char * err_ctx = "parse_xml";
 
-  add_string_constant("__version", "1.26", 0);
+  add_string_constant("__version", "1.30", 0);
   add_string_constant("__author", "Bill Welliver <bill@welliver.org>", 0);
 
   generic_handler = my_generic_error;

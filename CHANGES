@@ -1,7 +1,12 @@
 Version History
 
 Version 1.30
-- Added new_node()
+- Added new_node() for getting a new unlinked XML node
+- select_xpath_nodes() will evaluate relative to the node passed, making 
+    expressions that involve node axes (parent, child, etc) work properly.
+- Fixed a segmentation fault which occasionally occurred while using 
+    get_ns_attributes().
+- Documentation fixes
 
 Version 1.28
 - Checks for some (presumably) late additions to XMLReader
