@@ -1,4 +1,4 @@
-# $Id: Makefile.in,v 1.18 2005-07-20 17:21:41 hww3 Exp $
+# $Id: Makefile.in,v 1.19 2005-09-07 22:05:59 hww3 Exp $
 @make_variables@
 VPATH=@srcdir@:@srcdir@/../..:../..
 OBJS= LowHTML.o Node.o XML2.o Constants.o SAX.o Stylesheet.o XMLReader.o RelaxNG.o
@@ -23,5 +23,6 @@ release:
 	cd Public_Parser_XML2-1.${MIN} && \
 	pike -x module --autoheader && pike -x module --autoconf && \
 	rm -rf autom4*
+        cp *.c Public_Parser_XML2-1.${MIN}
 	gtar czvf Public_Parser_XML2-1.${MIN}.tar.gz Public_Parser_XML2-1.${MIN}
-
+	pike upload_module_version.pike Public.Parser.XML2 1.${MIN} "GPL/LGPL/MPL"
