@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: SAX.cmod,v 1.5 2005-05-10 02:06:14 hww3 Exp $
+ * $Id: SAX.cmod,v 1.6 2005-09-27 04:33:52 hww3 Exp $
  */
 
 /*
@@ -276,8 +276,13 @@ PIKECLASS SAX
          else
            r = malloc( Pike_sp[0-1].u.string->len);
 
-         r=memcpy(r, Pike_sp[0-1].u.string->str, Pike_sp[0-1].u.string->len);
-
+#ifdef HAVE_STRLCPY
+         r=strlcpy(r, Pike_sp[0-1].u.string->str, Pike_sp[0-1].u.string->len); 
+#elif HAVE_MEMCPY
+         r=memcpy(r, Pike_sp[0-1].u.string->str, Pike_sp[0-1].u.string->len); 
+#else
+#error "You don't have memcpy()?
+#endif
          if((Pike_sp[0-1].u.string->str)[-1] != '\0')
            r[-1]='\0';
 
@@ -805,7 +810,7 @@ printf("start element\n");
             {
              char * v;
              v = malloc((atts[z+4] - atts[z+3])+1);
-             strlcpy(v, atts[z+3], (atts[z+4] - atts[z+3])+1);
+             memcpy(v, atts[z+3], (atts[z+4] - atts[z+3])+1);
              push_text(v); 
              free(v);
             }

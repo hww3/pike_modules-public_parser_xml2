@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.11 2005-07-22 19:56:32 hww3 Exp $
+# $Id: configure.in,v 1.12 2005-09-27 04:33:52 hww3 Exp $
 AC_INIT(xml2_config.h.in)
 
 AC_MODULE_INIT()
@@ -9,6 +9,9 @@ PKG_CHECK_MODULES(XSLT, libxslt)
 
 CPPFLAGS="${CPPFLAGS} ${XML2_CFLAGS} ${XSLT_CFLAGS}"
 LDFLAGS="${LDFLAGS} ${XML2_LIBS} ${XSLT_LIBS}"
+
+AC_CHECK_FUNCS(strlcpy)
+AC_CHECK_FUNCS(memcpy)
 
 AC_CHECK_HEADERS(libxml/parser.h)
 AC_CHECK_HEADERS(libxml/xpath.h)

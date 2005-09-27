@@ -1,4 +1,5 @@
-
+// the original source of this file is the Tools.Monger source 
+// distribution.
 
 int main(int argc, array(string) argv)
 {
@@ -17,6 +18,11 @@ int main(int argc, array(string) argv)
   string changes = get_changes();
 
   object in = Stdio.FILE("stdin");
+
+  Stdio.stdout.write("Have you updated the changelog and module version? ");
+  string ans = in->gets();
+
+  if(lower_case(ans[0..0]) != "y") exit(1);
 
   Stdio.stdout.write("Username: ");
   string user = in->gets();
