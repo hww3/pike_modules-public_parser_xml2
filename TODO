@@ -10,3 +10,6 @@ we need to support html mode parsing in SAX
 
 Node resulting from XMLReader.expand() does not get destroyed after 
 next read(). This could cause real problems.
+
+docloader function should be stylesheet local, not global to the whole module.
+not sure what I was thinking...
