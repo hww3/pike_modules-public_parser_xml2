@@ -13,3 +13,7 @@ next read(). This could cause real problems.
 
 docloader function should be stylesheet local, not global to the whole module.
 not sure what I was thinking...
+
+add a variant of Stylesheet->apply() that allows passing of attributes. This 
+will save us from having to mutex the set_attributes/apply process when using 
+a shared stylesheet object across multiple concurrent requests.
