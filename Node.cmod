@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: Node.cmod,v 1.26 2005-10-17 21:28:52 hww3 Exp $
+ * $Id: Node.cmod,v 1.27 2005-10-17 22:37:37 hww3 Exp $
  */
 
 /*
@@ -1243,7 +1243,7 @@ PIKEFUN object add_child(object child)
        should add the number of refs from the unlinked node to the 
        number on the node we added to (but only if the ref is not the same).
     */
-    if(OBJ2_NODE(child)->object_data->refs) != (THIS->object_data->refs))
+    if((OBJ2_NODE(child)->object_data->refs) != (THIS->object_data->refs))
     {
       refs = (* OBJ2_NODE(child)->object_data->refs) + *(THIS->object_data->refs);
       OBJ2_NODE(child)->object_data->refs = THIS->object_data->refs;

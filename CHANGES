@@ -1,5 +1,10 @@
 Version History
 
+Version 1.34
+- parse_xslt() is back (we don't know where it went).
+- should compile on systems without strlcpy().
+- minor doc fixes
+
 Version 1.32
 - Added new_node() for getting a new unlinked XML node
 - select_xpath_nodes() will evaluate relative to the node passed, making 

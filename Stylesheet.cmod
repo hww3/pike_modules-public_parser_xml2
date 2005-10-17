@@ -14,7 +14,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: Stylesheet.cmod,v 1.14 2005-10-17 03:25:12 hww3 Exp $
+ * $Id: Stylesheet.cmod,v 1.15 2005-10-17 22:37:37 hww3 Exp $
  */
 
 /*
@@ -84,6 +84,16 @@ program_flags PROGRAM_USES_PARENT;
   CVAR STYLESHEET_OBJECT_DATA   *object_data;
   PIKEVAR object node;
 
+  void my_xsltGenericErrorFunc(void * ctx, const char *msg, ...)
+  {
+    va_list args;
+
+    va_start(args,msg);
+    vprintf(msg, args);
+    va_end(args);
+  }
+
+  
 /* 
 
    The pike - docloader callback glue
@@ -132,7 +142,7 @@ PIKEFUN void create()
 {
 }
 
-/*! @decl Node apply(Node xml)
+/*! @decl Node apply(Node xml, mapping|void attributes)
  *!
  *! apply the stylesheet object to an xml file.
  *!
@@ -140,20 +150,42 @@ PIKEFUN void create()
  *!   a @[Node] object from the parsed XML document to apply.
  *!   Any node from the XML document may be used.
  *!
+ *! @param attributes
+ *!   an optional mapping of attributes. If supplied, this parameter
+ *!   will override any set with @[set_attributes()].
+ *!
  *! @returns
  *!    a @[Node] object for the transformed document.
  */
 PIKEFUN object apply(object xml)
 {
+  CHECK_NODE_PASSED(xml);
+
+  low_apply_stylesheet(args, xml, THIS->object_data->atts);
+}
+
+PIKEFUN object apply(object xml, mapping attributes)
+{
+
+  const char** vars = NULL;
+
+  CHECK_NODE_PASSED(xml);
+
+  low_set_attributes(attributes, vars);
+  low_apply_stylesheet(args, xml, vars);
+}
+
+    // we should have the docloader function on the stack now.
+
+void low_apply_stylesheet(INT32 args, struct object * xml, const char ** atts)
+{
   xmlDocPtr output;
   struct Node_struct * ns;
   NODE_OBJECT_DATA * od;
   struct object * xnode;
-  struct external_variable_context loc;
-  int x=0;
   int have_func = 0;
-
-  CHECK_NODE_PASSED(xml);
+  int x=0;
+  struct external_variable_context loc;
 
 #ifdef HAVE_XSLTSETLOADERFUNC
     loc.o = Pike_fp->current_object;
@@ -186,18 +218,15 @@ PIKEFUN object apply(object xml)
 #endif
  
 
-    // we should have the docloader function on the stack now.
-
   output = xsltApplyStylesheet(THIS->object_data->stylesheet, 
                                  OBJ2_NODE(xml)->object_data->node->doc, 
-                                 THIS->object_data->atts);
+                                 atts);
 
   // we pushed the stack, so let's pop it.
   if(have_func)
   {
     pop_stack();
   }
-
 
   if(output == NULL)
   {
@@ -219,7 +248,6 @@ PIKEFUN object apply(object xml)
   od->node = output->children;
 
   pop_stack();
-
   push_object(xnode);
 }
 
@@ -294,7 +322,17 @@ PIKEFUN string output(object xml, int encoding)
  */
 PIKEFUN void set_attributes(mapping variables)
 {
-  const char ** vars = NULL;
+  const char** vars = NULL;
+
+  low_set_attributes(variables, vars);
+  THIS->object_data->atts = vars;
+  pop_stack();
+  
+}
+
+void low_set_attributes(struct mapping * variables, const char ** vars)
+{
+
   int varcount, i;
   struct keypair * k;
   INT32 e;
@@ -372,8 +410,6 @@ PIKEFUN void set_attributes(mapping variables)
     vars[0] = NULL;
   }
 
-  THIS->object_data->atts = vars;
-  pop_stack();
 }
 
 int check_stylesheet_created()
@@ -386,6 +422,7 @@ int check_stylesheet_created()
 INIT
 {
   STYLESHEET_OBJECT_DATA * dta;
+  xmlGenericErrorFunc my_error;
 
   dta = 
 	(STYLESHEET_OBJECT_DATA*)malloc(sizeof(STYLESHEET_OBJECT_DATA));
@@ -395,6 +432,10 @@ INIT
     dta->stylesheet = NULL;
     dta->atts = NULL;
     THIS->object_data = dta;
+
+    my_error = my_xsltGenericErrorFunc; 
+    xsltSetGenericErrorFunc(NULL, my_error);
+
 }
 
 EXIT

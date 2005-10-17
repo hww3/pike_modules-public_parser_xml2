@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.95 2005-10-17 18:20:43 hww3 Exp $
+ * $Id: XML2.cmod,v 1.96 2005-10-17 22:37:38 hww3 Exp $
  */
 
 /*
@@ -547,11 +547,20 @@ void my_relaxng_generic_error(void * userData, const char * error)
   f_werror(1);
 }
 
-void my_generic_error(void * userData, xmlErrorPtr error)
+void my_generic_error(void * ctx, const char *msg, ...)
+  {
+    va_list args;
+
+    va_start(args,msg);
+    vprintf(msg, args);
+    va_end(args);
+  }
+
+void my_structured_error(void * userData, xmlErrorPtr error)
 {
   char err[255];
 
-  snprintf(err, 255, "Public.Parser.XML error: %d, message: %s", 
+  snprintf(err, sizeof(err), "Public.Parser.XML error: %d, message: %s", 
              error->level, error->message);
   push_text(err);
 
@@ -629,7 +638,7 @@ PIKEFUN object parse_xml(string xml, string name, string encoding)
 
   //  xmlSetExternalEntityLoader(entity_loader);
 
-  generic_handler = my_generic_error;
+  //generic_handler = my_generic_error;
   // xmlSetStructuredErrorFunc((void *)err_ctx, generic_handler);
 
   doc = xmlReadMemory(xml->str, xml->len, name->str, 
@@ -689,7 +698,7 @@ PIKEFUN object parse_xml_sax(string xml, string name, string encoding)
   //  entity_loader = my_entity_loader;
   //  xmlSetExternalEntityLoader(entity_loader);
 
-  generic_handler = my_generic_error;
+  //generic_handler = my_generic_error;
   // xmlSetStructuredErrorFunc((void *)err_ctx, generic_handler);
 
   doc = ctxt->myDoc;
@@ -745,8 +754,7 @@ PIKEFUN object parse_xml(string xml, string name)
 
   //  xmlSetExternalEntityLoader(entity_loader);
 
-  generic_handler = my_generic_error;
-
+  //generic_handler = my_generic_error;
   //xmlSetStructuredErrorFunc((void *)err_ctx, generic_handler);
 
   doc = xmlReadMemory(xml->str, xml->len, name->str, 
@@ -781,7 +789,7 @@ PIKEFUN object parse_html(string html, string name, string encoding)
 
   //  xmlSetExternalEntityLoader(entity_loader);
 
-  generic_handler = my_generic_error;
+  //generic_handler = my_generic_error;
   // xmlSetStructuredErrorFunc((void *)err_ctx, generic_handler);
 
   doc = htmlReadMemory(html->str, html->len, name->str, 
@@ -799,7 +807,7 @@ PIKEFUN object parse_html(string html, string name)
 
   //  xmlSetExternalEntityLoader(entity_loader);
 
-  generic_handler = my_generic_error;
+  // generic_handler = my_generic_error;
   // xmlSetStructuredErrorFunc((void *)err_ctx, generic_handler);
 
   doc = htmlReadMemory(html->str, html->len, name->str, 
@@ -1118,12 +1126,16 @@ EXTRA
 {
   struct pike_string * ps;
   char * err_ctx = "parse_xml";
+  xmlGenericErrorFunc generic_error_handler;
 
   add_string_constant("__version", "1.32", 0);
   add_string_constant("__author", "Bill Welliver <bill@welliver.org>", 0);
 
+  structured_handler = my_structured_error;
+  xmlSetStructuredErrorFunc((void *)err_ctx, structured_handler);
+
   generic_handler = my_generic_error;
-  xmlSetStructuredErrorFunc((void *)err_ctx, generic_handler);
+  xmlSetGenericErrorFunc((void *)err_ctx, generic_handler);
 
   MAKE_CONST_STRING(ps, "docloader");
   docloader_num = isidentifier(ps);
