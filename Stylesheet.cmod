@@ -1,3 +1,4 @@
+
 /*
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -13,7 +14,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: Stylesheet.cmod,v 1.13 2005-07-15 17:55:33 hww3 Exp $
+ * $Id: Stylesheet.cmod,v 1.14 2005-10-17 03:25:12 hww3 Exp $
  */
 
 /*
@@ -399,8 +400,12 @@ INIT
 EXIT
 { 
 
-  if((* THIS->object_data->refs)==1)
+  if((* THIS->object_data->refs)==1 && THIS->object_data->stylesheet != NULL)
   {
+    // we do this to trick xsltFreeStylesheet into not freeing the document.
+    // this should prevent a segfault when two stylesheet objects are created
+    // from the same xml document.
+    THIS->object_data->stylesheet->doc = NULL;
     xsltFreeStylesheet(THIS->object_data->stylesheet);
   }
   else
@@ -415,8 +420,10 @@ EXIT
 
   if(THIS->node != NULL)
   {
+printf("freeing node\n");
 // FIXME: this is a memory leak!!!
-//    free_object(THIS->node);
+//    sub_ref(THIS->node);
+printf("freed node\n");
   }
 
    if(THIS->object_data)

@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: Node.cmod,v 1.24 2005-09-07 18:01:57 hww3 Exp $
+ * $Id: Node.cmod,v 1.25 2005-10-17 03:25:12 hww3 Exp $
  */
 
 /*
@@ -1604,25 +1604,31 @@ INIT
     dta->node = NULL;
     dta->parser = NULL;
     dta->unlinked = 0;
+    dta->transient = 0;
     THIS->object_data = dta;
 }
 
 EXIT
 { 
+printf("node.exit()\n");
+printf("node refs: %d\n", *( THIS->object_data->refs));
+printf("node transient: %d\n", ( THIS->object_data->transient));
   if(THIS != NULL && THIS->object_data != NULL && 
     (* THIS->object_data->refs)==1 && THIS->object_data->transient == 0)
   {
     if(THIS->object_data->node->doc != NULL)
       xmlFreeDoc(THIS->object_data->node->doc);
+printf("done\n");
   }
   else if(THIS->object_data->transient == 0)
   {
     (*( THIS->object_data->refs)) --;
   }
-
+printf("done with this node.\n");
   // if we're not linked to a document, we can free the node.
   if(THIS->object_data->node != NULL && THIS->object_data->unlinked==1)
   {
+printf("freeing unlinked node.\n");
     xmlFreeNode(THIS->object_data->node);
     THIS->object_data->node = NULL;
   }
@@ -1630,6 +1636,7 @@ EXIT
   if(THIS->object_data)
   {
     free(THIS->object_data);
+printf("done freeing object data\n");
   }
 }
 }
