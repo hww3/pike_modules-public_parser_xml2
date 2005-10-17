@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.94 2005-10-17 03:25:12 hww3 Exp $
+ * $Id: XML2.cmod,v 1.95 2005-10-17 18:20:43 hww3 Exp $
  */
 
 /*
@@ -558,7 +558,7 @@ void my_generic_error(void * userData, xmlErrorPtr error)
   f_werror(1);
 }
 
-/*! @decl Node recover_xml(string xml)
+/*! @decl Node parse_xml_force(string xml)
  *!   Parse an string containing XML, even if it is not Well Formed.
  *!  @param xml
  *!   String containing XML data to parse.

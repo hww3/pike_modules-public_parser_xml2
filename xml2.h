@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: xml2.h,v 1.30 2005-07-20 21:08:15 hww3 Exp $
+ * $Id: xml2.h,v 1.31 2005-10-17 18:20:43 hww3 Exp $
  */
 
 /*
@@ -165,7 +165,9 @@ struct program * Node_program;
 struct program * Stylesheet_program;
 struct program * RelaxNG_program;
 
+#ifndef THIS_IS_XML2_STYLESHEET
 extern ptrdiff_t Stylesheet_storage_offset;
+#endif
 
 void handle_parsed_tree(xmlDocPtr doc, INT32 args);
 xmlExternalEntityLoader entity_loader;

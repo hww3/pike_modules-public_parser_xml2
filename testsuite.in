@@ -32,3 +32,28 @@ test_true(functionp(Public.Parser.XML2.get_encodings))
 test_true(functionp(Public.Parser.XML2.get_encoding_name))
 test_true(functionp(Public.Parser.XML2.get_encoding_alias))
 
+// test new_xml, render_xml and parse_xml...
+test_true(objectp(Public.Parser.XML2.new_xml("1.0", "testsuite")))
+test_true(Public.Parser.XML2.render_xml(Public.Parser.XML2.new_xml("1.0", "testsuite"))=="<?xml version=\"1.0\"?>\n<testsuite/>\n"))
+test_true(objectp(
+Public.Parser.XML2.parse_xml(
+  Public.Parser.XML2.render_xml(
+    Public.Parser.XML2.new_xml("1.0", "testsuite")
+                                 )
+                                  )
+                                    )
+))
+test_true(
+Public.Parser.XML2.render_xml(
+Public.Parser.XML2.parse_xml(
+  Public.Parser.XML2.render_xml(
+    Public.Parser.XML2.new_xml("1.0", "testsuite")
+                                 )
+                                  )
+                                    )
+) == "<?xml version=\"1.0\"?>\n<testsuite/>\n")
+
+// test new_node
+test_true(objectp(Public.Parser.XML2.new_node("testsuite")))
+test_true((string)Public.Parser.XML2.new_node("testsuite")=="<testsuite/>")
+
