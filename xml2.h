@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: xml2.h,v 1.33 2005-10-18 02:20:56 hww3 Exp $
+ * $Id: xml2.h,v 1.34 2005-10-18 21:15:13 hww3 Exp $
  */
 
 /*
@@ -250,7 +250,6 @@ xmlEntityPtr my_xml_getent(void * ctx, const xmlChar * name);
 
   typedef struct
   {
-    int docloader_num;
     int xml_parser_options;
     int html_parser_options;
     int auto_encode;

@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.97 2005-10-18 03:35:05 hww3 Exp $
+ * $Id: XML2.cmod,v 1.98 2005-10-18 21:15:13 hww3 Exp $
  */
 
 /*
@@ -58,8 +58,6 @@
 
 #include "xml2.h"
 
-  int docloader_num = -1;
-
 /*! @module Public
  */
 
@@ -96,13 +94,10 @@ xmlDetectSAX2(xmlParserCtxtPtr ctxt) {
 }
 
 
-PIKEVAR function docloader
-  optflags ID_STATIC;
 CVAR PARSER_OBJECT_DATA * object_data;
 
 PIKEFUN void create()
 {
-  THIS->object_data->docloader_num = docloader_num;
 
 }
 
@@ -204,44 +199,6 @@ PIKEFUN array select_xpath_nodes(string xpath, object node)
   xmlXPathFreeObject(xpathObj);
 
   return;
-}
-
-/*! @decl void set_xslt_docloader(function f) 
- *!
- *! sets the xslt loader function. this is global for the process.
- *!
- *! the callout should have the following signature:
- *!
- *!  Node f(string uri, int options, int type)
- *!
- *!  where: 
- *!    uri is the URI of the document to load
- *!    options are a set of xmlParserOption
- *!    the xsltLoadType indicating the kind of loading required
- */
-PIKEFUN void set_xslt_docloader(function f)
-{
-  assign_svalue(&(THIS->docloader), f);
-#ifdef HAVE_XSLTSETLOADERFUNC
-#else
-  Pike_error("set_docloader not available. upgrade your libxslt.\n");
-#endif
-}
-
-/*! @decl void clear_xslt_docloader()
- *!
- *! clears the system wide docloader callout, if one was set.
- *!
- */
-PIKEFUN void clear_xslt_docloader()
-{
-  push_int(0);
-  assign_svalue(&(THIS->docloader), Pike_sp-1);
-  pop_stack();
-#ifdef HAVE_XSLTSETLOADERFUNC
-#else
-  Pike_error("set_docloader not available. upgrade your libxslt.\n");
-#endif
 }
 
 /*! @decl void set_xml_parser_options(int options)
@@ -1136,9 +1093,6 @@ EXTRA
 
   generic_handler = my_generic_error;
   xmlSetGenericErrorFunc((void *)err_ctx, generic_handler);
-
-  MAKE_CONST_STRING(ps, "docloader");
-  docloader_num = isidentifier(ps);
 
   pike_init_xml2_constants();
   pike_init_xml2_html();
