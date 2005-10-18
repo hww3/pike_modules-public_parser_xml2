@@ -1,4 +1,4 @@
-# $Id: Makefile.in,v 1.21 2005-09-07 22:09:35 hww3 Exp $
+# $Id: Makefile.in,v 1.22 2005-10-18 21:29:55 hww3 Exp $
 @make_variables@
 VPATH=@srcdir@:@srcdir@/../..:../..
 OBJS= LowHTML.o Node.o XML2.o Constants.o SAX.o Stylesheet.o XMLReader.o RelaxNG.o
@@ -18,7 +18,7 @@ CONFIG_HEADERS=@CONFIG_HEADERS@
 @dependencies@
 
 release:
-	cvs rtag -D now RELEASE_1_${MIN} pike_modules/Public_Parser_XML2
+	cvs rtag -F -D now RELEASE_1_${MIN} pike_modules/Public_Parser_XML2
 	cvs export -d Public_Parser_XML2-1.${MIN} -r RELEASE_1_${MIN} pike_modules/Public_Parser_XML2
 	cd Public_Parser_XML2-1.${MIN} && \
 	pike -x module --autoheader && pike -x module --autoconf && \
