@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.98 2005-10-18 21:15:13 hww3 Exp $
+ * $Id: XML2.cmod,v 1.99 2005-10-18 21:26:48 hww3 Exp $
  */
 
 /*
@@ -960,13 +960,13 @@ void handle_parse_relaxng(INT32 args)
     Pike_error("Unable to create relaxng parser context.\n");
   }  
   
-  relaxng_error_handler = my_relaxng_generic_error;
-  relaxng_warning_handler = my_relaxng_generic_error;
+  relaxng_error_handler = (xmlRelaxNGValidityErrorFunc)my_relaxng_generic_error;
+  relaxng_warning_handler = (xmlRelaxNGValidityWarningFunc)my_relaxng_generic_error;
 
   xmlRelaxNGSetParserErrors(parser, relaxng_error_handler, 
                             relaxng_warning_handler, NULL);
 
-printf("getting ready to parse the document for relax.\n");
+  // printf("getting ready to parse the document for relax.\n");
   relax = xmlRelaxNGParse(parser);
 
 printf("done.\n");
