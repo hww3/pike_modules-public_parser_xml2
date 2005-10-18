@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: Stylesheet.cmod,v 1.19 2005-10-18 21:23:06 hww3 Exp $
+ * $Id: Stylesheet.cmod,v 1.20 2005-10-18 22:55:28 hww3 Exp $
  */
 
 /*
@@ -202,6 +202,36 @@ PIKEFUN object apply(object xml)
   CHECK_NODE_PASSED(xml);
 
   low_apply_stylesheet(args, xml, THIS->object_data->atts);
+}
+
+/*! @decl string output_type()
+*/
+PIKEFUN string output_type()
+{
+  if(THIS->object_data->stylesheet == NULL)
+    push_int(0);
+  else 
+  {
+    if(THIS->object_data->stylesheet->method != NULL)
+      push_text(THIS->object_data->stylesheet->method);
+    else
+      push_text("xml");
+  }
+}
+
+/*! @decl string media_type()
+*/
+PIKEFUN string media_type()
+{
+  if(THIS->object_data->stylesheet == NULL)
+    push_int(0);
+  else 
+  {
+    if(THIS->object_data->stylesheet->mediaType != NULL)
+      push_text(THIS->object_data->stylesheet->mediaType);
+    else
+      push_int(0);
+  }
 }
 
 PIKEFUN object apply(object xml, mapping attributes)

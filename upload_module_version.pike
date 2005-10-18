@@ -38,7 +38,8 @@ int main(int argc, array(string) argv)
   write("changes: " + changes);
 
   m->set_auth(user, password);
-  m->add_new_version(module, version, changes, license);
+catch(
+  m->add_new_version(module, version, changes, license));
   m->set_dependency(module, version, "Pike", "7.6.0", "7.7.999", 1);
   m->set_module_source(module, version, replace(module, ".", "_") + "-" + version + ".tar.gz");
 
