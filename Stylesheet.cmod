@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: Stylesheet.cmod,v 1.17 2005-10-18 03:35:05 hww3 Exp $
+ * $Id: Stylesheet.cmod,v 1.18 2005-10-18 21:04:33 hww3 Exp $
  */
 
 /*
@@ -72,9 +72,6 @@
 /*! @class Stylesheet
  */
 
-extern int docloader_num;
-
-
 PIKECLASS Stylesheet
 optflags ID_PRIVATE;
 program_flags PROGRAM_USES_PARENT;
@@ -82,6 +79,9 @@ program_flags PROGRAM_USES_PARENT;
 
   CVAR STYLESHEET_OBJECT_DATA   *object_data;
   PIKEVAR object node;
+
+  PIKEVAR function docloader
+  optflags ID_STATIC;
 
   void my_xsltGenericErrorFunc(void * ctx, const char *msg, ...)
   {
@@ -91,6 +91,47 @@ program_flags PROGRAM_USES_PARENT;
     vprintf(msg, args);
     va_end(args);
   }
+
+/*! @decl void set_docloader(function f)
+ *!
+ *! sets the xslt loader function. this is local to the stylesheet.
+ *!
+ *! the callout should have the following signature:
+ *!
+ *!  Node f(string uri, int options, int type)
+ *!
+ *!  where:
+ *!    uri is the URI of the document to load
+ *!    options are a set of xmlParserOption
+ *!    the xsltLoadType indicating the kind of loading required
+ */
+PIKEFUN void set_docloader(function f)
+{
+  /* TODO: we probably have a memory leak here... */
+  assign_svalue(&(THIS->docloader), f);
+#ifdef HAVE_XSLTSETLOADERFUNC
+#else
+  Pike_error("set_docloader not available. upgrade your libxslt.\n");
+#endif
+  pop_stack();
+}
+
+/*! @decl void clear_docloader()
+ *!
+ *! clears the stylesheet docloader callout, if one was set.
+ *!
+ */
+PIKEFUN void clear_xslt_docloader()
+{
+
+  /* TODO: we probably have a memory leak here... */
+  push_int(0);
+  assign_svalue(&(THIS->docloader), Pike_sp-1);
+#ifdef HAVE_XSLTSETLOADERFUNC
+#else
+  Pike_error("set_docloader not available. upgrade your libxslt.\n");
+#endif
+}
 
   
 /* 
@@ -104,7 +145,7 @@ xmlDocPtr pike_docloader_conv (const xmlChar * URI, xmlDictPtr dict,
     struct Node_struct * ns;
     NODE_OBJECT_DATA * od;
     struct object * xnode;
-
+printf("docloader()\n");
     stack_dup();
     push_text(URI);
     push_int(options);
@@ -176,8 +217,6 @@ PIKEFUN object apply(object xml, mapping attributes)
   low_apply_stylesheet(args, xml, vars);
 }
 
-    // we should have the docloader function on the stack now.
-
 void low_apply_stylesheet(INT32 args, struct object * xml, char ** atts)
 {
   int i;
@@ -193,29 +232,11 @@ void low_apply_stylesheet(INT32 args, struct object * xml, char ** atts)
   for(i =0;; i=i+2)
   {
     if((atts[i]) == NULL) break;
-    printf("%s: %s\n", (atts[i]), (atts[i+1]));
+/*    printf("%s: %s\n", (atts[i]), (atts[i+1])); */
   }  
-  
+
 #ifdef HAVE_XSLTSETLOADERFUNC
-    loc.o = Pike_fp->current_object;
-    loc.parent_identifier = Pike_fp->fun;
-    if (loc.o->prog)
-    {
-      loc.inherit=INHERIT_FROM_INT(loc.o->prog, loc.parent_identifier);
-    }
-    find_external_context(&loc, 1);
-
-    printf("docloadeR_num: %d\n", docloader_num);
-
-      /* Then index as usual.
-       * You can probably use some casting here to avoid needing
-       * outer_variable_num, but the following works even if you
-       * want to access some symbol inherited from Pike code.
-       */
-    low_object_index_no_free(Pike_sp, loc.o,
-                               docloader_num +
-                               loc.inherit->identifier_level);
-    Pike_sp++;
+    push_svalue(&THIS->docloader);  
 
     if(Pike_sp[0-1].type == T_FUNCTION)
     {
@@ -223,7 +244,10 @@ void low_apply_stylesheet(INT32 args, struct object * xml, char ** atts)
       xsltSetLoaderFunc(pike_docloader_conv);
     }
     else
+    {
+      pop_stack();
       xsltSetLoaderFunc(NULL);
+    }
 #endif
  
 

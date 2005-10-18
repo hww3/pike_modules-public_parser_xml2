@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: Node.cmod,v 1.28 2005-10-18 03:35:05 hww3 Exp $
+ * $Id: Node.cmod,v 1.29 2005-10-18 21:04:33 hww3 Exp $
  */
 
 /*
@@ -1620,14 +1620,12 @@ INIT
 
 EXIT
 { 
-printf("node refs: %d\n", *( THIS->object_data->refs));
   if(THIS != NULL && THIS->object_data != NULL && 
     (* THIS->object_data->refs)==1 && THIS->object_data->transient == 0)
   {
 printf("freeing document\n");
     if(THIS->object_data->node->doc != NULL)
       xmlFreeDoc(THIS->object_data->node->doc);
-printf("done\n");
   }
   else if(THIS->object_data->transient == 0)
   {
@@ -1636,7 +1634,6 @@ printf("done\n");
   // if we're not linked to a document, we can free the node.
   if(THIS->object_data->node != NULL && THIS->object_data->unlinked==1)
   {
-printf("freeing unlinked node.\n");
     xmlFreeNode(THIS->object_data->node);
     THIS->object_data->node = NULL;
   }
@@ -1644,7 +1641,6 @@ printf("freeing unlinked node.\n");
   if(THIS->object_data)
   {
     free(THIS->object_data);
-printf("done freeing object data\n");
   }
 }
 }
