@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: Stylesheet.cmod,v 1.18 2005-10-18 21:04:33 hww3 Exp $
+ * $Id: Stylesheet.cmod,v 1.19 2005-10-18 21:23:06 hww3 Exp $
  */
 
 /*
@@ -207,17 +207,17 @@ PIKEFUN object apply(object xml)
 PIKEFUN object apply(object xml, mapping attributes)
 {
 
-  const char** vars = NULL;
+  char** vars = NULL;
   int i = 0;
 
   CHECK_NODE_PASSED(xml);
 
   vars = low_set_attributes(attributes);
 
-  low_apply_stylesheet(args, xml, vars);
+  low_apply_stylesheet(args, xml, (const char **)vars);
 }
 
-void low_apply_stylesheet(INT32 args, struct object * xml, char ** atts)
+void low_apply_stylesheet(INT32 args, struct object * xml, const char ** atts)
 {
   int i;
   xmlDocPtr output;
@@ -358,7 +358,7 @@ PIKEFUN void set_attributes(mapping variables)
   int i;
   char** vars = NULL;
   vars = low_set_attributes(variables);
-  THIS->object_data->atts = vars;
+  THIS->object_data->atts = (const char **)vars;
   pop_stack();
   
 }
