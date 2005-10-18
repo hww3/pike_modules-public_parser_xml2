@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: xml2.h,v 1.32 2005-10-17 22:37:38 hww3 Exp $
+ * $Id: xml2.h,v 1.33 2005-10-18 02:20:56 hww3 Exp $
  */
 
 /*
@@ -169,8 +169,8 @@ struct program * RelaxNG_program;
 extern ptrdiff_t Stylesheet_storage_offset;
 #endif
 
-void low_set_attributes(struct mapping * variables, const char ** vars);
-void low_apply_stylesheet(INT32 args, struct object * xml, const char ** atts);
+char** low_set_attributes(struct mapping * variables);
+void low_apply_stylesheet(INT32 args, struct object * xml, char ** atts);
 void handle_parsed_tree(xmlDocPtr doc, INT32 args);
 xmlExternalEntityLoader entity_loader;
 xmlStructuredErrorFunc structured_handler;

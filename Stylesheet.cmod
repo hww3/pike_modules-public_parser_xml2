@@ -1,4 +1,3 @@
-
 /*
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -14,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: Stylesheet.cmod,v 1.15 2005-10-17 22:37:37 hww3 Exp $
+ * $Id: Stylesheet.cmod,v 1.16 2005-10-18 02:20:56 hww3 Exp $
  */
 
 /*
@@ -168,17 +167,20 @@ PIKEFUN object apply(object xml, mapping attributes)
 {
 
   const char** vars = NULL;
+  int i = 0;
 
   CHECK_NODE_PASSED(xml);
 
-  low_set_attributes(attributes, vars);
+  vars = low_set_attributes(attributes);
+
   low_apply_stylesheet(args, xml, vars);
 }
 
     // we should have the docloader function on the stack now.
 
-void low_apply_stylesheet(INT32 args, struct object * xml, const char ** atts)
+void low_apply_stylesheet(INT32 args, struct object * xml, char ** atts)
 {
+  int i;
   xmlDocPtr output;
   struct Node_struct * ns;
   NODE_OBJECT_DATA * od;
@@ -187,6 +189,13 @@ void low_apply_stylesheet(INT32 args, struct object * xml, const char ** atts)
   int x=0;
   struct external_variable_context loc;
 
+  if(atts!=NULL)
+  for(i =0;; i=i+2)
+  {
+    if((atts[i]) == NULL) break;
+    printf("%s: %s\n", (atts[i]), (atts[i+1]));
+  }  
+  
 #ifdef HAVE_XSLTSETLOADERFUNC
     loc.o = Pike_fp->current_object;
     loc.parent_identifier = Pike_fp->fun;
@@ -322,21 +331,22 @@ PIKEFUN string output(object xml, int encoding)
  */
 PIKEFUN void set_attributes(mapping variables)
 {
-  const char** vars = NULL;
-
-  low_set_attributes(variables, vars);
+  int i;
+  char** vars = NULL;
+  vars = low_set_attributes(variables);
   THIS->object_data->atts = vars;
   pop_stack();
   
 }
 
-void low_set_attributes(struct mapping * variables, const char ** vars)
+char** low_set_attributes(struct mapping * variables)
 {
 
   int varcount, i;
   struct keypair * k;
   INT32 e;
   xmlChar* value;
+  char ** vars = NULL;
   const xmlChar* str;
 
   if ( variables != NULL ) 
@@ -362,6 +372,7 @@ void low_set_attributes(struct mapping * variables, const char ** vars)
         continue;
       }
       // index
+printf("name %s, value %s\n", sind.u.string->str, sval.u.string->str);
       str  = (const xmlChar *) sval.u.string->str;
       if ( xmlStrstr(str, (xmlChar*) "\n") == NULL ) 
       {
@@ -410,6 +421,12 @@ void low_set_attributes(struct mapping * variables, const char ** vars)
     vars[0] = NULL;
   }
 
+  for(i =0;; i=i+2)
+  {
+    if((vars[i]) == NULL) break;
+    printf("%s: %s\n", (vars[i]), (vars[i+1]));
+  }  
+  return vars;
 }
 
 int check_stylesheet_created()
