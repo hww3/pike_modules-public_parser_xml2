@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.96 2005-10-17 22:37:38 hww3 Exp $
+ * $Id: XML2.cmod,v 1.97 2005-10-18 03:35:05 hww3 Exp $
  */
 
 /*
@@ -1116,8 +1116,8 @@ void handle_parse_stylesheet(INT32 args)
 
   od->refs = malloc(sizeof(INT32));
   (* od->refs)=1;
-
-//  *(OBJ2_NODE(node_obj)->object_data->refs)++;
+  add_ref(node_obj);
+//  (*(OBJ2_NODE(node_obj)->object_data->refs))++;
   od->stylesheet = sty;
   ss->node = node_obj;
 }

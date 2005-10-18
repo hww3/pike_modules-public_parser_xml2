@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: Node.cmod,v 1.27 2005-10-17 22:37:37 hww3 Exp $
+ * $Id: Node.cmod,v 1.28 2005-10-18 03:35:05 hww3 Exp $
  */
 
 /*
@@ -1620,11 +1620,11 @@ INIT
 
 EXIT
 { 
-printf("node.exit()\n");
 printf("node refs: %d\n", *( THIS->object_data->refs));
   if(THIS != NULL && THIS->object_data != NULL && 
     (* THIS->object_data->refs)==1 && THIS->object_data->transient == 0)
   {
+printf("freeing document\n");
     if(THIS->object_data->node->doc != NULL)
       xmlFreeDoc(THIS->object_data->node->doc);
 printf("done\n");

@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: Stylesheet.cmod,v 1.16 2005-10-18 02:20:56 hww3 Exp $
+ * $Id: Stylesheet.cmod,v 1.17 2005-10-18 03:35:05 hww3 Exp $
  */
 
 /*
@@ -478,10 +478,8 @@ EXIT
 
   if(THIS->node != NULL)
   {
-printf("freeing node\n");
 // FIXME: this is a memory leak!!!
-//    sub_ref(THIS->node);
-printf("freed node\n");
+    free_object(THIS->node);
   }
 
    if(THIS->object_data)
