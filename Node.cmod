@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: Node.cmod,v 1.30 2005-10-19 16:28:07 hww3 Exp $
+ * $Id: Node.cmod,v 1.31 2005-10-19 17:43:38 hww3 Exp $
  */
 
 /*
@@ -117,17 +117,19 @@ PIKEFUN int get_line_no()
   push_int(MY_NODE->line);
 }
 
-/*! @decl Node set_ns(string ns_prefix)
+/*! @decl Node set_ns(string ns_uri)
  *!
+ *! sets the default namespace for a node.
+ *! the namespace must be already added to the node using @[add_ns]
  */
-PIKEFUN object set_ns(string ns_prefix)
+PIKEFUN object set_ns(string ns_uri)
 {
   xmlNsPtr ans;
 
   f_convert_string_utf8(1);  
   
   ns_prefix = Pike_sp[-1].u.string;
-  ans = xmlSearchNs(MY_NODE->doc, MY_NODE, (xmlChar *)ns_prefix->str);
+  ans = xmlSearchNsByHref(MY_NODE->doc, MY_NODE, (xmlChar *)ns_prefix->str);
   if(ans == NULL)
   {
     Pike_error("Namespace %s does not yet exist.\n", ns_prefix->str);

@@ -1,5 +1,9 @@
 Version History
 
+Version 1.36
+- added Stylesheet()->media_type()
+- added Stylesheet()->output_type()
+
 Version 1.34
 - fixed a bunch of segfaults when passing Node objects to a Stylesheet.
 - XSLT docloader functions are local to the Stylesheet object, rather
