@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: Node.cmod,v 1.31 2005-10-19 17:43:38 hww3 Exp $
+ * $Id: Node.cmod,v 1.32 2005-10-19 18:32:24 hww3 Exp $
  */
 
 /*
@@ -793,15 +793,15 @@ PIKEFUN object new_pi(string name, string contents)
 }
 
 /*!  @decl Node set_attribute(string name, string value)
- *!  @decl Node set_ns_attribute(string name, string ns, string value)
+ *!  @decl Node set_attribute(string name, string ns_uri, string value)
  *!
- *!  @param ns
- *!   the namespace prefix
+ *!  @param ns_uri
+ *!   the namespace uri
  *!
  *!  sets a new attribute, overwriting any existing value.
  *!  if @[value] is zero, the attribute will be removed from the node.
  */
-PIKEFUN object set_ns_attribute(string name, string ns, string value)
+PIKEFUN object set_ns_attribute(string name, string ns_uri, string value)
 {
   struct object * o;
   xmlAttrPtr attr;
@@ -815,17 +815,17 @@ PIKEFUN object set_ns_attribute(string name, string ns, string value)
   stack_swap_n(2);
 
   f_convert_string_utf8(1);
-  ns = Pike_sp[-1].u.string;
+  ns_uri = Pike_sp[-1].u.string;
 
   stack_swap_n(3);
 
   f_convert_string_utf8(1);
   name = Pike_sp[-1].u.string;
 
-  ans = xmlSearchNs(MY_NODE->doc, MY_NODE, (xmlChar *)ns->str);
+  ans = xmlSearchNsByHref(MY_NODE->doc, MY_NODE, (xmlChar *)ns_uri->str);
   if(ans == NULL)
   {
-    Pike_error("Namespace with prefix %s does not exist.\n", ns->str);
+    Pike_error("Namespace with URI %s does not exist.\n", ns_uri->str);
   }
 
   attr = xmlNewNsProp(MY_NODE, ans, (xmlChar *)name->str, (xmlChar *)value->str);
@@ -841,13 +841,13 @@ PIKEFUN object set_ns_attribute(string name, string ns, string value)
   }
 }
 
-/*! @decl object delete_attribute(string name, string|void ns)
+/*! @decl object delete_attribute(string name, string|void ns_uri)
  *!
  *! @param name
  *!   the name of the attribute to delete
  *!
- *! @param ns
- *!   the prefix of the namespace containing the attribute to be deleted 
+ *! @param ns_uri
+ *!   the URI of the namespace containing the attribute to be deleted 
  */
 PIKEFUN object delete_attribute(string name)
 {
@@ -861,24 +861,24 @@ PIKEFUN object delete_attribute(string name)
   push_object(this_object());
 
 }
-PIKEFUN object delete_attribute(string name, string ns)
+PIKEFUN object delete_attribute(string name, string ns_uri)
 {
   xmlNsPtr ans;
 
   check_node_created();
 
   f_convert_string_utf8(1);
-  ns = Pike_sp[-1].u.string;
+  ns_uri = Pike_sp[-1].u.string;
 
   stack_swap_n(2);
 
   f_convert_string_utf8(1);
   name = Pike_sp[-1].u.string;
 
-  ans = xmlSearchNs(MY_NODE->doc, MY_NODE, (xmlChar *)ns->str);
+  ans = xmlSearchNsByHref(MY_NODE->doc, MY_NODE, (xmlChar *)ns_uri->str);
   if(ans == NULL)
   {
-    Pike_error("Namespace %s does not exist.\n", ns->str);
+    Pike_error("Namespace %s does not exist.\n", ns_uri->str);
   }
 
   xmlUnsetNsProp(MY_NODE, ans, (xmlChar *)name->str);
@@ -1626,7 +1626,6 @@ EXIT
   if(THIS != NULL && THIS->object_data != NULL && 
     (* THIS->object_data->refs)==1 && THIS->object_data->transient == 0)
   {
-printf("freeing document\n");
     if(THIS->object_data->node->doc != NULL)
       xmlFreeDoc(THIS->object_data->node->doc);
   }

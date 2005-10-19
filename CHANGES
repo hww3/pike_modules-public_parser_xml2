@@ -3,6 +3,10 @@ Version History
 Version 1.36
 - added Stylesheet()->media_type()
 - added Stylesheet()->output_type()
+- get_ns_attributes() uses the namespace URI, and works properly now
+- CHANGE: set_ns_attributes() is now a 3 argument variant of 
+    set_attributes(), and uses the namespace URI rather than prefix now.
+- CHANGE: set_ns() uses the namespace URI rather than the prefix
 
 Version 1.34
 - fixed a bunch of segfaults when passing Node objects to a Stylesheet.
