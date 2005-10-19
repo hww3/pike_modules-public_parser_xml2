@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: Node.cmod,v 1.34 2005-10-19 20:03:41 hww3 Exp $
+ * $Id: Node.cmod,v 1.35 2005-10-19 20:55:47 hww3 Exp $
  */
 
 /*
@@ -1597,6 +1597,28 @@ PIKEFUN mixed cast(string type)
     Pike_error("Unsupported cast type.\n");
   }
 }
+
+/*! @decl int is_unlinked()
+ */
+PIKEFUN int is_unlinked()
+{
+  push_int(THIS->object_data->unlinked);
+}
+
+/*!  @decl int is_transient()
+ */
+PIKEFUN int is_transient()
+{
+  push_int(THIS->object_data->unlinked);
+}
+
+/*! @decl int _refs()
+ */
+PIKEFUN int _refs()
+{
+  push_int(*THIS->object_data->refs);
+}
+
 
 int check_node_created()
 {

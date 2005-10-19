@@ -7,6 +7,8 @@ Version 1.36
 - CHANGE: set_ns_attributes() is now a 3 argument variant of 
     set_attributes(), and uses the namespace URI rather than prefix now.
 - CHANGE: set_ns() uses the namespace URI rather than the prefix
+- added Node()->_refs(), Node()->is_unlinked and Node()->is_transient(),
+  mostly useful for debugging purposes, but may have other purposes :)
 
 Version 1.34
 - fixed a bunch of segfaults when passing Node objects to a Stylesheet.
