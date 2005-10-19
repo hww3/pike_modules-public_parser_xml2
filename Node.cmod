@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: Node.cmod,v 1.29 2005-10-18 21:04:33 hww3 Exp $
+ * $Id: Node.cmod,v 1.30 2005-10-19 16:28:07 hww3 Exp $
  */
 
 /*
@@ -410,7 +410,7 @@ PIKEFUN mapping get_no_ns_attributes()
     return;
 }
 
-/*! @decl mapping get_ns_attributes(string ns_prefix)
+/*! @decl mapping get_ns_attributes(string ns_uri)
  *!   given a namespace uri, return all elements for that namespace
  *!   present in the element.
  *! @returns
@@ -447,7 +447,8 @@ PIKEFUN mapping get_ns_attributes(string ns_uri)
         // no namespace for this attribute.
         continue;
       }
-      if(!strcmp(ns_uri->str, ns->href)) continue;
+
+      if(strcmp(ns_uri->str, ns->href)!=0) continue;
       val = xmlGetProp(MY_NODE, attr->name);
 
       if(val == NULL) val = "";
