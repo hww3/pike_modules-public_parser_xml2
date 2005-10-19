@@ -57,3 +57,37 @@ Public.Parser.XML2.parse_xml(
 test_true(objectp(Public.Parser.XML2.new_node("testsuite")))
 test_true((string)Public.Parser.XML2.new_node("testsuite")=="<testsuite/>")
 
+// let's test namespaces
+
+// add a namespace to a node
+test_true((string)Public.Parser.XML2.new_node("testsuite")->add_ns("http://foo.com", "foo") == "<testsuite xmlns:foo=\"http://foo.com\"/>")
+
+// set the default namespace of a node
+test_true((string)Public.Parser.XML2.new_node("testsuite")->add_ns("http://foo.com", "foo")->set_ns("http://foo.com")=="<foo:testsuite xmlns:foo=\"http://foo.com\"/>")
+
+// get the default namespace of a node
+test_true(Public.Parser.XML2.new_node("testsuite")->add_ns("http://foo.com", "foo")->set_ns("http://foo.com")->get_ns()=="http://foo.com")
+test_true(Public.Parser.XML2.new_node("testsuite")->add_ns("http://foo.com", "foo")->get_ns()==0)
+
+// get namespaces on a node
+test_true(Public.Parser.XML2.new_node("testsuite")->add_ns("http://foo.com", "foo")->set_ns("http://foo.com")->get_nss()["foo"]=="http://foo.com")
+test_true(Public.Parser.XML2.new_node("testsuite")->get_nss() == 0)
+
+// add an attribute to a node
+test_true(Public.Parser.XML2.new_node("testsuite")->add_ns("http://foo.com", "foo")
+->set_ns("http://foo.com")
+->set_attribute("foo", "bar")
+->get_attributes()["foo"] == "bar")
+
+test_true(Public.Parser.XML2.new_node("testsuite")->add_ns("http://foo.com", "foo")
+->set_ns("http://foo.com")
+->set_attribute("bar", "http://foo.com", "gazonk")
+->get_attributes()["bar"] == "gazonk")
+
+// make sure that a non-ns attribute doesn't show up in a ns search.
+test_true(Public.Parser.XML2.new_node("testsuite")->add_ns("http://foo.com", "foo")
+->set_ns("http://foo.com")
+->set_attribute("bar", "gazonk")
+->get_ns_attributes("http://foo.com")["bar"] == 0)
+
+

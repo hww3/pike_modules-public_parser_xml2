@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: Node.cmod,v 1.33 2005-10-19 19:32:55 hww3 Exp $
+ * $Id: Node.cmod,v 1.34 2005-10-19 20:03:41 hww3 Exp $
  */
 
 /*
@@ -801,7 +801,7 @@ PIKEFUN object new_pi(string name, string contents)
  *!  sets a new attribute, overwriting any existing value.
  *!  if @[value] is zero, the attribute will be removed from the node.
  */
-PIKEFUN object set_ns_attribute(string name, string ns_uri, string value)
+PIKEFUN object set_attribute(string name, string ns_uri, string value)
 {
   struct object * o;
   xmlAttrPtr attr;
