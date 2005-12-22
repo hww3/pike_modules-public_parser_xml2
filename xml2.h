@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: xml2.h,v 1.35 2005-10-18 21:23:06 hww3 Exp $
+ * $Id: xml2.h,v 1.36 2005-12-22 16:22:38 hww3 Exp $
  */
 
 /*
@@ -246,6 +246,7 @@ xmlEntityPtr my_xml_getent(void * ctx, const xmlChar * name);
     xmlTextReaderPtr reader;
 #endif
     struct object * parser;
+    int autoencode;
   } XMLREADER_OBJECT_DATA;
 
   typedef struct

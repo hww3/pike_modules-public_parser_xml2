@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XMLReader.cmod,v 1.17 2005-07-22 19:56:32 hww3 Exp $
+ * $Id: XMLReader.cmod,v 1.18 2005-12-22 16:22:38 hww3 Exp $
  */
 
 /*
@@ -87,6 +87,21 @@ PIKEFUN string _sprintf(int type, mixed t)
   char * desc;
 
   push_text("XMLReader()");
+}
+
+/*! @decl void set_autoencode(int a)
+ *!
+ *! turns autoencoding of data to UTF-8 on or off. If you know
+ *! that your input to non-constructor functions is UTF-8,
+ *! you can turn autoencode off, thereby saving conversion 
+ *! time. Otherwise, all input is assumed to be unencoded Pike
+ *! strings (which may be wide).
+ *!
+ */
+PIKEFUN void set_autoencode(int a)
+{
+  THIS->object_data->autoencode = a;
+  pop_stack();
 }
 
 /*! @decl int read()
@@ -884,6 +899,7 @@ INIT
         Pike_error("init_xmlreader: Out of memory!\n");
 
     dta->reader = NULL;
+    dta->autoencode = 1;
     THIS->object_data = dta;
 }
 

@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.101 2005-10-19 20:55:47 hww3 Exp $
+ * $Id: XML2.cmod,v 1.102 2005-12-22 16:22:38 hww3 Exp $
  */
 
 /*
@@ -95,6 +95,7 @@ xmlDetectSAX2(xmlParserCtxtPtr ctxt) {
 
 
 CVAR PARSER_OBJECT_DATA * object_data;
+PIKEVAR int silent;
 
 PIKEFUN void create()
 {
@@ -250,7 +251,7 @@ void f_convert_utf8_string(INT32 args)
 
 void f_rconvert_string_utf8(INT32 args)
 {
-  if(  OBJ2_(THIS_XMLREADER->object_data->parser)->object_data->auto_encode !=0)
+  if(THIS_XMLREADER->object_data->autoencode !=0)
   {
     f_string_to_utf8(args);
   }
@@ -504,24 +505,19 @@ void my_relaxng_generic_error(void * userData, const char * error)
   f_werror(1);
 }
 
-void my_generic_error(void * ctx, const char *msg, ...)
-  {
-    va_list args;
-
-    va_start(args,msg);
-    vprintf(msg, args);
-    va_end(args);
-  }
-
 void my_structured_error(void * userData, xmlErrorPtr error)
 {
   char err[255];
 
-  snprintf(err, sizeof(err), "Public.Parser.XML error: %d, message: %s", 
+  if(THIS->silent == 0)
+  {
+    snprintf(err, sizeof(err), "Public.Parser.XML error: %d, message: %s", 
              error->level, error->message);
-  push_text(err);
+    push_text(err);
 
-  f_werror(1);
+    f_werror(1);
+  }
+
 }
 
 /*! @decl Node parse_xml_force(string xml)
@@ -595,9 +591,6 @@ PIKEFUN object parse_xml(string xml, string name, string encoding)
 
   //  xmlSetExternalEntityLoader(entity_loader);
 
-  //generic_handler = my_generic_error;
-  // xmlSetStructuredErrorFunc((void *)err_ctx, generic_handler);
-
   doc = xmlReadMemory(xml->str, xml->len, name->str, 
                       (const char *)encoding->str, 
                       THIS->object_data->xml_parser_options);
@@ -655,9 +648,6 @@ PIKEFUN object parse_xml_sax(string xml, string name, string encoding)
   //  entity_loader = my_entity_loader;
   //  xmlSetExternalEntityLoader(entity_loader);
 
-  //generic_handler = my_generic_error;
-  // xmlSetStructuredErrorFunc((void *)err_ctx, generic_handler);
-
   doc = ctxt->myDoc;
 
    if (sax != NULL)
@@ -711,9 +701,6 @@ PIKEFUN object parse_xml(string xml, string name)
 
   //  xmlSetExternalEntityLoader(entity_loader);
 
-  //generic_handler = my_generic_error;
-  //xmlSetStructuredErrorFunc((void *)err_ctx, generic_handler);
-
   doc = xmlReadMemory(xml->str, xml->len, name->str, 
                       NULL, 
                       THIS->object_data->xml_parser_options);
@@ -746,9 +733,6 @@ PIKEFUN object parse_html(string html, string name, string encoding)
 
   //  xmlSetExternalEntityLoader(entity_loader);
 
-  //generic_handler = my_generic_error;
-  // xmlSetStructuredErrorFunc((void *)err_ctx, generic_handler);
-
   doc = htmlReadMemory(html->str, html->len, name->str, 
                       (const char *)encoding->str, 
                       THIS->object_data->html_parser_options);
@@ -763,9 +747,6 @@ PIKEFUN object parse_html(string html, string name)
   entity_loader = my_entity_loader;
 
   //  xmlSetExternalEntityLoader(entity_loader);
-
-  // generic_handler = my_generic_error;
-  // xmlSetStructuredErrorFunc((void *)err_ctx, generic_handler);
 
   doc = htmlReadMemory(html->str, html->len, name->str, 
                       NULL, 
@@ -966,10 +947,8 @@ void handle_parse_relaxng(INT32 args)
   xmlRelaxNGSetParserErrors(parser, relaxng_error_handler, 
                             relaxng_warning_handler, NULL);
 
-  // printf("getting ready to parse the document for relax.\n");
   relax = xmlRelaxNGParse(parser);
 
-printf("done.\n");
   if(relax == NULL)
   {
     pop_stack();
@@ -1083,16 +1062,12 @@ EXTRA
 {
   struct pike_string * ps;
   char * err_ctx = "parse_xml";
-  xmlGenericErrorFunc generic_error_handler;
 
-  add_string_constant("__version", "1.36", 0);
+  add_string_constant("__version", "1.38", 0);
   add_string_constant("__author", "Bill Welliver <bill@welliver.org>", 0);
 
   structured_handler = my_structured_error;
   xmlSetStructuredErrorFunc((void *)err_ctx, structured_handler);
-
-  generic_handler = my_generic_error;
-  xmlSetGenericErrorFunc((void *)err_ctx, generic_handler);
 
   pike_init_xml2_constants();
   pike_init_xml2_html();

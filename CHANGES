@@ -1,5 +1,12 @@
 Version History
 
+Version 1.38
+- added Public.Parser.XML2.silent as a flag to turn off error and warning
+  output (stopgap until we figure out a better system, really)
+- more verification of get_ns_attributes(), seems to be working properly
+- added XMLReader()->set_autoencode(), to toggle auto-encoding of input 
+  data
+
 Version 1.36
 - added Stylesheet()->media_type()
 - added Stylesheet()->output_type()
