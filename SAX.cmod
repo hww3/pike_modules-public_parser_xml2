@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: SAX.cmod,v 1.7 2005-09-27 04:44:36 hww3 Exp $
+ * $Id: SAX.cmod,v 1.8 2005-12-27 19:41:48 hww3 Exp $
  */
 
 /*
@@ -116,7 +116,7 @@ PIKECLASS SAX
        func = get_callback_func(o);       
        push_svalue(func);
 
-       push_text((char *)ch);
+       push_string(make_shared_binary_string((char *) ch, len));
 
        for(z = 0; z < a->size; z++)
        {
