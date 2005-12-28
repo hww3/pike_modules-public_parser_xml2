@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: SAX.cmod,v 1.8 2005-12-27 19:41:48 hww3 Exp $
+ * $Id: SAX.cmod,v 1.9 2005-12-28 16:27:28 hww3 Exp $
  */
 
 /*
@@ -99,7 +99,7 @@ PIKECLASS SAX
          push_svalue(&ITEM(a)[z]);
        }
        apply_svalue(&Pike_sp[0- (a->size+1)], a->size);
-    }    
+    }
   }
 
   void PSAX_string_len_callback(int cb_type, void * ctx, const xmlChar * ch, int len)
@@ -123,7 +123,7 @@ PIKECLASS SAX
          push_svalue(&ITEM(a)[z]);
        }
        apply_svalue(&Pike_sp[0- (a->size+2)], a->size + 1);
-    }    
+    }
   }
 
   int PSAX_plain_int_callback(int callback_id, void * data)
@@ -190,11 +190,12 @@ PIKECLASS SAX
         ent->etype = XML_ENTITY_NODE;
         ent->name = xmlStrdup(name);
         ent->content = xmlStrdup(Pike_sp[0-1].u.string->str);
-
+		pop_stack();
         return ent;
       }
       else if(Pike_sp[0-1].type == T_INT && Pike_sp[0-1].u.integer == 0)
       {
+		pop_stack();
         return NULL;
       }
       else
@@ -204,6 +205,7 @@ PIKECLASS SAX
       }
     }
 
+	pop_stack();
     return NULL;
   }
 
@@ -689,7 +691,6 @@ PIKECLASS SAX
   void my_startElement(void * data, const xmlChar * name, const xmlChar ** atts)
   {
     int z = 0;
-printf("start element\n");
 
     if(ITEM(THIS->object_data->handlers)[CB_STARTELEMENT].type!=PIKE_T_INT)
     {
@@ -1053,7 +1054,7 @@ printf("start element\n");
     // add_ref(f->u.efun);
     (ITEM(THIS->object_data->handlers)[callback_id]) = Pike_sp[0-1];
 
-    pop_stack();
+    pop_n_elems(args);
 
   }
 
@@ -1192,7 +1193,6 @@ printf("start element\n");
       push_int(0);
       ITEM(THIS->object_data->handlers)[callback_id] = Pike_sp[0-1];
       ae = &(ITEM(THIS->object_data->handlers)[callback_id]);
-      pop_stack();
     }
 
     pop_stack();
@@ -1237,6 +1237,7 @@ printf("start element\n");
     }
 
     retval = xmlParseChunk(THIS->object_data->context, d->str, d->len, 0);
+	pop_n_elems(args);
     push_int(retval);
   }
 
@@ -1253,6 +1254,7 @@ printf("start element\n");
     } 
 
     retval = xmlParseChunk(THIS->object_data->context, d->str, d->len, 0);
+	pop_n_elems(args);
     push_int(retval);
   }
 
@@ -1329,6 +1331,7 @@ printf("start element\n");
       xmlFreeParserCtxt(THIS->object_data->context);
       THIS->object_data->context=NULL;
     }
+	pop_n_elems(args);
     push_int(retval);
   }
 
