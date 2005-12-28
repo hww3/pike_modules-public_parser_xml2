@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: SAX.cmod,v 1.10 2005-12-28 16:40:45 hww3 Exp $
+ * $Id: SAX.cmod,v 1.11 2005-12-28 18:49:20 hww3 Exp $
  */
 
 /*
@@ -69,7 +69,7 @@
 
 /*! @class SAX
  *!
- *!  a SAX v1 parser featuring both pull and push (chunked) parsing.
+ *!  a SAX v1/v2 parser featuring both pull and push (chunked) parsing.
  *!
  */
 PIKECLASS SAX
@@ -92,13 +92,13 @@ PIKECLASS SAX
        o = ITEM(THIS->object_data->handlers)[callback_id].u.object;
        a = get_callback_data(o);       
        func = get_callback_func(o);       
-       push_svalue(func);
 
        for(z = 0; z < a->size; z++)
        {
          push_svalue(&ITEM(a)[z]);
        }
-       apply_svalue(&Pike_sp[0- (a->size+1)], a->size);
+       apply_svalue(func, a->size);
+       pop_stack();
     }
   }
 
@@ -114,7 +114,6 @@ PIKECLASS SAX
        o = ITEM(THIS->object_data->handlers)[cb_type].u.object;
        a = get_callback_data(o);       
        func = get_callback_func(o);       
-       push_svalue(func);
 
        push_string(make_shared_binary_string((char *) ch, len));
 
@@ -122,7 +121,8 @@ PIKECLASS SAX
        {
          push_svalue(&ITEM(a)[z]);
        }
-       apply_svalue(&Pike_sp[0- (a->size+2)], a->size + 1);
+       apply_svalue(func, a->size + 1);
+       pop_stack();
     }
   }
 
@@ -140,13 +140,12 @@ PIKECLASS SAX
        o = ITEM(THIS->object_data->handlers)[callback_id].u.object;
        a = get_callback_data(o);       
        func = get_callback_func(o);       
-       push_svalue(func);
 
        for(z = 0; z < a->size; z++)
        {
          push_svalue(&ITEM(a)[z]);
        }
-       apply_svalue(&Pike_sp[0- (a->size+1)], a->size);
+       apply_svalue(func, a->size);
        retval = Pike_sp[0-1].u.integer;       
        pop_stack();
        return retval;
@@ -167,7 +166,6 @@ PIKECLASS SAX
       o = ITEM(THIS->object_data->handlers)[CB_GETENTITY].u.object;
       a = get_callback_data(o);
       func = get_callback_func(o);
-      push_svalue(func);
 
       push_text((char *)name);
 
@@ -176,7 +174,7 @@ PIKECLASS SAX
         push_svalue(&ITEM(a)[z]);
       }
 
-      apply_svalue(&Pike_sp[0- (a->size+2)], a->size + 1);
+      apply_svalue(func, a->size + 1);
 
       if(Pike_sp[0-1].type == T_STRING)
       {
@@ -200,11 +198,10 @@ PIKECLASS SAX
       }
       else
       {
-        pop_stack();
+	pop_stack();
         Pike_error("bad return value from get_entity callback: expected string.\n");
       }
     }
-
 	pop_stack();
     return NULL;
   }
@@ -221,7 +218,6 @@ PIKECLASS SAX
        o = ITEM(THIS->object_data->handlers)[CB_SERROR].u.object;
        a = get_callback_data(o);       
        func = get_callback_func(o);       
-       push_svalue(func);
 
        push_text("domain");
        push_int(error->domain);
@@ -242,7 +238,8 @@ PIKECLASS SAX
        {
          push_svalue(&ITEM(a)[z]);
        }
-       apply_svalue(&Pike_sp[0- (a->size+2)], a->size + 1);
+       apply_svalue(func, a->size + 1);
+	pop_stack();
     }        
   }
 
@@ -259,7 +256,6 @@ PIKECLASS SAX
        o = ITEM(THIS->object_data->handlers)[CB_GETPARAMETERENTITY].u.object;
        a = get_callback_data(o);       
        func = get_callback_func(o);       
-       push_svalue(func);
 
        push_text((char *)name);
 
@@ -267,7 +263,7 @@ PIKECLASS SAX
        {
          push_svalue(&ITEM(a)[z]);
        }
-       apply_svalue(&Pike_sp[0- (a->size+2)], a->size + 1);
+       apply_svalue(func, a->size + 1);
 
        // check that we've returned a string.
        if(Pike_sp[0-1].type == PIKE_T_STRING)
@@ -298,13 +294,13 @@ PIKECLASS SAX
        {
          rs = xmlNewStringInputStream(ctx, (xmlChar *)'0');
 
-         pop_stack();
+	pop_stack();
 
          return rs;
        }
        else
        {
-         pop_stack();
+	pop_stack();
          Pike_error("Return value expected to be of type string.\n");
        }
     }    
@@ -324,7 +320,6 @@ PIKECLASS SAX
        o = ITEM(THIS->object_data->handlers)[CB_RESOLVEENTITY].u.object;
        a = get_callback_data(o);       
        func = get_callback_func(o);       
-       push_svalue(func);
 
        push_text((char *)publicId);
        push_text((char *)systemId);
@@ -333,7 +328,7 @@ PIKECLASS SAX
        {
          push_svalue(&ITEM(a)[z]);
        }
-       apply_svalue(&Pike_sp[0- (a->size+3)], a->size + 2);
+       apply_svalue(func, a->size + 2);
 
        // check that we've returned a string.
        if(Pike_sp[0-1].type == PIKE_T_STRING)
@@ -351,7 +346,7 @@ PIKECLASS SAX
 
          rs = xmlNewStringInputStream(ctx, (xmlChar *)r);
 
-         pop_stack();
+	pop_stack();
 
          return rs;
        }
@@ -359,7 +354,7 @@ PIKECLASS SAX
        {
          rs = xmlNewStringInputStream(ctx, (xmlChar *)'0');
 
-         pop_stack();
+	pop_stack();
 
          return rs;
        }
@@ -384,7 +379,6 @@ PIKECLASS SAX
        o = ITEM(THIS->object_data->handlers)[CB_ENTITYDECL].u.object;
        a = get_callback_data(o);       
        func = get_callback_func(o);       
-       push_svalue(func);
 
        push_text((char *)name);
        push_int(type);
@@ -396,7 +390,8 @@ PIKECLASS SAX
        {
          push_svalue(&ITEM(a)[z]);
        }
-       apply_svalue(&Pike_sp[0- (a->size+6)], a->size + 5);
+       apply_svalue(func, a->size + 5);
+	pop_stack();
     }    
   }
 
@@ -412,7 +407,6 @@ PIKECLASS SAX
        o = ITEM(THIS->object_data->handlers)[CB_ELEMENTDECL].u.object;
        a = get_callback_data(o);       
        func = get_callback_func(o);       
-       push_svalue(func);
 
        push_text((char *)name);
        push_int(type);
@@ -421,7 +415,8 @@ PIKECLASS SAX
        {
          push_svalue(&ITEM(a)[z]);
        }
-       apply_svalue(&Pike_sp[0- (a->size+3)], a->size + 2);
+       apply_svalue(func, a->size + 2);
+		pop_stack();
     }    
   }
 
@@ -437,7 +432,6 @@ PIKECLASS SAX
        o = ITEM(THIS->object_data->handlers)[CB_UNPARSEDENTITYDECL].u.object;
        a = get_callback_data(o);       
        func = get_callback_func(o);       
-       push_svalue(func);
 
        push_text((char *)name);
        push_text((char *)publicId);
@@ -448,7 +442,8 @@ PIKECLASS SAX
        {
          push_svalue(&ITEM(a)[z]);
        }
-       apply_svalue(&Pike_sp[0- (a->size+5)], a->size + 4);
+       apply_svalue(func, a->size + 4);
+		pop_stack();
     }    
   }
 
@@ -465,7 +460,6 @@ PIKECLASS SAX
        o = ITEM(THIS->object_data->handlers)[CB_ATTRIBUTEDECL].u.object;
        a = get_callback_data(o);       
        func = get_callback_func(o);       
-       push_svalue(func);
 
        push_text((char *)elem);
        push_text((char *)fullname);
@@ -488,7 +482,8 @@ PIKECLASS SAX
        {
          push_svalue(&ITEM(a)[z]);
        }
-       apply_svalue(&Pike_sp[0- (a->size+6)], a->size + 5);
+       apply_svalue(func, a->size + 5);
+		pop_stack();
     }    
   }
 
@@ -504,7 +499,6 @@ PIKECLASS SAX
        o = ITEM(THIS->object_data->handlers)[CB_NOTATIONDECL].u.object;
        a = get_callback_data(o);       
        func = get_callback_func(o);       
-       push_svalue(func);
 
        push_text((char *)name);
        push_text((char *)publicId);
@@ -514,7 +508,8 @@ PIKECLASS SAX
        {
          push_svalue(&ITEM(a)[z]);
        }
-       apply_svalue(&Pike_sp[0- (a->size+4)], a->size + 3);
+       apply_svalue(func, a->size + 3);
+		pop_stack();
     }    
   }
 
@@ -530,7 +525,6 @@ PIKECLASS SAX
        o = ITEM(THIS->object_data->handlers)[CB_INTERNALSUBSET].u.object;
        a = get_callback_data(o);       
        func = get_callback_func(o);       
-       push_svalue(func);
 
        push_text((char *)name);
        if(ExternalID == NULL)
@@ -546,7 +540,8 @@ PIKECLASS SAX
        {
          push_svalue(&ITEM(a)[z]);
        }
-       apply_svalue(&Pike_sp[0- (a->size+4)], a->size + 3);
+       apply_svalue(func, a->size + 3);
+		pop_stack();
     }    
   }
 
@@ -562,7 +557,6 @@ PIKECLASS SAX
        o = ITEM(THIS->object_data->handlers)[CB_EXTERNALSUBSET].u.object;
        a = get_callback_data(o);       
        func = get_callback_func(o);       
-       push_svalue(func);
 
        push_text((char *)name);
        push_text((char *)ExternalID);
@@ -572,7 +566,8 @@ PIKECLASS SAX
        {
          push_svalue(&ITEM(a)[z]);
        }
-       apply_svalue(&Pike_sp[0- (a->size+4)], a->size + 3);
+       apply_svalue(func, a->size + 3);
+		pop_stack();
     }    
   }
 
@@ -588,7 +583,6 @@ PIKECLASS SAX
        o = ITEM(THIS->object_data->handlers)[CB_PROCESSINGINSTRUCTION].u.object;
        a = get_callback_data(o);       
        func = get_callback_func(o);       
-       push_svalue(func);
 
        push_text((char *)target);
        push_text((char *)data);
@@ -597,7 +591,8 @@ PIKECLASS SAX
        {
          push_svalue(&ITEM(a)[z]);
        }
-       apply_svalue(&Pike_sp[0- (a->size+3)], a->size + 2);
+       apply_svalue(func, a->size + 2);
+		pop_stack();
     }    
   }
 
@@ -613,7 +608,6 @@ PIKECLASS SAX
        o = ITEM(THIS->object_data->handlers)[CB_ENDELEMENT].u.object;
        a = get_callback_data(o);       
        func = get_callback_func(o);       
-       push_svalue(func);
 
        push_text((char *)name);
 
@@ -621,7 +615,8 @@ PIKECLASS SAX
        {
          push_svalue(&ITEM(a)[z]);
        }
-       apply_svalue(&Pike_sp[0- (a->size+2)], a->size + 1);
+       apply_svalue(func, a->size + 1);
+		pop_stack();
     }    
   }
 
@@ -652,7 +647,6 @@ PIKECLASS SAX
        o = ITEM(THIS->object_data->handlers)[CB_REFERENCE].u.object;
        a = get_callback_data(o);       
        func = get_callback_func(o);       
-       push_svalue(func);
 
        push_text((char *)name);
 
@@ -660,7 +654,8 @@ PIKECLASS SAX
        {
          push_svalue(&ITEM(a)[z]);
        }
-       apply_svalue(&Pike_sp[0- (a->size+2)], a->size + 1);
+       apply_svalue(func, a->size + 1);
+		pop_stack();
     }    
   }
 
@@ -676,7 +671,6 @@ PIKECLASS SAX
        o = ITEM(THIS->object_data->handlers)[CB_COMMENT].u.object;
        a = get_callback_data(o);       
        func = get_callback_func(o);       
-       push_svalue(func);
 
        push_text((char *)value);
 
@@ -684,7 +678,8 @@ PIKECLASS SAX
        {
          push_svalue(&ITEM(a)[z]);
        }
-       apply_svalue(&Pike_sp[0- (a->size+2)], a->size + 1);
+       apply_svalue(func, a->size + 1);
+		pop_stack();
     }    
   }
 
@@ -701,7 +696,6 @@ PIKECLASS SAX
        o = ITEM(THIS->object_data->handlers)[CB_STARTELEMENT].u.object;
        a = get_callback_data(o);       
        func = get_callback_func(o);       
-       push_svalue(func);
 
        push_text((char *)name);
 
@@ -718,7 +712,8 @@ PIKECLASS SAX
        {
          push_svalue(&ITEM(a)[z]);
        }
-       apply_svalue(&Pike_sp[0- (a->size+3)], a->size + 2);
+       apply_svalue(func, a->size + 2);
+		pop_stack();
 /*       printf("finished callback.\n"); */
     }    
   }
@@ -737,7 +732,6 @@ PIKECLASS SAX
        o = ITEM(THIS->object_data->handlers)[CB_ENDELEMENTNS].u.object;
        a = get_callback_data(o);       
        func = get_callback_func(o);       
-       push_svalue(func);
 
        push_text((char *)localname);
 
@@ -755,7 +749,8 @@ PIKECLASS SAX
        {
          push_svalue(&ITEM(a)[z]);
        }
-       apply_svalue(&Pike_sp[0- (a->size+4)], a->size + 3);
+       apply_svalue(func, a->size + 3);
+       pop_stack();
     }
   }
 
@@ -777,7 +772,6 @@ PIKECLASS SAX
        o = ITEM(THIS->object_data->handlers)[CB_STARTELEMENTNS].u.object;
        a = get_callback_data(o);       
        func = get_callback_func(o);       
-       push_svalue(func);
 
        push_text((char *)localname);
 
@@ -810,18 +804,17 @@ PIKECLASS SAX
             push_text("value");
             if(atts[z+3] != NULL)
             {
-				push_text(atts[z+3]);
-/*
-             char * v;
-             v = malloc((atts[z+4] - atts[z+3])+1);
-             memcpy(v, atts[z+3], (atts[z+4] - atts[z+3])+1);
-             push_text(v); 
-             free(v);
-*/
+               push_string(make_shared_binary_string((char *) atts[z+3], atts[z+4] - atts[z+3]));
             }
             else push_int(0);
 
-           f_aggregate_mapping(8);
+	    push_text("end");
+             if(atts[z+4] != NULL)
+             {
+               push_text(atts[z+4]);
+             }
+
+           f_aggregate_mapping(10);
          }
           f_aggregate(i);
        }
@@ -830,7 +823,8 @@ PIKECLASS SAX
        {
          push_svalue(&ITEM(a)[z]);
        }
-       apply_svalue(&Pike_sp[0- (a->size+5)], a->size + 4);
+       apply_svalue(func, a->size + 4);
+       pop_stack();
     }    
   }
 
@@ -1317,7 +1311,7 @@ PIKECLASS SAX
     int retval;
     xmlParserCtxtPtr context;
     xmlSAXHandlerPtr ySAX;
-
+printf("running...\n");
 
     if(THIS->object_data->context == NULL)
     {
@@ -1336,7 +1330,33 @@ PIKECLASS SAX
       THIS->object_data->context=NULL;
     }
 	pop_n_elems(args);
+
+/*
+
+ {
+const struct svalue *s;
+int i = 0;
+  for(i=0; i < 10; i++)
+  {
+printf("val %d\n", i);
+  {
+    char *s;
+    dynamic_buffer save_buf;
+
+    init_buf(&save_buf);
+    describe_svalue(Pike_sp-i,0,0);
+    s=simple_free_buf(&save_buf);
+    fprintf(stderr,"-    value: %s\n",s);
+    free(s);
+  }
+  }
+}
+
+*/
+
     push_int(retval);
+
+
   }
 
   PIKEFUN int parse(string d, string encoding)
