@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: SAX.cmod,v 1.9 2005-12-28 16:27:28 hww3 Exp $
+ * $Id: SAX.cmod,v 1.10 2005-12-28 16:40:45 hww3 Exp $
  */
 
 /*
@@ -806,14 +806,18 @@ PIKECLASS SAX
             if(atts[z+2] != NULL)
              push_text(atts[z+2]); 
             else push_int(0);
+
             push_text("value");
             if(atts[z+3] != NULL)
             {
+				push_text(atts[z+3]);
+/*
              char * v;
              v = malloc((atts[z+4] - atts[z+3])+1);
              memcpy(v, atts[z+3], (atts[z+4] - atts[z+3])+1);
              push_text(v); 
              free(v);
+*/
             }
             else push_int(0);
 
