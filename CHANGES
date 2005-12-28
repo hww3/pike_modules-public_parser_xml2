@@ -1,5 +1,11 @@
 Version History
 
+Version 1.40
+- fixes for stack overflow when using SAX to parse large xml documents
+- fix for nsstartelement attribute contents overrunning
+- added "end" attribute to nsstartelement attribute data
+- fix for character callback receiving too much data
+
 Version 1.38
 - added Public.Parser.XML2.silent as a flag to turn off error and warning
   output (stopgap until we figure out a better system, really)
