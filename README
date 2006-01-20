@@ -21,7 +21,9 @@ BUILDING
 
 To build this module, perform the following steps:
 
-0. Install the libxml2 and (optionally) libxslt library 
+0a. Install the pkgconfig tool
+      (http://pkgconfig.freedesktop.org/)
+0b. Install the libxml2 and (optionally) libxslt library 
       (http://xmlsoft.org). 
 1. Make sure that make and your C compiler are in your PATH.
 2. Unpack the module.
