@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.102 2005-12-22 16:22:38 hww3 Exp $
+ * $Id: XML2.cmod,v 1.103 2006-04-04 00:54:21 hww3 Exp $
  */
 
 /*
@@ -859,13 +859,12 @@ PIKEFUN object new_node(string name)
   NODE_OBJECT_DATA * od;
 
   // TODO: we need to encode this value!
-  node = xmlNewNode(NULL, name->str);
+  node = xmlNewNode(NULL, (xmlChar *)name->str);
 
   if(node == NULL)
   {
     Pike_error("Unable to create new node.\n");
   }  
-  node = xmlNewNode(NULL, (xmlChar *)name->str);
 
   pop_stack();
 
@@ -876,6 +875,7 @@ PIKEFUN object new_node(string name)
 
   od->refs = malloc(sizeof(INT32));
   (* od->refs)=1;
+  od->unlinked = 1;
   od->node = node;
   od->parser = this_object();
 }
@@ -1092,7 +1092,8 @@ INIT
   dta->xml_parser_options = 0;
   dta->html_parser_options = 0;
   dta->auto_encode = 1;
-  THIS->object_data = dta;
+  if(THIS!=NULL && THIS->object_data != NULL && THIS->object_data != NULL && dta != NULL)
+    THIS->object_data = dta;
  
   LIBXML_TEST_VERSION
 }
