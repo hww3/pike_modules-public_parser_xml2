@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.12 2005-09-27 04:33:52 hww3 Exp $
+# $Id: configure.in,v 1.13 2006-10-03 20:33:11 hww3 Exp $
 AC_INIT(xml2_config.h.in)
 
 AC_MODULE_INIT()
@@ -32,6 +32,7 @@ AC_CHECK_FUNCS(xmlNewDocPI)
 AC_CHECK_FUNCS(xsltSetLoaderFunc) 
 AC_CHECK_FUNCS(xmlTextReaderGetParserLineNumber)
 AC_CHECK_FUNCS(xmlTextReaderGetParserColumnNumber)
+AC_CHECK_FUNCS(xmlTextReaderIsNamespaceDecl)
 
 AC_SUBST(XML2_CFLAGS) 
 AC_SUBST(XML2_LIBS)
