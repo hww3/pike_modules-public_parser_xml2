@@ -1,6 +1,7 @@
 Version History
 
 Version 1.40
+- XMLReader is actually usable now that we manage memory properly
 - fixes for stack overflow when using SAX to parse large xml documents
 - fix for nsstartelement attribute contents overrunning
 - added "end" attribute to nsstartelement attribute data

@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XMLReader.cmod,v 1.19 2006-10-03 20:33:11 hww3 Exp $
+ * $Id: XMLReader.cmod,v 1.20 2006-10-03 21:50:11 hww3 Exp $
  */
 
 /*
@@ -853,12 +853,9 @@ PIKEFUN void create(string xml, string url, int options, string encoding)
   {
     Pike_error("unable to get xmlReader\n");
   }
-/*
-  ctxt = (struct _xmlTextReader)reader->ctxt;
-  sax = ctxt->sax;
 
-//->getEntity = my_xml_getent;
-*/
+  add_ref(xml);
+  THIS->object_data->xml = xml;
   THIS->object_data->reader = reader;
 
   pop_n_elems(args);
@@ -881,6 +878,8 @@ PIKEFUN void create(string xml, string url, int options)
   }
 
   THIS->object_data->reader = reader;
+  add_ref(xml);
+  THIS->object_data->xml = xml;
 
   pop_n_elems(args);
 }
@@ -914,6 +913,11 @@ EXIT
   {
     xmlFreeTextReader(THIS->object_data->reader);
     THIS->object_data->reader = NULL;
+  }
+  if(THIS->object_data->xml != NULL)
+  {
+    free_string(THIS->object_data->xml);
+    THIS->object_data->xml = NULL;
   }
   if(THIS->object_data)
   {
