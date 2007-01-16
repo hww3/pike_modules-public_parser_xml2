@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: Node.cmod,v 1.38 2006-07-12 18:19:00 hww3 Exp $
+ * $Id: Node.cmod,v 1.39 2007-01-16 21:43:35 hww3 Exp $
  */
 
 /*
@@ -1646,16 +1646,16 @@ INIT
 
 EXIT
 { 
-  if(THIS != NULL && THIS->object_data != NULL && 
+  if(THIS && THIS->object_data && 
     (* THIS->object_data->refs)==1 && THIS->object_data->transient == 0)
   {
     // if we're not linked to a document, we can free the node.
-    if(THIS->object_data->node != NULL && THIS->object_data->node->doc == NULL)
+    if(THIS && THIS->object_data && THIS->object_data->node && THIS->object_data->node->doc)
     {
       xmlFreeNode(THIS->object_data->node);
       THIS->object_data->node = NULL;  
     }
-    else if(THIS->object_data->node != NULL && THIS->object_data->node->doc != NULL)
+    else if(THIS && THIS->object_data && THIS->object_data->node && THIS->object_data->node->doc)
     {
       xmlFreeDoc(THIS->object_data->node->doc);
     }
@@ -1663,12 +1663,12 @@ EXIT
     free(THIS->object_data->refs);
 
   }
-  else if(THIS->object_data->transient == 0)
+  else if(THIS && THIS->object_data && THIS->object_data->transient == 0)
   {
     (*( THIS->object_data->refs)) --;
   }
 
-  if(THIS->object_data)
+  if(THIS && THIS->object_data)
   {
     free(THIS->object_data);
   }
