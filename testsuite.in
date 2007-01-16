@@ -84,10 +84,14 @@ test_true(Public.Parser.XML2.new_node("testsuite")->add_ns("http://foo.com", "fo
 ->set_attribute("bar", "http://foo.com", "gazonk")
 ->get_attributes()["bar"] == "gazonk")
 
+// do we die on a delete?
+test_false(Public.Parser.XML2.parse_xml("<?xml version=\"1.0\"?>\n<testsuite><foo/></testsuite>\n")
+           ->children()[0]
+           ->delete())
+
 // make sure that a non-ns attribute doesn't show up in a ns search.
 test_true(Public.Parser.XML2.new_node("testsuite")->add_ns("http://foo.com", "foo")
 ->set_ns("http://foo.com")
 ->set_attribute("bar", "gazonk")
 ->get_ns_attributes("http://foo.com")["bar"] == 0)
-
 
