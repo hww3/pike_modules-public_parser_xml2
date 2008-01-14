@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.104 2007-01-16 21:43:35 hww3 Exp $
+ * $Id: XML2.cmod,v 1.105 2008-01-14 23:36:26 hww3 Exp $
  */
 
 /*
@@ -700,7 +700,10 @@ PIKEFUN object parse_xml(string xml, string name)
   entity_loader = my_entity_loader;
 
   //  xmlSetExternalEntityLoader(entity_loader);
-
+  if(!xml || !name) 
+  {
+	Pike_error("missing arguments at c level!\n");
+  }
   doc = xmlReadMemory(xml->str, xml->len, name->str, 
                       NULL, 
                       THIS->object_data->xml_parser_options);

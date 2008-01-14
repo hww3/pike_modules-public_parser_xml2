@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: Stylesheet.cmod,v 1.20 2005-10-18 22:55:28 hww3 Exp $
+ * $Id: Stylesheet.cmod,v 1.21 2008-01-14 23:36:26 hww3 Exp $
  */
 
 /*
@@ -145,7 +145,7 @@ xmlDocPtr pike_docloader_conv (const xmlChar * URI, xmlDictPtr dict,
     struct Node_struct * ns;
     NODE_OBJECT_DATA * od;
     struct object * xnode;
-printf("docloader()\n");
+
     stack_dup();
     push_text(URI);
     push_int(options);
