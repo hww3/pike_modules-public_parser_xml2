@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: Node.cmod,v 1.40 2008-01-14 23:36:26 hww3 Exp $
+ * $Id: Node.cmod,v 1.41 2008-02-01 19:55:58 hww3 Exp $
  */
 
 /*
@@ -663,7 +663,7 @@ PIKEFUN void delete()
 
   xmlUnlinkNode(THIS->object_data->node); 
   xmlFreeNode(THIS->object_data->node);
-  printf("Node()->delete(): complete\n");
+//  printf("Node()->delete(): complete\n");
 
   THIS->object_data->node = NULL;  
 // we don't pop anything from the stack, 'cause nothing was pushed to us.

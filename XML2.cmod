@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: XML2.cmod,v 1.105 2008-01-14 23:36:26 hww3 Exp $
+ * $Id: XML2.cmod,v 1.106 2008-02-01 19:55:58 hww3 Exp $
  */
 
 /*
@@ -214,6 +214,32 @@ PIKEFUN void set_xml_parser_options(int options)
 {
   THIS->object_data->xml_parser_options = options;
   pop_stack();
+}
+
+/*! @decl int get_xml_parser_options()
+ *!
+ *! gets parser options for XML mode parsing. 
+ *! 
+ *! @returns
+ *!   a bitwise or of @[Public.Parser.XML2.Constants] options 
+ *!   where valid options start with PARSE_. 
+ */
+PIKEFUN int get_xml_parser_options()
+{
+  push_int(THIS->object_data->xml_parser_options);
+}
+
+/*! @decl int get_html_parser_options()
+ *!
+ *! gets parser options for HTML mode parsing. 
+ *! 
+ *! @returns
+ *!   a bitwise or of @[Public.Parser.XML2.Constants] options 
+ *!   where valid options start with PARSE_. 
+ */
+PIKEFUN int get_html_parser_options()
+{
+  push_int(THIS->object_data->html_parser_options);
 }
 
 /*! @decl void set_auto_utf8_convert(int flag)
