@@ -4,8 +4,23 @@ AC_INIT(xml2_config.h.in)
 AC_MODULE_INIT()
 AC_CONFIG_HEADERS(xml2_config.h)
 
-PKG_CHECK_MODULES(XML2, libxml-2.0)
-PKG_CHECK_MODULES(XSLT, libxslt)
+cmd=`which xml2-config`
+if test "x$cmd" != "x" ; then
+echo "checking $cmd for flags..."
+XML2_CFLAGS=`$cmd --cflags`
+XML2_LIBS=`$cmd --libs`
+echo "  FLAGS: $XML2_CFLAGS"
+echo "  LIBS: $XML2_LIBS"
+fi
+
+cmd=`which xslt-config`
+if test "x$cmd" != "x" ; then
+echo "checking $cmd for flags..."
+XSLT_CFLAGS=`$cmd --cflags`
+XSLT_LIBS=`$cmd --libs`
+echo "  FLAGS: $XSLT_CFLAGS"
+echo "  LIBS: $XSLT_LIBS"
+fi
 
 CPPFLAGS="${CPPFLAGS} ${XML2_CFLAGS} ${XSLT_CFLAGS}"
 LDFLAGS="${LDFLAGS} ${XML2_LIBS} ${XSLT_LIBS}"
