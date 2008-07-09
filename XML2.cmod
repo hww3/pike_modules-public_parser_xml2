@@ -527,8 +527,9 @@ PIKEFUN string render_html(object n)
 
 void my_relaxng_generic_error(void * userData, const char * error)
 {
-  push_text(error);
-  f_werror(1);
+printf("%s\n", error);
+//  push_text(error);
+//  f_werror(1);
 }
 
 void my_structured_error(void * userData, xmlErrorPtr error)
@@ -539,9 +540,9 @@ void my_structured_error(void * userData, xmlErrorPtr error)
   {
     snprintf(err, sizeof(err), "Public.Parser.XML error: %d, message: %s", 
              error->level, error->message);
-    push_text(err);
-
-    f_werror(1);
+   // push_text(err);
+   // f_werror(1);
+   printf("%s\n", err);
   }
 
 }
