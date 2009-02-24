@@ -3,6 +3,7 @@ Version History
 Version 1.42
 - Add XML2.get_xml_parser_options() and get_html_parser_options().
 - Fix some memory leaks in various Node methods.
+- Strengthened bounds checking on parse_xml().
 
 Version 1.40
 - XMLReader is actually usable now that we manage memory properly

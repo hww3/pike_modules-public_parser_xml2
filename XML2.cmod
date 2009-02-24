@@ -727,7 +727,7 @@ PIKEFUN object parse_xml(string xml, string name)
   entity_loader = my_entity_loader;
 
   //  xmlSetExternalEntityLoader(entity_loader);
-  if(!xml || !name) 
+  if(!xml || !name || !THIS || !THIS->object_data) 
   {
 	Pike_error("missing arguments at c level!\n");
   }
@@ -1093,7 +1093,7 @@ EXTRA
   struct pike_string * ps;
   char * err_ctx = "parse_xml";
 
-  add_string_constant("__version", "1.40", 0);
+  add_string_constant("__version", "1.42", 0);
   add_string_constant("__author", "Bill Welliver <bill@welliver.org>", 0);
 
   structured_handler = my_structured_error;
