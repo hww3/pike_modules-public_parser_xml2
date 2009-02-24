@@ -18,8 +18,8 @@ CONFIG_HEADERS=@CONFIG_HEADERS@
 @dependencies@
 
 release:
-	cvs rtag -F -D now RELEASE_1_${MIN} pike_modules/Public_Parser_XML2
-	cvs export -d Public_Parser_XML2-1.${MIN} -r RELEASE_1_${MIN} pike_modules/Public_Parser_XML2
+	svn copy -m "tagging project" http://wush.net/svn/hww3/trunk http://wush.net/svn/hww3/tags/Public_Parser_XML2_RELEASE_1_${MIN}
+	svn export http://wush.net/svn/hww3/tags/Public_Parser_XML2_RELEASE_1_${MIN}/pike_modules/Public_Parser_XML2 Public_Parser_XML2-1.${MIN}
 	cd Public_Parser_XML2-1.${MIN} && \
 	pike -x module --autoheader && pike -x module --autoconf && \
 	rm -rf autom4*
