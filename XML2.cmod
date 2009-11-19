@@ -1100,7 +1100,7 @@ EXTRA
   xmlSetStructuredErrorFunc((void *)err_ctx, structured_handler);
 
   pike_init_xml2_constants();
-  pike_init_xml2_html();
+//  pike_init_xml2_html();
   pike_init_xml2_node();
   pike_init_xml2_sax();
   pike_init_xml2_stylesheet();
@@ -1136,7 +1136,7 @@ EXIT
   pike_exit_xml2_stylesheet();
   pike_exit_xml2_sax();
   pike_exit_xml2_node();
-  pike_exit_xml2_html();
+//  pike_exit_xml2_html();
   pike_exit_xml2_constants();
   
 #ifdef HAVE_XSLT
