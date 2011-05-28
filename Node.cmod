@@ -59,7 +59,6 @@
 #define THIS_IS_XML2_NODE 1
 
 #include "xml2.h"
-
 /*! @module Public
  */
 
@@ -77,6 +76,7 @@ optflags ID_PRIVATE;
 {
 
   CVAR NODE_OBJECT_DATA   *object_data;
+
 
 PIKEFUN string _sprintf(int type, mixed t)
 {

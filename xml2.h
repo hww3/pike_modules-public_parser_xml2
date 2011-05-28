@@ -56,6 +56,10 @@
  *
  */
 
+#ifndef DEFAULT_CMOD_STORAGE
+#define DEFAULT_CMOD_STORAGE
+#endif
+
 #define _GNU_SOURCE
 
 #include "xml2_config.h"
@@ -178,69 +182,67 @@ xmlGenericErrorFunc generic_handler;
 xmlRelaxNGValidityErrorFunc relaxng_error_handler;
 xmlRelaxNGValidityWarningFunc relaxng_warning_handler;
 
-  xmlEntityPtr my_getParameterEntity(void * ctx, const xmlChar * name); 
+xmlEntityPtr my_getParameterEntity(void * ctx, const xmlChar * name); 
 xmlEntityPtr my_xml_getent(void * ctx, const xmlChar * name);
 
-  xmlEntityPtr my_getEntity(void * ctx, const xmlChar * name);
+xmlEntityPtr my_getEntity(void * ctx, const xmlChar * name);
 
-  xmlParserInputPtr my_resolveEntity(void * ctx, const xmlChar * publicId, 
+xmlParserInputPtr my_resolveEntity(void * ctx, const xmlChar * publicId, 
     const xmlChar * systemId);
 
-  void my_startElementNs(void * ctx, const xmlChar * localname, 
+void my_startElementNs(void * ctx, const xmlChar * localname, 
     const xmlChar * prefix, const xmlChar * uri, 
     int nb_namespaces, const xmlChar ** namespaces,
     int nb_attributes, int nb_defaulted,
     const xmlChar ** atts);
 
-  void my_endElementNs(void * ctx, const xmlChar * localname,
+void my_endElementNs(void * ctx, const xmlChar * localname,
     const xmlChar * prefix, const xmlChar * uri);
 
-  void my_serror(void * ctx, xmlErrorPtr error);
-  void my_entityDecl(void * ctx, const xmlChar * name, int type, const xmlChar * publicId, const xmlChar * systemId, xmlChar * content);
-  void my_unparsedEntityDecl(void * ctx, const xmlChar * name, const xmlChar * publicId, const xmlChar * systemId, const xmlChar * notationName);
-  void my_attributeDecl(void * ctx, const xmlChar * elem, const xmlChar* fullname, int type, int def, const xmlChar * defaultValue, xmlEnumerationPtr tree);
-  void my_elementDecl(void * ctx, const xmlChar * name, int type, xmlElementContentPtr content);
-  void my_startElement(void * ctx, const xmlChar * fullname, const xmlChar ** atts);
-  void my_comment(void * ctx, const xmlChar * name);
-  void my_characters(void * ctx, const xmlChar * ch, int len);
-  void my_cdataBlock(void * ctx, const xmlChar * ch, int len);
-  void my_ignorableWhitespace(void * ctx, const xmlChar * ch, int len);
-  void my_processingInstruction(void * ctx, const xmlChar * target, const xmlChar * data);
-  void my_internalSubset(void * ctx, const xmlChar * name, const xmlChar * ExternalID, const xmlChar * SystemID);
-  void my_externalSubset(void * ctx, const xmlChar * name, const xmlChar * ExternalID, const xmlChar * SystemID);
-  void my_notationDecl(void * ctx, const xmlChar * name, const xmlChar * publicId, const xmlChar * systemId);
-  void my_reference(void * ctx, const xmlChar * name);
-  void my_endElement(void * ctx, const xmlChar * name);
-  int my_hasInternalSubset(void * data);
-  int my_hasExternalSubset(void * data);
-  void my_startDocument(void * data);
-  void my_endDocument(void * data);
-  int my_isStandalone(void * data);
-  void  make_PSAX_handler();
-  struct array * get_callback_data(struct object * o);
-  struct svalue * get_callback_func(struct object * o);
+void my_serror(void * ctx, xmlErrorPtr error);
+void my_entityDecl(void * ctx, const xmlChar * name, int type, const xmlChar * publicId, const xmlChar * systemId, xmlChar * content);
+void my_unparsedEntityDecl(void * ctx, const xmlChar * name, const xmlChar * publicId, const xmlChar * systemId, const xmlChar * notationName);
+void my_attributeDecl(void * ctx, const xmlChar * elem, const xmlChar* fullname, int type, int def, const xmlChar * defaultValue, xmlEnumerationPtr tree);
+void my_elementDecl(void * ctx, const xmlChar * name, int type, xmlElementContentPtr content);
+void my_startElement(void * ctx, const xmlChar * fullname, const xmlChar ** atts);
+void my_comment(void * ctx, const xmlChar * name);
+void my_characters(void * ctx, const xmlChar * ch, int len);
+void my_cdataBlock(void * ctx, const xmlChar * ch, int len);
+void my_ignorableWhitespace(void * ctx, const xmlChar * ch, int len);
+void my_processingInstruction(void * ctx, const xmlChar * target, const xmlChar * data);
+void my_internalSubset(void * ctx, const xmlChar * name, const xmlChar * ExternalID, const xmlChar * SystemID);
+void my_externalSubset(void * ctx, const xmlChar * name, const xmlChar * ExternalID, const xmlChar * SystemID);
+void my_notationDecl(void * ctx, const xmlChar * name, const xmlChar * publicId, const xmlChar * systemId);
+void my_reference(void * ctx, const xmlChar * name);
+void my_endElement(void * ctx, const xmlChar * name);
+int my_hasInternalSubset(void * data);
+int my_hasExternalSubset(void * data);
+void my_startDocument(void * data);
+void my_endDocument(void * data);
+int my_isStandalone(void * data);
+void  make_PSAX_handler();
+struct array * get_callback_data(struct object * o);
+struct svalue * get_callback_func(struct object * o);
 
-
-
-  typedef struct
-  {
+typedef struct
+{
     xmlSAXHandlerPtr sax;
     struct array * handlers;
     xmlParserCtxtPtr context;
     xmlParserOption options;
-  } SAX_OBJECT_DATA;
+} SAX_OBJECT_DATA;
 
-  typedef struct
-  {
+typedef struct
+{
     INT32 * refs;
     struct object * parser;
 #ifdef HAVE_LIBXML_RELAXNG_H
     xmlRelaxNGPtr valid;
     xmlRelaxNGParserCtxtPtr context;
 #endif /* HAVE_LIBXML_RELAXNG_H */
-  } RELAXNG_OBJECT_DATA;
+} RELAXNG_OBJECT_DATA;
 
-  typedef struct
+typedef struct
   {
 #ifdef HAVE_LIBXML_XMLREADER_H
     xmlTextReaderPtr reader;
@@ -248,50 +250,47 @@ xmlEntityPtr my_xml_getent(void * ctx, const xmlChar * name);
     struct object * parser;
     struct pike_string * xml;
     int autoencode;
-  } XMLREADER_OBJECT_DATA;
+} XMLREADER_OBJECT_DATA;
 
-  typedef struct
-  {
+typedef struct
+{
     int xml_parser_options;
     int html_parser_options;
     int auto_encode;
-  } PARSER_OBJECT_DATA;
+} PARSER_OBJECT_DATA;
 
-  typedef struct
-  {
+typedef struct
+{
     xmlNodePtr node;
     int unlinked;
     int transient;
     struct object * parser;
     INT32 * refs;
-  } NODE_OBJECT_DATA;
+} NODE_OBJECT_DATA;
 
-  typedef struct
-  {
+typedef struct
+{
     xmlParserCtxtPtr ctxt;
     xmlNodePtr html;
-  } HTML_OBJECT_DATA;
+} HTML_OBJECT_DATA;
 
-  typedef struct
-  {
+typedef struct
+{
     xsltStylesheetPtr stylesheet;
     const char ** atts;
     struct object * parser;
     INT32 * refs;
-  } STYLESHEET_OBJECT_DATA;
+} STYLESHEET_OBJECT_DATA;
 
 #ifndef THIS_IS_XML2_NODE
-
 #define THIS_NODE ((struct Node_struct *)(Pike_interpreter.frame_pointer->current_storage))
 
 struct Node_struct {
  NODE_OBJECT_DATA   *object_data;
 };
-
-#endif
+#endif /* THIS_IS_XML2_NODE */
 
 #ifndef THIS_IS_XML2_STYLESHEET
-
 #define THIS_STYLESHEET ((struct Stylesheet_struct *)(Pike_interpreter.frame_pointer->current_storage))
 
 struct Stylesheet_struct {
@@ -299,10 +298,9 @@ struct Stylesheet_struct {
  struct object * node;
 };
 
-#endif
+#endif /* THIS_IS_XML2_STYLESHEET */
 
 #ifndef THIS_IS_XML2_RELAXNG
-
 #define THIS_RELAXNG ((struct RelaxNG_struct *)(Pike_interpreter.frame_pointer->current_storage))
 
 struct RelaxNG_struct {
@@ -310,7 +308,7 @@ struct RelaxNG_struct {
  struct object * node;
 };
 
-#endif
+#endif /* THIS_IS_XML2_RELAXNG */
 
 #ifndef THIS_IS_XML2_XMLREADER
 
@@ -320,7 +318,7 @@ XMLREADER_OBJECT_DATA   *object_data;
 
 #define THIS_XMLREADER ((struct XMLReader_struct *)(Pike_interpreter.frame_pointer->current_storage))
 
-#endif
+#endif /* THIS_IS_XML2_XMLREADER */
 
 #define mySAX THIS->object_data->sax
 
@@ -342,6 +340,7 @@ XMLREADER_OBJECT_DATA   *object_data;
 #define NEW_NODE_OBJ(_X_, _Y_) { apply(Pike_fp->current_object, "Node", 0); \
   OBJ2_NODE((Pike_sp[0-1].u.object))->object_data->node = _Y_; \
   _X_ = Pike_sp[0-1].u.object; pop_stack(); }
+
 #define NEW_NODE_OBJ_REFS(o)    OBJ2_NODE(o)->object_data->refs = THIS->object_data->refs; \
     (* OBJ2_NODE(o)->object_data->refs) ++;
 
@@ -364,4 +363,3 @@ XMLREADER_OBJECT_DATA   *object_data;
     _sp_[-1]=_sp_[0-Q];                                                  \
     _sp_[0-Q]=_;                                                         \
   } while(0)
-
