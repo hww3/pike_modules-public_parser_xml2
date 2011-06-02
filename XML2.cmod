@@ -1122,7 +1122,7 @@ INIT
   dta->xml_parser_options = 0;
   dta->html_parser_options = 0;
   dta->auto_encode = 1;
-  if(THIS!=NULL && THIS->object_data != NULL && THIS->object_data != NULL && dta != NULL)
+  if(THIS != NULL && dta != NULL)
     THIS->object_data = dta;
  
   LIBXML_TEST_VERSION

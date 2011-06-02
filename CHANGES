@@ -1,5 +1,9 @@
 Version History
 
+Version 1.44
+- Fix segfault on certain platforms caused by differences in variable
+   initialization
+
 Version 1.42
 - Add XML2.get_xml_parser_options() and get_html_parser_options().
 - Fix some memory leaks in various Node methods.
