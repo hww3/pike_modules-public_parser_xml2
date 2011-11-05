@@ -29,10 +29,12 @@ AC_CHECK_FUNCS(strlcpy)
 AC_CHECK_FUNCS(memcpy)
 
 AC_CHECK_HEADERS(libxml/parser.h)
+AC_CHECK_HEADERS(libxml/parserInternals.h)
 AC_CHECK_HEADERS(libxml/xpath.h)
 AC_CHECK_HEADERS(libxml/SAX2.h)
 AC_CHECK_HEADERS(libxml/xmlreader.h)
 AC_CHECK_HEADERS(libxml/relaxng.h)
+AC_CHECK_HEADERS(libxml/HTMLtree.h)
 
 AC_CHECK_HEADERS(libxslt/xslt.h)
 AC_CHECK_HEADERS(libxslt/xsltInternals.h)

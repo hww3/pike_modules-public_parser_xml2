@@ -83,6 +83,9 @@
 
 #ifdef HAVE_LIBXML_PARSER_H
 #include <libxml/parser.h>
+#endif
+
+#ifdef HAVE_LIBXML_PARSERINTERNALS_H
 #include <libxml/parserInternals.h>
 #endif
 
@@ -90,6 +93,10 @@
 #include <libxml/tree.h>
 #endif
 
+#ifdef HAVE_LIBXML_HTMLTREE_H
+#include <libxml/HTMLtree.h>
+#endif
+ 
 #ifdef HAVE_LIBXML_SAX2_H
 #include <libxml/SAX2.h>
 #endif
@@ -274,6 +281,7 @@ typedef struct
     xmlNodePtr html;
 } HTML_OBJECT_DATA;
 
+#ifdef HAVE_LIBXSLT_XSLT_H
 typedef struct
 {
     xsltStylesheetPtr stylesheet;
@@ -281,6 +289,7 @@ typedef struct
     struct object * parser;
     INT32 * refs;
 } STYLESHEET_OBJECT_DATA;
+#endif /* HAVE_LIBXSLT_XSLT_H */
 
 #ifndef THIS_IS_XML2_NODE
 #define THIS_NODE ((struct Node_struct *)(Pike_interpreter.frame_pointer->current_storage))
@@ -290,6 +299,7 @@ struct Node_struct {
 };
 #endif /* THIS_IS_XML2_NODE */
 
+#ifdef HAVE_LIBXSLT_XSLT_H
 #ifndef THIS_IS_XML2_STYLESHEET
 #define THIS_STYLESHEET ((struct Stylesheet_struct *)(Pike_interpreter.frame_pointer->current_storage))
 
@@ -299,6 +309,7 @@ struct Stylesheet_struct {
 };
 
 #endif /* THIS_IS_XML2_STYLESHEET */
+#endif /* HAVE_LIBXSLT_XSLT_H */
 
 #ifndef THIS_IS_XML2_RELAXNG
 #define THIS_RELAXNG ((struct RelaxNG_struct *)(Pike_interpreter.frame_pointer->current_storage))
@@ -329,12 +340,18 @@ XMLREADER_OBJECT_DATA   *object_data;
 
 
 #define MY_NODE (THIS->object_data->node)
+
+#ifdef HAVE_LIBXSLT_XSLT_H
 #define MY_STYLESHEET (THIS->object_data->stylesheet)
+#endif 
 
 #define OBJ2_(o) ((struct _struct *)(o->storage+_storage_offset))
 #define OBJ2_NODE(o) ((struct Node_struct *)get_storage(o, Node_program))
 
+#ifdef HAVE_LIBXSLT_XSLT_H
 #define OBJ2_STYLESHEET(o) ((struct Stylesheet_struct *)get_storage(o, Stylesheet_program))
+#endif
+
 #define OBJ2_RELAXNG(o) ((struct RelaxNG_struct *)get_storage(o, RelaxNG_program))
 
 #define NEW_NODE_OBJ(_X_, _Y_) { apply(Pike_fp->current_object, "Node", 0); \

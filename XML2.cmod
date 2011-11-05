@@ -510,7 +510,7 @@ PIKEFUN string render_html(object n)
     Pike_error("Node not initialized.\n");
   }
 
-  htmlDocDumpMemory(OBJ2_NODE(n)->object_data->node->doc, &buf, &bufsize, 1);
+  htmlDocDumpMemory(OBJ2_NODE(n)->object_data->node->doc, &buf, &bufsize);
 
   if(buf!=NULL)
   {
@@ -1044,6 +1044,7 @@ PIKEFUN object parse_xslt(string xslt, string name)
 
 void handle_parse_stylesheet(INT32 args)
 {
+#ifdef HAVE_LIBXSLT_XSLT_H
   struct object * node_obj = NULL;
   xsltStylesheetPtr sty = NULL;
   xmlDocPtr doc = NULL;
@@ -1086,6 +1087,9 @@ void handle_parse_stylesheet(INT32 args)
 //  (*(OBJ2_NODE(node_obj)->object_data->refs))++;
   od->stylesheet = sty;
   ss->node = node_obj;
+#else
+ Pike_error("XSLT is not available due to missing libxslt.\n");
+#endif /* HAVE_LIBXSLT_XSLT_H */
 }
 
 EXTRA
