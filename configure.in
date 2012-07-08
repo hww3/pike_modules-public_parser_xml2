@@ -41,9 +41,10 @@ AC_CHECK_HEADERS(libxslt/xsltInternals.h)
 AC_CHECK_HEADERS(libxslt/transform.h)
 AC_CHECK_HEADERS(libxslt/xsltutils.h)
 AC_CHECK_HEADERS(libxslt/document.h)
+AC_CHECK_HEADERS(libxslt/documents.h)
 
 AC_CHECK_LIB(xml2, xmlCleanupParser) 
-AC_CHECK_LIB(xslt, xsltCleanupGlobals) 
+AC_CHECK_LIB(xslt, xsltInit) 
 
 AC_CHECK_FUNCS(xmlNewDocPI) 
 AC_CHECK_FUNCS(xsltSetLoaderFunc) 

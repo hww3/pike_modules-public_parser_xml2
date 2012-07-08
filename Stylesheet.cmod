@@ -55,6 +55,7 @@
  *
  *
  */
+#include "xml2_config.h"
 #ifdef HAVE_LIBXSLT
 
 #define THIS_IS_XML2_STYLESHEET 1

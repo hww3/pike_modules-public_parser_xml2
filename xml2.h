@@ -114,6 +114,10 @@
 #include <libxslt/document.h>
 #endif
 
+#ifdef HAVE_LIBXSLT_DOCUMENTS_H
+#include <libxslt/documents.h>
+#endif
+
 #ifdef HAVE_LIBXSLT_XSLTINTERNALS_H
 #include <libxslt/xsltInternals.h>
 #endif
