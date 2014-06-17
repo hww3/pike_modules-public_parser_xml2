@@ -51,6 +51,7 @@ AC_CHECK_FUNCS(xsltSetLoaderFunc)
 AC_CHECK_FUNCS(xmlTextReaderGetParserLineNumber)
 AC_CHECK_FUNCS(xmlTextReaderGetParserColumnNumber)
 AC_CHECK_FUNCS(xmlTextReaderIsNamespaceDecl)
+AC_CHECK_FUNCS(xmlOutputBufferGetContent)
 
 AC_SUBST(XML2_CFLAGS) 
 AC_SUBST(XML2_LIBS)

@@ -95,3 +95,4 @@ test_true(Public.Parser.XML2.new_node("testsuite")->add_ns("http://foo.com", "fo
 ->set_attribute("bar", "gazonk")
 ->get_ns_attributes("http://foo.com")["bar"] == 0)
 
+END_MARKER

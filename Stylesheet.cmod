@@ -335,6 +335,7 @@ PIKEFUN string output(object xml)
 {
   xmlOutputBufferPtr xmlBuf;
   xmlCharEncodingHandlerPtr encoder;
+  const xmlChar * output;
 
   CHECK_NODE_PASSED(xml);
   encoder = xmlGetCharEncodingHandler((xmlCharEncoding)10);
@@ -349,7 +350,12 @@ PIKEFUN string output(object xml)
 
   pop_n_elems(args);
 
+#ifdef HAVE_XMLOUTPUTBUFFERGETCONTENT
+  output = xmlOutputBufferGetContent(xmlBuf);
+  push_text(output);
+#else
   push_text(xmlBuf->conv->content);
+#endif /* HAVE_XMLOUTPUTBUFFERGETCONTENT */
 
   xmlOutputBufferClose(xmlBuf);
 }
@@ -358,6 +364,7 @@ PIKEFUN string output(object xml, int encoding)
 {
   xmlOutputBufferPtr xmlBuf;
   xmlCharEncodingHandlerPtr encoder;
+  const xmlChar * output;
 
   CHECK_NODE_PASSED(xml);
   encoder = xmlGetCharEncodingHandler((xmlCharEncoding)encoding);
@@ -372,7 +379,13 @@ PIKEFUN string output(object xml, int encoding)
 
   pop_n_elems(args);
 
+
+#ifdef HAVE_XMLOUTPUTBUFFERGETCONTENT
+  output = xmlOutputBufferGetContent(xmlBuf);
+  push_text(output);
+#else
   push_text_len(xmlBuf->conv->content, xmlBuf->conv->use);
+#endif /* HAVE_XMLOUTPUTBUFFERGETCONTENT */
 
   xmlOutputBufferClose(xmlBuf);
 }
