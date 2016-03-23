@@ -144,7 +144,7 @@ PIKEFUN void clear_xslt_docloader()
 xmlDocPtr pike_docloader_conv (const xmlChar * URI, xmlDictPtr dict, 
                                int options, void * ctxt, int type)
 {
-    struct Node_struct * ns;
+    struct XML2_Node_struct * ns;
     NODE_OBJECT_DATA * od;
     struct object * xnode;
 
@@ -154,7 +154,7 @@ xmlDocPtr pike_docloader_conv (const xmlChar * URI, xmlDictPtr dict,
     push_int(type);
     apply_svalue(&Pike_sp[0-4], 3);
 
-    if(Pike_sp[0-1].type != T_OBJECT)
+    if(TYPEOF(Pike_sp[0-1]) != T_OBJECT)
       return NULL;
 
     CHECK_NODE_PASSED(Pike_sp[0-1].u.object);
@@ -253,7 +253,7 @@ void low_apply_stylesheet(INT32 args, struct object * xml, const char ** atts)
 {
   int i;
   xmlDocPtr output;
-  struct Node_struct * ns;
+  struct XML2_Node_struct * ns;
   NODE_OBJECT_DATA * od;
   struct object * xnode;
   int have_func = 0;
@@ -270,7 +270,7 @@ void low_apply_stylesheet(INT32 args, struct object * xml, const char ** atts)
 #ifdef HAVE_XSLTSETLOADERFUNC
     push_svalue(&THIS->docloader);  
 
-    if(Pike_sp[0-1].type == T_FUNCTION)
+    if(TYPEOF(Pike_sp[0-1]) == T_FUNCTION)
     {
       have_func = 1;
       xsltSetLoaderFunc(pike_docloader_conv);
@@ -436,7 +436,7 @@ char** low_set_attributes(struct mapping * variables)
     {
       sind = k->ind;
       sval = k->val;
-      if(!(sind.type == T_STRING && sval.type == T_STRING)) 
+      if(!(TYPEOF(sind) == T_STRING && TYPEOF(sval) == T_STRING)) 
       {
         continue;
       }

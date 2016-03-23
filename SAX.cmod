@@ -82,7 +82,7 @@ PIKECLASS SAX
   {
     int z = 0;
 
-    if(ITEM(THIS->object_data->handlers)[callback_id].type!=PIKE_T_INT)
+    if(TYPEOF(ITEM(THIS->object_data->handlers)[callback_id])!=PIKE_T_INT)
     {
        struct svalue * func;
        struct array * a;
@@ -104,7 +104,7 @@ PIKECLASS SAX
 
   void PSAX_string_len_callback(int cb_type, void * ctx, const xmlChar * ch, int len)
   {
-    if(ITEM(THIS->object_data->handlers)[cb_type].type!=PIKE_T_INT)
+    if(TYPEOF(ITEM(THIS->object_data->handlers)[cb_type])!=PIKE_T_INT)
     {
        struct svalue * func;
        struct array * a;
@@ -131,7 +131,7 @@ PIKECLASS SAX
     int retval;
     int z = 0;
 
-    if(ITEM(THIS->object_data->handlers)[callback_id].type!=PIKE_T_INT)
+    if(TYPEOF(ITEM(THIS->object_data->handlers)[callback_id])!=PIKE_T_INT)
     {
        struct svalue * func;
        struct array * a;
@@ -155,7 +155,7 @@ PIKECLASS SAX
 
   xmlEntityPtr my_getEntity(void * ctx, const xmlChar * name)
   {
-    if(ITEM(THIS->object_data->handlers)[CB_GETENTITY].type!=PIKE_T_INT)
+    if(TYPEOF(ITEM(THIS->object_data->handlers)[CB_GETENTITY])!=PIKE_T_INT)
     {
       struct svalue * func;
       struct array * a;
@@ -176,7 +176,7 @@ PIKECLASS SAX
 
       apply_svalue(func, a->size + 1);
 
-      if(Pike_sp[0-1].type == T_STRING)
+      if(TYPEOF(Pike_sp[0-1]) == T_STRING)
       {
         printf("got value: %s\n", Pike_sp[0-1].u.string->str);
         ent = xmlMalloc(sizeof(xmlEntity));
@@ -191,7 +191,7 @@ PIKECLASS SAX
 		pop_stack();
         return ent;
       }
-      else if(Pike_sp[0-1].type == T_INT && Pike_sp[0-1].u.integer == 0)
+      else if(TYPEOF(Pike_sp[0-1]) == T_INT && Pike_sp[0-1].u.integer == 0)
       {
 		pop_stack();
         return NULL;
@@ -208,7 +208,7 @@ PIKECLASS SAX
 
   void my_serror(void * ctx, xmlErrorPtr error)
   {
-    if(ITEM(THIS->object_data->handlers)[CB_SERROR].type!=PIKE_T_INT)
+    if(TYPEOF(ITEM(THIS->object_data->handlers)[CB_SERROR])!=PIKE_T_INT)
     {
        struct svalue * func;
        struct array * a;
@@ -245,7 +245,7 @@ PIKECLASS SAX
 
   xmlEntityPtr my_getParameterEntity(void * ctx, const xmlChar * name)
   {
-    if(ITEM(THIS->object_data->handlers)[CB_GETPARAMETERENTITY].type!=PIKE_T_INT)
+    if(TYPEOF(ITEM(THIS->object_data->handlers)[CB_GETPARAMETERENTITY])!=PIKE_T_INT)
     {
        struct svalue * func;
        struct array * a;
@@ -266,7 +266,7 @@ PIKECLASS SAX
        apply_svalue(func, a->size + 1);
 
        // check that we've returned a string.
-       if(Pike_sp[0-1].type == PIKE_T_STRING)
+       if(TYPEOF(Pike_sp[0-1]) == PIKE_T_STRING)
        {
          char * r;
          if((Pike_sp[0-1].u.string->str)[-1] != '\0')
@@ -290,7 +290,7 @@ PIKECLASS SAX
 
          return rs;
        }
-       else if(Pike_sp[0-1].type == PIKE_T_INT && Pike_sp[0-1].u.integer == 0)
+       else if(TYPEOF(Pike_sp[0-1]) == PIKE_T_INT && Pike_sp[0-1].u.integer == 0)
        {
          rs = xmlNewStringInputStream(ctx, (xmlChar *)'0');
 
@@ -309,7 +309,7 @@ PIKECLASS SAX
   xmlParserInputPtr my_resolveEntity(void * ctx, const xmlChar * publicId,
     const xmlChar * systemId)
   {
-    if(ITEM(THIS->object_data->handlers)[CB_RESOLVEENTITY].type!=PIKE_T_INT)
+    if(TYPEOF(ITEM(THIS->object_data->handlers)[CB_RESOLVEENTITY])!=PIKE_T_INT)
     {
        struct svalue * func;
        struct array * a;
@@ -331,7 +331,7 @@ PIKECLASS SAX
        apply_svalue(func, a->size + 2);
 
        // check that we've returned a string.
-       if(Pike_sp[0-1].type == PIKE_T_STRING)
+       if(TYPEOF(Pike_sp[0-1]) == PIKE_T_STRING)
        {
          char * r;
          if((Pike_sp[0-1].u.string->str)[-1] != '\0')
@@ -350,7 +350,7 @@ PIKECLASS SAX
 
          return rs;
        }
-       else if(Pike_sp[0-1].type == PIKE_T_INT && Pike_sp[0-1].u.integer == 0)
+       else if(TYPEOF(Pike_sp[0-1]) == PIKE_T_INT && Pike_sp[0-1].u.integer == 0)
        {
          rs = xmlNewStringInputStream(ctx, (xmlChar *)'0');
 
@@ -369,7 +369,7 @@ PIKECLASS SAX
 
   void my_entityDecl(void * ctx, const xmlChar * name, int type, const xmlChar * publicId, const xmlChar * systemId, xmlChar * content)
   {
-    if(ITEM(THIS->object_data->handlers)[CB_ENTITYDECL].type!=PIKE_T_INT)
+    if(TYPEOF(ITEM(THIS->object_data->handlers)[CB_ENTITYDECL])!=PIKE_T_INT)
     {
        struct svalue * func;
        struct array * a;
@@ -397,7 +397,7 @@ PIKECLASS SAX
 
   void my_elementDecl(void * ctx, const xmlChar * name, int type, xmlElementContentPtr content)
   {
-    if(ITEM(THIS->object_data->handlers)[CB_ELEMENTDECL].type!=PIKE_T_INT)
+    if(TYPEOF(ITEM(THIS->object_data->handlers)[CB_ELEMENTDECL])!=PIKE_T_INT)
     {
        struct svalue * func;
        struct array * a;
@@ -422,7 +422,7 @@ PIKECLASS SAX
 
   void my_unparsedEntityDecl(void * ctx, const xmlChar * name, const xmlChar * publicId, const xmlChar * systemId, const xmlChar * notationName)
   {
-    if(ITEM(THIS->object_data->handlers)[CB_UNPARSEDENTITYDECL].type!=PIKE_T_INT)
+    if(TYPEOF(ITEM(THIS->object_data->handlers)[CB_UNPARSEDENTITYDECL])!=PIKE_T_INT)
     {
        struct svalue * func;
        struct array * a;
@@ -449,7 +449,7 @@ PIKECLASS SAX
 
   void my_attributeDecl(void * ctx, const xmlChar * elem, const xmlChar* fullname, int type, int def, const xmlChar * defaultValue, xmlEnumerationPtr tree)
   {
-    if(ITEM(THIS->object_data->handlers)[CB_ATTRIBUTEDECL].type!=PIKE_T_INT)
+    if(TYPEOF(ITEM(THIS->object_data->handlers)[CB_ATTRIBUTEDECL])!=PIKE_T_INT)
     {
        xmlEnumerationPtr p;
        struct svalue * func;
@@ -489,7 +489,7 @@ PIKECLASS SAX
 
   void my_notationDecl(void * ctx, const xmlChar * name, const xmlChar * publicId, const xmlChar * systemId)
   {
-    if(ITEM(THIS->object_data->handlers)[CB_NOTATIONDECL].type!=PIKE_T_INT)
+    if(TYPEOF(ITEM(THIS->object_data->handlers)[CB_NOTATIONDECL])!=PIKE_T_INT)
     {
        struct svalue * func;
        struct array * a;
@@ -515,7 +515,7 @@ PIKECLASS SAX
 
   void my_internalSubset(void * ctx, const xmlChar * name, const xmlChar * ExternalID, const xmlChar * SystemID)
   {
-    if(ITEM(THIS->object_data->handlers)[CB_INTERNALSUBSET].type!=PIKE_T_INT)
+    if(TYPEOF(ITEM(THIS->object_data->handlers)[CB_INTERNALSUBSET])!=PIKE_T_INT)
     {
        struct svalue * func;
        struct array * a;
@@ -547,7 +547,7 @@ PIKECLASS SAX
 
   void my_externalSubset(void * ctx, const xmlChar * name, const xmlChar * ExternalID, const xmlChar * SystemID)
   {
-    if(ITEM(THIS->object_data->handlers)[CB_EXTERNALSUBSET].type!=PIKE_T_INT)
+    if(TYPEOF(ITEM(THIS->object_data->handlers)[CB_EXTERNALSUBSET])!=PIKE_T_INT)
     {
        struct svalue * func;
        struct array * a;
@@ -573,7 +573,7 @@ PIKECLASS SAX
 
   void my_processingInstruction(void * ctx, const xmlChar * target, const xmlChar * data)
   {
-    if(ITEM(THIS->object_data->handlers)[CB_PROCESSINGINSTRUCTION].type!=PIKE_T_INT)
+    if(TYPEOF(ITEM(THIS->object_data->handlers)[CB_PROCESSINGINSTRUCTION])!=PIKE_T_INT)
     {
        struct svalue * func;
        struct array * a;
@@ -598,7 +598,7 @@ PIKECLASS SAX
 
   void my_endElement(void * ctx, const xmlChar * name)
   {
-    if(ITEM(THIS->object_data->handlers)[CB_ENDELEMENT].type!=PIKE_T_INT)
+    if(TYPEOF(ITEM(THIS->object_data->handlers)[CB_ENDELEMENT])!=PIKE_T_INT)
     {
        struct svalue * func;
        struct array * a;
@@ -637,7 +637,7 @@ PIKECLASS SAX
 
   void my_reference(void * ctx, const xmlChar * name)
   {
-    if(ITEM(THIS->object_data->handlers)[CB_REFERENCE].type!=PIKE_T_INT)
+    if(TYPEOF(ITEM(THIS->object_data->handlers)[CB_REFERENCE])!=PIKE_T_INT)
     {
        struct svalue * func;
        struct array * a;
@@ -661,7 +661,7 @@ PIKECLASS SAX
 
   void my_comment(void * ctx, const xmlChar * value)
   {
-    if(ITEM(THIS->object_data->handlers)[CB_COMMENT].type!=PIKE_T_INT)
+    if(TYPEOF(ITEM(THIS->object_data->handlers)[CB_COMMENT])!=PIKE_T_INT)
     {
        struct svalue * func;
        struct array * a;
@@ -687,7 +687,7 @@ PIKECLASS SAX
   {
     int z = 0;
 
-    if(ITEM(THIS->object_data->handlers)[CB_STARTELEMENT].type!=PIKE_T_INT)
+    if(TYPEOF(ITEM(THIS->object_data->handlers)[CB_STARTELEMENT])!=PIKE_T_INT)
     {
        struct svalue * func;
        struct array * a;
@@ -723,7 +723,7 @@ PIKECLASS SAX
   {
     int z = 0;
 
-    if(ITEM(THIS->object_data->handlers)[CB_ENDELEMENTNS].type!=PIKE_T_INT)
+    if(TYPEOF(ITEM(THIS->object_data->handlers)[CB_ENDELEMENTNS])!=PIKE_T_INT)
     {
        struct svalue * func;
        struct array * a;
@@ -763,7 +763,7 @@ PIKECLASS SAX
     int z = 0;
     int i = 0;
 
-    if(ITEM(THIS->object_data->handlers)[CB_STARTELEMENTNS].type!=PIKE_T_INT)
+    if(TYPEOF(ITEM(THIS->object_data->handlers)[CB_STARTELEMENTNS])!=PIKE_T_INT)
     {
        struct svalue * func;
        struct array * a;
@@ -1039,7 +1039,7 @@ PIKECLASS SAX
 
     make_PSAX_handler();
 
-    if(ITEM(THIS->object_data->handlers)[callback_id].type!=PIKE_T_INT)
+    if(TYPEOF(ITEM(THIS->object_data->handlers)[callback_id])!=PIKE_T_INT)
     {
       ae = &(ITEM(THIS->object_data->handlers)[callback_id]);
       free_svalue(ae);
@@ -1184,7 +1184,7 @@ PIKECLASS SAX
 
 
 
-    if(ITEM(THIS->object_data->handlers)[callback_id].type!=PIKE_T_INT)
+    if(TYPEOF(ITEM(THIS->object_data->handlers)[callback_id])!=PIKE_T_INT)
     {
       ae = &(ITEM(THIS->object_data->handlers)[callback_id]);
       free_svalue(ae);
@@ -1311,7 +1311,6 @@ PIKECLASS SAX
     int retval;
     xmlParserCtxtPtr context;
     xmlSAXHandlerPtr ySAX;
-printf("running...\n");
 
     if(THIS->object_data->context == NULL)
     {
@@ -1380,7 +1379,7 @@ printf("val %d\n", i);
       xmlSwitchToEncoding(context, enc);
       context->charset = XML_CHAR_ENCODING_UTF8;
     }
-    f_SAX_parse(1);
+    f_XML2_SAX_parse_1(1);
 }
 
   INIT
@@ -1496,7 +1495,7 @@ void make_PSAX_handler()
 {
   struct object * o;
   
-  o = clone_object(SAX_PSAXHandler_program, 2);
+  o = clone_object(XML2_SAX_PSAXHandler_program, 2);
   push_object(o);
   add_ref(o);
   return;
@@ -1504,12 +1503,12 @@ void make_PSAX_handler()
 
 struct array * get_callback_data(struct object * o)
 {
-    return OBJ2_SAX_PSAXHANDLER(o)->user_data;
+    return OBJ2_XML2_SAX_PSAXHANDLER(o)->user_data;
 } 
     
 struct svalue * get_callback_func(struct object * o)
 {
-    return &(OBJ2_SAX_PSAXHANDLER(o)->cb);
+    return &(OBJ2_XML2_SAX_PSAXHANDLER(o)->cb);
 }     
 
 /*! @endclass 

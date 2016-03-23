@@ -160,7 +160,7 @@ PIKEFUN object expand()
 {
   xmlNodePtr node;
 struct object * xnode;
-  struct Node_struct * ns;
+  struct XML2_Node_struct * ns;
   NODE_OBJECT_DATA * od;
 
   if(THIS->object_data->reader == NULL)
@@ -886,10 +886,24 @@ PIKEFUN void create(string xml, string url, int options)
 
 PIKEFUN void create(string xml)
 {
-  push_text("noname.xml");
-  push_int(0);
+  xmlTextReaderPtr reader;
 
-  f_XMLReader_create(3);
+  stack_swap_n(2);
+  f_rconvert_string_utf8(1);
+
+  reader = xmlReaderForMemory(xml->str, xml->len, "noname.xml", 
+               NULL, 0);
+
+  if(reader == NULL)
+  {
+    Pike_error("unable to get xmlReader\n");
+  }
+
+  THIS->object_data->reader = reader;
+  add_ref(xml);
+  THIS->object_data->xml = xml;
+
+  pop_n_elems(args);
 }
 
 INIT

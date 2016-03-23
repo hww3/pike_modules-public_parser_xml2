@@ -75,7 +75,8 @@
 PIKECLASS HTML
 optflags ID_PRIVATE;
 {
-CVAR HTML_OBJECT_DATA   *object_data;
+
+  CVAR HTML_OBJECT_DATA   *object_data;
 
 PIKEFUN string _sprintf(int type, mixed t)
 {

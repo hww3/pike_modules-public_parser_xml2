@@ -173,7 +173,7 @@ PIKEFUN array select_xpath_nodes(string xpath, object node)
   xn = set->nodeTab[0];
     if(xn != NULL && set->nodeNr > 0) do
     {
-      struct Node_struct * ns;
+      struct XML2_Node_struct * ns;
       NODE_OBJECT_DATA * od;
       apply(Pike_fp->current_object, "Node", 0);
       ns = OBJ2_NODE((Pike_sp[0-1].u.object));
@@ -510,7 +510,7 @@ PIKEFUN string render_html(object n)
     Pike_error("Node not initialized.\n");
   }
 
-  htmlDocDumpMemory(OBJ2_NODE(n)->object_data->node->doc, &buf, &bufsize);
+  htmlDocDumpMemory(OBJ2_NODE(n)->object_data->node->doc, &buf, &bufsize, 1);
 
   if(buf!=NULL)
   {
@@ -559,7 +559,7 @@ PIKEFUN object parse_xml_force(string xml)
 {
   xmlDocPtr doc;
   xmlNodePtr node;
-  struct Node_struct * ns;
+  struct XML2_Node_struct * ns;
   NODE_OBJECT_DATA * od;
 
   doc = xmlRecoverMemory(xml->str, xml->len);
@@ -687,7 +687,7 @@ PIKEFUN object parse_xml_sax(string xml, string name, string encoding)
 void handle_parsed_tree(xmlDocPtr doc, INT32 args)
 {
   xmlNodePtr node;
-  struct Node_struct * ns;
+  struct XML2_Node_struct * ns;
   NODE_OBJECT_DATA * od;
   char * err_ctx = "parse_xml";
 
@@ -742,7 +742,7 @@ PIKEFUN object parse_xml(string xml, string name)
 PIKEFUN object parse_xml(string xml)
 {
   push_text("noname.xml");
-  f_parse_xml(2);
+  f_XML2_parse_xml(2);
 }
 
 /*! @decl Node parse_html(string html, string|void name, string|void encoding)
@@ -788,8 +788,18 @@ PIKEFUN object parse_html(string html, string name)
 
 PIKEFUN object parse_html(string html)
 {
-  push_text("noname.html");
-  f_parse_html(2);
+  xmlDocPtr doc;
+
+  entity_loader = my_entity_loader;
+
+  //  xmlSetExternalEntityLoader(entity_loader);
+
+  doc = htmlReadMemory(html->str, html->len, "noname.html", 
+                      NULL, 
+                      THIS->object_data->html_parser_options);
+
+  handle_parsed_tree(doc, args);
+  
 }
 
 /*! @decl int validate(Node doc)
@@ -839,7 +849,7 @@ PIKEFUN object new_xml(string version, string root_name)
 {
   xmlDocPtr doc;
   xmlNodePtr node;
-  struct Node_struct * ns;
+  struct XML2_Node_struct * ns;
   NODE_OBJECT_DATA * od;
 
   // TODO: we need to encode this value!
@@ -864,7 +874,8 @@ PIKEFUN object new_xml(string version, string root_name)
   pop_stack();
 
   apply(Pike_fp->current_object, "Node", 0);
-  
+  if(TYPEOF(Pike_sp[0-1]) != T_OBJECT)
+    Pike_error("unable to create Node.\n");
   ns = OBJ2_NODE((Pike_sp[0-1].u.object));
   od = (NODE_OBJECT_DATA *)(ns->object_data);
 
@@ -885,7 +896,7 @@ PIKEFUN object new_xml(string version, string root_name)
 PIKEFUN object new_node(string name)
 {
   xmlNodePtr node;
-  struct Node_struct * ns;
+  struct XML2_Node_struct * ns;
   NODE_OBJECT_DATA * od;
 
   // TODO: we need to encode this value!
@@ -923,7 +934,11 @@ PIKEFUN object new_node(string name)
 PIKEFUN object parse_relaxng(string relaxng)
 {
   push_text("noname.rlx");
-  f_parse_relaxng(2);
+  // first, we must parse the xml file. conveniently, we have a function
+  // that does that already!
+  f_XML2_parse_xml(2);
+
+  handle_parse_relaxng(args);
 }
 
 PIKEFUN object parse_relaxng(object relaxng)
@@ -938,7 +953,7 @@ PIKEFUN object parse_relaxng(string relaxng, string name)
 {
   // first, we must parse the xml file. conveniently, we have a function
   // that does that already!
-  f_parse_xml(2);
+  f_XML2_parse_xml(2);
 
   handle_parse_relaxng(args);
 }
@@ -949,7 +964,7 @@ void handle_parse_relaxng(INT32 args)
   xmlDocPtr doc = NULL;
   xmlRelaxNGParserCtxtPtr parser;
   xmlRelaxNGPtr relax;
-  struct RelaxNG_struct * rn;
+  struct XML2_RelaxNG_struct * rn;
   RELAXNG_OBJECT_DATA * od;
 
   // we're going to hang on to the node object.
@@ -1023,7 +1038,10 @@ void handle_parse_relaxng(INT32 args)
 PIKEFUN object parse_xslt(string xslt)
 {
   push_text("noname.xsl");
-  f_parse_xslt(2);
+  // first, we must parse the xml file. conveniently, we have a function
+  // that does that already!
+  f_XML2_parse_xml(2);
+  handle_parse_stylesheet(args);
 }
 
 PIKEFUN object parse_xslt(object xslt)
@@ -1037,18 +1055,17 @@ PIKEFUN object parse_xslt(string xslt, string name)
 {
   // first, we must parse the xml file. conveniently, we have a function
   // that does that already!
-  f_parse_xml(2);
+  f_XML2_parse_xml(2);
 
   handle_parse_stylesheet(args);
 }
 
 void handle_parse_stylesheet(INT32 args)
 {
-#ifdef HAVE_LIBXSLT_XSLT_H
   struct object * node_obj = NULL;
   xsltStylesheetPtr sty = NULL;
   xmlDocPtr doc = NULL;
-  struct Stylesheet_struct * ss;
+  struct XML2_Stylesheet_struct * ss;
   STYLESHEET_OBJECT_DATA * od;
 
   // we're going to hang on to the node object.
@@ -1087,9 +1104,6 @@ void handle_parse_stylesheet(INT32 args)
 //  (*(OBJ2_NODE(node_obj)->object_data->refs))++;
   od->stylesheet = sty;
   ss->node = node_obj;
-#else
- Pike_error("XSLT is not available due to missing libxslt.\n");
-#endif /* HAVE_LIBXSLT_XSLT_H */
 }
 
 EXTRA
@@ -1104,7 +1118,7 @@ EXTRA
   xmlSetStructuredErrorFunc((void *)err_ctx, structured_handler);
 
   pike_init_xml2_constants();
-//  pike_init_xml2_html();
+  //pike_init_xml2_html();
   pike_init_xml2_node();
   pike_init_xml2_sax();
   pike_init_xml2_stylesheet();
@@ -1128,7 +1142,7 @@ INIT
   dta->auto_encode = 1;
   if(THIS != NULL && dta != NULL)
     THIS->object_data = dta;
- 
+
   LIBXML_TEST_VERSION
 }
 
@@ -1140,7 +1154,7 @@ EXIT
   pike_exit_xml2_stylesheet();
   pike_exit_xml2_sax();
   pike_exit_xml2_node();
-//  pike_exit_xml2_html();
+  //pike_exit_xml2_html();
   pike_exit_xml2_constants();
   
 #ifdef HAVE_XSLT
