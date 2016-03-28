@@ -1,5 +1,8 @@
 Version History
 
+Version 1.46
+- Fixes for Pike 8.0
+
 Version 1.44
 - Fixes for installations without libxslt.
 - Fix segfault on certain platforms caused by differences in variable
